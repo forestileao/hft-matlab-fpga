@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xmlns="http://www.fixprotocol.org/ns/fast/td/1.1"
+           templateNs="http://www.fixprotocol.org/ns/templates/sample"
+           ns="http://www.fixprotocol.org/ns/fix">
+  <template name="SimpleMD" id="100">
+    <typeRef name="MarketDataIncrementalRefresh"/>
+    <sequence name="MDEntries">
+      <length name="NoMDEntries" id="268"/>
+      <string name="Symbol" id="55">
+        <copy/>
+      </string>
+      <string name="Side" id="54">
+        <copy/>
+      </string>
+      <decimal name="Price" id="270">
+        <delta/>
+      </decimal>
+      <uInt32 name="Qty" id="38">
+        <delta/>
+      </uInt32>
+      <uInt32 name="SeqNo" id="83">
+        <increment/>
+      </uInt32>
+    </sequence>
+  </template>
+</templates>
