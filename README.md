@@ -134,7 +134,7 @@ Current top-level folders:
 
 - `matlab/` MATLAB models and HDL Coder assets
 - `vhdl/` generated/handwritten HDL modules and integration files
-- `c/` software baseline, utilities, and comparison tooling
+- `cpp/` software baseline, utilities, and comparison tooling
 
 ## References
 
