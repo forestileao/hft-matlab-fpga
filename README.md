@@ -136,6 +136,27 @@ Current top-level folders:
 - `vhdl/` generated/handwritten HDL modules and integration files
 - `cpp/` software baseline, utilities, and comparison tooling
 
+## Testing
+
+All tests run through Docker to avoid host dependency conflicts.
+
+```bash
+make cpp-test
+make vhdl-test
+make vhdl-test-fast
+```
+
+The VHDL simulation produces:
+
+- `vhdl/build/tb_arm_fpga_shared_stream_bridge.vcd`
+- `vhdl/build/tb_arm_fpga_shared_stream_bridge_fast.vcd`
+
+Open waveforms with:
+
+```bash
+make vhdl-wave
+```
+
 ## References
 
 1. Andrew Boutros, Brett Grady, Mustafa Abbas, and Paul Chow. _Build Fast, Trade Fast: FPGA-Based High-Frequency Trading Using High-Level Synthesis._ 2017 International Conference on ReConFigurable Computing and FPGAs (ReConFig), Cancun, Mexico, 2017.

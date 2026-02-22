@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 project(fast_flow)
 
 set(CMAKE_CXX_STANDARD 11)
+enable_testing()
 
 # Auto-detect local mFAST install produced by the repository Makefile target.
 set(_MFAST_LOCAL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/../mFAST/install")
@@ -34,3 +35,7 @@ target_link_libraries(fast_data_feed
     mfast_coder_static
     mfast_static
 )
+
+add_executable(fpga_shared_stream_test tests/fpga_shared_stream_test.cpp)
+target_include_directories(fpga_shared_stream_test PRIVATE src)
+add_test(NAME fpga_shared_stream_test COMMAND fpga_shared_stream_test)
