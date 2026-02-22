@@ -5,7 +5,9 @@ set(CMAKE_CXX_STANDARD 11)
 
 find_package(mFAST REQUIRED)
 
-add_executable(fast_receiver src/fast_receiver.cpp)
+
+FASTTYPEGEN_TARGET(SimpleMD src/templates/SimpleMD.xml)
+add_executable(fast_receiver ${FASTTYPEGEN_SimpleMD_OUTPUTS} src/fast_receiver.cpp)
 target_compile_definitions(fast_receiver PRIVATE
     TEMPLATE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/src/templates"
 )
