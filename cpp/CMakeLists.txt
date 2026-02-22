@@ -11,7 +11,9 @@ endif()
 
 find_package(mFAST REQUIRED)
 
-add_executable(fast_receiver src/fast_receiver.cpp)
+FASTTYPEGEN_TARGET(SimpleMD src/templates/SimpleMD.xml)
+
+add_executable(fast_receiver ${FASTTYPEGEN_SimpleMD_OUTPUTS} src/fast_receiver.cpp)
 target_include_directories(fast_receiver PRIVATE ${mFAST_INCLUDE_DIR})
 target_compile_definitions(fast_receiver PRIVATE
     TEMPLATE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/src/templates"
@@ -22,7 +24,6 @@ target_link_libraries(fast_receiver
     mfast_static
 )
 
-FASTTYPEGEN_TARGET(SimpleMD src/templates/SimpleMD.xml)
 add_executable(fast_data_feed ${FASTTYPEGEN_SimpleMD_OUTPUTS} src/fast_data_feed.cpp)
 target_include_directories(fast_data_feed PRIVATE ${mFAST_INCLUDE_DIR})
 target_compile_definitions(fast_data_feed PRIVATE
