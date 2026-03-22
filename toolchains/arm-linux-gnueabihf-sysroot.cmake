@@ -1,0 +1,36 @@
+set(CMAKE_SYSTEM_NAME Linux)
+set(CMAKE_SYSTEM_PROCESSOR arm)
+
+if(DEFINED HFT_SYSROOT AND NOT HFT_SYSROOT STREQUAL "")
+    set(CMAKE_SYSROOT "${HFT_SYSROOT}")
+endif()
+
+if(NOT DEFINED HFT_TOOLCHAIN_TRIPLET OR HFT_TOOLCHAIN_TRIPLET STREQUAL "")
+    set(HFT_TOOLCHAIN_TRIPLET "arm-linux-gnueabihf")
+endif()
+
+if(NOT DEFINED HFT_C_COMPILER OR HFT_C_COMPILER STREQUAL "")
+    set(HFT_C_COMPILER "${HFT_TOOLCHAIN_TRIPLET}-gcc")
+endif()
+
+if(NOT DEFINED HFT_CXX_COMPILER OR HFT_CXX_COMPILER STREQUAL "")
+    set(HFT_CXX_COMPILER "${HFT_TOOLCHAIN_TRIPLET}-g++")
+endif()
+
+set(CMAKE_C_COMPILER "${HFT_C_COMPILER}" CACHE STRING "C compiler" FORCE)
+set(CMAKE_CXX_COMPILER "${HFT_CXX_COMPILER}" CACHE STRING "CXX compiler" FORCE)
+
+# Avoid configure-time test executables that cannot run on the build host.
+set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
+
+if(DEFINED CMAKE_SYSROOT AND NOT CMAKE_SYSROOT STREQUAL "")
+    set(CMAKE_FIND_ROOT_PATH "${CMAKE_SYSROOT}")
+endif()
+
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+
+# Keep includes/packages flexible so header-only host packages such as Boost::headers
+# can still be discovered when the target sysroot does not ship CMake package files.
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)

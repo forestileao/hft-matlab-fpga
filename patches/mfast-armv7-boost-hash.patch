@@ -1,0 +1,26 @@
+diff --git a/src/mfast/decimal_ref.cpp b/src/mfast/decimal_ref.cpp
+index 8dfcfc0..048eba0 100644
+--- a/src/mfast/decimal_ref.cpp
++++ b/src/mfast/decimal_ref.cpp
+@@ -5,6 +5,7 @@
+ // See the file license.txt for licensing information.
+ #include <boost/multiprecision/number.hpp>
+ #include <boost/multiprecision/cpp_dec_float.hpp>
++#include <cstddef>
+ 
+ template class boost::multiprecision::backends::cpp_dec_float<18>;
+ 
+@@ -16,9 +17,9 @@ template class boost::multiprecision::backends::cpp_dec_float<18>;
+ #pragma warning(disable: 4667)  //  no function template defined that matches forced instantiation
+ #else
+ // This doesn't work in MSVC, but apparently it isn't needed.
+-template void boost::hash_combine<boost::multiprecision::backends::cpp_dec_float<18u, int, void>::enum_fpclass_type>(unsigned long&, boost::multiprecision::backends::cpp_dec_float<18u, int, void>::enum_fpclass_type const&);
++template void boost::hash_combine<boost::multiprecision::backends::cpp_dec_float<18u, int, void>::enum_fpclass_type>(std::size_t&, boost::multiprecision::backends::cpp_dec_float<18u, int, void>::enum_fpclass_type const&);
+ #endif
+-template void boost::hash_combine<bool>(unsigned long&, bool const&);
+-template void boost::hash_combine<int>(unsigned long&, int const&);
+-template void boost::hash_combine<unsigned int>(unsigned long&, unsigned int const&);
++template void boost::hash_combine<bool>(std::size_t&, bool const&);
++template void boost::hash_combine<int>(std::size_t&, int const&);
++template void boost::hash_combine<unsigned int>(std::size_t&, unsigned int const&);
+ #endif

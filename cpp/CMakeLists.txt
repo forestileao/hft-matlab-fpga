@@ -5,12 +5,24 @@ set(CMAKE_CXX_STANDARD 11)
 enable_testing()
 
 # Auto-detect local mFAST install produced by the repository Makefile target.
+# Keep this native-only so cross builds can supply their own package path.
 set(_MFAST_LOCAL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/../mFAST/install")
-if(EXISTS "${_MFAST_LOCAL_PREFIX}/lib/cmake/mFAST/mFASTConfig.cmake")
+if(NOT CMAKE_CROSSCOMPILING
+   AND EXISTS "${_MFAST_LOCAL_PREFIX}/lib/cmake/mFAST/mFASTConfig.cmake")
     list(PREPEND CMAKE_PREFIX_PATH "${_MFAST_LOCAL_PREFIX}")
 endif()
 
 find_package(mFAST REQUIRED)
+
+if(DEFINED MFAST_FAST_TYPE_GEN_EXECUTABLE)
+    if(NOT TARGET fast_type_gen)
+        add_executable(fast_type_gen IMPORTED GLOBAL)
+    endif()
+    set_target_properties(fast_type_gen PROPERTIES
+        IMPORTED_LOCATION "${MFAST_FAST_TYPE_GEN_EXECUTABLE}"
+        IMPORTED_LOCATION_RELEASE "${MFAST_FAST_TYPE_GEN_EXECUTABLE}"
+    )
+endif()
 
 FASTTYPEGEN_TARGET(SimpleMD src/templates/SimpleMD.xml)
 

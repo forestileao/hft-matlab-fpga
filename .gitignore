@@ -1,4 +1,18 @@
+# Third-party checkout
 mFAST/
-cpp/build
-vhdl/build
+
+# C++ build trees
+cpp/build/
+cpp/build-*/
+
+# Common CMake byproducts
+**/CMakeCache.txt
+**/CMakeFiles/
+**/CTestTestfile.cmake
+**/cmake_install.cmake
+**/compile_commands.json
+
+# VHDL simulation/build outputs
+vhdl/build/
+*.vcd
 work-obj08.cf
