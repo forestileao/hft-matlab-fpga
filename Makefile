@@ -7,6 +7,17 @@ DOCKER_PLATFORM ?=
 DOCKER_PLATFORM_ARG := $(if $(DOCKER_PLATFORM),--platform $(DOCKER_PLATFORM),)
 ARMV7_PLATFORM ?= linux/arm/v7
 ARMV7_DOCKER_IMAGE ?= hft-mfast-builder-armv7:latest
+DE10_HOST ?= root@192.168.7.1
+DE10_HOME ?= /home/root
+DE10_SYSROOT ?= /tmp/de10nano-sysroot
+DE10_TOOLCHAIN_NAME ?= armv7-eabihf--glibc--bleeding-edge-2017.05-toolchains-1-2
+DE10_TOOLCHAIN_URL ?= https://toolchains.bootlin.com/downloads/releases/toolchains/armv7-eabihf/tarballs/$(DE10_TOOLCHAIN_NAME).tar.bz2
+DE10_TOOLCHAIN_ARCHIVE ?= .toolchain-cache/$(DE10_TOOLCHAIN_NAME).tar.bz2
+DE10_TOOLCHAIN_DIR ?= .toolchains/armv7-eabihf--glibc--bleeding-edge
+DE10_CROSS_TRIPLET ?= arm-buildroot-linux-gnueabihf
+DE10_MFAST_BUILD_DIR ?= $(MFAST_DIR)/build-cross-de10
+DE10_MFAST_INSTALL_DIR ?= $(MFAST_DIR)/install-cross-de10
+DE10_CPP_BUILD_DIR ?= $(CPP_DIR)/build-cross-de10
 
 MFAST_REPO ?= https://github.com/objectcomputing/mFAST.git
 MFAST_DIR ?= mFAST
@@ -24,6 +35,8 @@ CROSS_CC ?= $(CROSS_TRIPLET)-gcc
 CROSS_CXX ?= $(CROSS_TRIPLET)-g++
 CROSS_SYSROOT ?=
 CROSS_SYSROOT_MOUNT ?= /opt/target-sysroot
+CROSS_TOOLCHAIN_DIR ?=
+CROSS_TOOLCHAIN_MOUNT ?= /opt/external-toolchain
 CROSS_CMAKE_FLAGS ?=
 VHDL_DIR ?= vhdl
 VHDL_BUILD_DIR ?= $(VHDL_DIR)/build
@@ -44,11 +57,21 @@ CROSS_TOOLCHAIN_FLAGS := -DCMAKE_TOOLCHAIN_FILE=$(CURDIR)/$(CROSS_TOOLCHAIN_FILE
 	-DHFT_CXX_COMPILER=$(CROSS_CXX) \
 	$(if $(CROSS_SYSROOT),-DHFT_SYSROOT=$(CROSS_SYSROOT_MOUNT),)
 CROSS_SYSROOT_VOLUME := $(if $(CROSS_SYSROOT),-v "$(abspath $(CROSS_SYSROOT)):$(CROSS_SYSROOT_MOUNT):ro",)
+CROSS_TOOLCHAIN_VOLUME := $(if $(CROSS_TOOLCHAIN_DIR),-v "$(abspath $(CROSS_TOOLCHAIN_DIR)):$(CROSS_TOOLCHAIN_MOUNT):ro",)
+CROSS_TOOLCHAIN_ENV := $(if $(CROSS_TOOLCHAIN_DIR),PATH=$(CROSS_TOOLCHAIN_MOUNT)/bin:$$PATH,)
 
-.PHONY: help docker-image docker-image-cross-armhf mfast-clone mfast-patch mfast-configure mfast-build mfast-install mfast-rebuild mfast-clean mfast-cross-configure mfast-cross-build mfast-cross-install cpp-configure cpp-build cpp-test cpp-test-armv7 cpp-cross-configure cpp-cross-build cpp-cross-abi cpp-clean vhdl-test vhdl-test-fast vhdl-wave vhdl-clean docker-shell docker-shell-cross-armhf
+.PHONY: help docker-image docker-image-cross-armhf mfast-clone mfast-patch mfast-configure mfast-build mfast-install mfast-rebuild mfast-clean mfast-cross-configure mfast-cross-build mfast-cross-install cpp-configure cpp-build cpp-test cpp-test-armv7 cpp-cross-configure cpp-cross-build cpp-cross-abi cpp-clean vhdl-test vhdl-test-fast vhdl-wave vhdl-clean docker-shell docker-shell-cross-armhf de10-toolchain de10-sysroot de10-setup de10-build de10-abi de10-copy de10-stop de10-smoke
 
 help:
 	@echo "Targets:"
+	@echo "  de10-toolchain  Download/extract the tested DE10-Nano ARM toolchain"
+	@echo "  de10-sysroot    Pull /lib + /usr/lib + /usr/include from $(DE10_HOST)"
+	@echo "  de10-setup      Prepare both the toolchain and local sysroot"
+	@echo "  de10-build      Build ARM binaries for the DE10-Nano target"
+	@echo "  de10-abi        Print ABI requirements for the DE10-Nano build"
+	@echo "  de10-copy       Copy DE10-Nano binaries to $(DE10_HOST):$(DE10_HOME)"
+	@echo "  de10-stop       Stop fast_receiver and fast_data_feed on the DE10-Nano"
+	@echo "  de10-smoke      Start both binaries briefly on the DE10-Nano"
 	@echo "  docker-image    Build the Docker image with C++/CMake/Boost toolchain"
 	@echo "  docker-image-cross-armhf Build the cross-compiler image for ARM hard-float"
 	@echo "  mfast-clone     Clone mFAST recursively if missing; always sync submodules"
@@ -81,6 +104,52 @@ docker-image:
 
 docker-image-cross-armhf:
 	$(DOCKER) build -t $(DOCKER_IMAGE_CROSS_ARMHF) -f Dockerfile.cross-armhf .
+
+de10-toolchain:
+	mkdir -p ".toolchains" ".toolchain-cache"
+	@if [ ! -f "$(DE10_TOOLCHAIN_ARCHIVE)" ]; then \
+		curl -L --fail -o "$(DE10_TOOLCHAIN_ARCHIVE)" "$(DE10_TOOLCHAIN_URL)"; \
+	fi
+	@if [ ! -d "$(DE10_TOOLCHAIN_DIR)" ]; then \
+		tar -C ".toolchains" -xf "$(DE10_TOOLCHAIN_ARCHIVE)"; \
+	fi
+
+de10-sysroot: docker-image-cross-armhf
+	rm -rf "$(DE10_SYSROOT)"
+	mkdir -p "$(DE10_SYSROOT)"
+	ssh "$(DE10_HOST)" 'tar -C / -cf - lib usr/lib usr/include' | tar -C "$(DE10_SYSROOT)" -xf -
+	docker run --rm "$(DOCKER_IMAGE_CROSS_ARMHF)" bash -lc 'tar -C /usr/include -cf - boost' | tar -C "$(DE10_SYSROOT)/usr/include" -xf -
+
+de10-setup: de10-toolchain de10-sysroot
+
+de10-build: de10-setup
+	$(MAKE) cpp-cross-build \
+		CROSS_SYSROOT="$(DE10_SYSROOT)" \
+		CROSS_TOOLCHAIN_DIR="$(CURDIR)/$(DE10_TOOLCHAIN_DIR)" \
+		CROSS_TRIPLET="$(DE10_CROSS_TRIPLET)" \
+		CROSS_MFAST_BUILD_DIR="$(DE10_MFAST_BUILD_DIR)" \
+		CROSS_MFAST_INSTALL_DIR="$(DE10_MFAST_INSTALL_DIR)" \
+		CROSS_CPP_BUILD_DIR="$(DE10_CPP_BUILD_DIR)" \
+		JOBS="$(JOBS)"
+
+de10-abi: de10-build
+	$(MAKE) cpp-cross-abi \
+		CROSS_SYSROOT="$(DE10_SYSROOT)" \
+		CROSS_TOOLCHAIN_DIR="$(CURDIR)/$(DE10_TOOLCHAIN_DIR)" \
+		CROSS_TRIPLET="$(DE10_CROSS_TRIPLET)" \
+		CROSS_MFAST_BUILD_DIR="$(DE10_MFAST_BUILD_DIR)" \
+		CROSS_MFAST_INSTALL_DIR="$(DE10_MFAST_INSTALL_DIR)" \
+		CROSS_CPP_BUILD_DIR="$(DE10_CPP_BUILD_DIR)" \
+		JOBS="$(JOBS)"
+
+de10-copy: de10-build
+	scp "$(DE10_CPP_BUILD_DIR)/fast_receiver" "$(DE10_CPP_BUILD_DIR)/fast_data_feed" "$(DE10_HOST):$(DE10_HOME)/"
+
+de10-stop:
+	ssh "$(DE10_HOST)" 'killall fast_receiver fast_data_feed >/dev/null 2>&1 || true'
+
+de10-smoke: de10-copy
+	ssh "$(DE10_HOST)" 'cd "$(DE10_HOME)" && chmod +x fast_receiver fast_data_feed && ./fast_data_feed >/dev/null 2>&1 & feed_pid=$$!; ./fast_receiver >/dev/null 2>&1 & rx_pid=$$!; sleep 1; ps | grep -E "(fast_data_feed|fast_receiver)" | grep -v grep; kill $$rx_pid $$feed_pid >/dev/null 2>&1 || true; wait $$rx_pid >/dev/null 2>&1 || true; wait $$feed_pid >/dev/null 2>&1 || true'
 
 mfast-clone:
 	@if [ ! -d "$(MFAST_DIR)/.git" ]; then \
@@ -128,28 +197,31 @@ mfast-cross-configure: docker-image-cross-armhf mfast-patch
 	$(DOCKER) run --rm \
 		-u $(UID):$(GID) \
 		$(CROSS_SYSROOT_VOLUME) \
+		$(CROSS_TOOLCHAIN_VOLUME) \
 		-v "$(CURDIR):$(CURDIR)" \
 		-w "$(CURDIR)" \
 		$(DOCKER_IMAGE_CROSS_ARMHF) \
-		bash -lc "cmake -S $(MFAST_DIR) -B $(CROSS_MFAST_BUILD_DIR) $(MFAST_CMAKE_FLAGS) $(CROSS_TOOLCHAIN_FLAGS) $(CROSS_CMAKE_FLAGS)"
+		bash -lc "$(CROSS_TOOLCHAIN_ENV) cmake -S $(MFAST_DIR) -B $(CROSS_MFAST_BUILD_DIR) $(MFAST_CMAKE_FLAGS) $(CROSS_TOOLCHAIN_FLAGS) $(CROSS_CMAKE_FLAGS)"
 
 mfast-cross-build: mfast-cross-configure
 	$(DOCKER) run --rm \
 		-u $(UID):$(GID) \
 		$(CROSS_SYSROOT_VOLUME) \
+		$(CROSS_TOOLCHAIN_VOLUME) \
 		-v "$(CURDIR):$(CURDIR)" \
 		-w "$(CURDIR)" \
 		$(DOCKER_IMAGE_CROSS_ARMHF) \
-		bash -lc "cmake --build $(CROSS_MFAST_BUILD_DIR) --parallel $(JOBS)"
+		bash -lc "$(CROSS_TOOLCHAIN_ENV) cmake --build $(CROSS_MFAST_BUILD_DIR) --parallel $(JOBS)"
 
 mfast-cross-install: mfast-cross-build
 	$(DOCKER) run --rm \
 		-u $(UID):$(GID) \
 		$(CROSS_SYSROOT_VOLUME) \
+		$(CROSS_TOOLCHAIN_VOLUME) \
 		-v "$(CURDIR):$(CURDIR)" \
 		-w "$(CURDIR)" \
 		$(DOCKER_IMAGE_CROSS_ARMHF) \
-		bash -lc "cmake --install $(CROSS_MFAST_BUILD_DIR) --prefix $(CURDIR)/$(CROSS_MFAST_INSTALL_DIR)"
+		bash -lc "$(CROSS_TOOLCHAIN_ENV) cmake --install $(CROSS_MFAST_BUILD_DIR) --prefix $(CURDIR)/$(CROSS_MFAST_INSTALL_DIR)"
 
 mfast-rebuild: mfast-clean mfast-build
 
@@ -190,27 +262,30 @@ cpp-cross-configure: docker-image-cross-armhf mfast-cross-install mfast-install
 	$(DOCKER) run --rm \
 		-u $(UID):$(GID) \
 		$(CROSS_SYSROOT_VOLUME) \
+		$(CROSS_TOOLCHAIN_VOLUME) \
 		-v "$(CURDIR):$(CURDIR)" \
 		-w "$(CURDIR)" \
 		$(DOCKER_IMAGE_CROSS_ARMHF) \
-		bash -lc "cmake -S $(CPP_DIR) -B $(CROSS_CPP_BUILD_DIR) -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$(CURDIR)/$(CROSS_MFAST_INSTALL_DIR) -DmFAST_DIR=$(CURDIR)/$(CROSS_MFAST_INSTALL_DIR)/lib/cmake/mFAST -DMFAST_FAST_TYPE_GEN_EXECUTABLE=$(CURDIR)/$(MFAST_INSTALL_DIR)/bin/fast_type_gen $(CROSS_TOOLCHAIN_FLAGS) $(CROSS_CMAKE_FLAGS)"
+		bash -lc "$(CROSS_TOOLCHAIN_ENV) cmake -S $(CPP_DIR) -B $(CROSS_CPP_BUILD_DIR) -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$(CURDIR)/$(CROSS_MFAST_INSTALL_DIR) -DmFAST_DIR=$(CURDIR)/$(CROSS_MFAST_INSTALL_DIR)/lib/cmake/mFAST -DMFAST_FAST_TYPE_GEN_EXECUTABLE=$(CURDIR)/$(MFAST_INSTALL_DIR)/bin/fast_type_gen $(CROSS_TOOLCHAIN_FLAGS) $(CROSS_CMAKE_FLAGS)"
 
 cpp-cross-build: cpp-cross-configure
 	$(DOCKER) run --rm \
 		-u $(UID):$(GID) \
 		$(CROSS_SYSROOT_VOLUME) \
+		$(CROSS_TOOLCHAIN_VOLUME) \
 		-v "$(CURDIR):$(CURDIR)" \
 		-w "$(CURDIR)" \
 		$(DOCKER_IMAGE_CROSS_ARMHF) \
-		bash -lc "cmake --build $(CROSS_CPP_BUILD_DIR) --parallel $(JOBS)"
+		bash -lc "$(CROSS_TOOLCHAIN_ENV) cmake --build $(CROSS_CPP_BUILD_DIR) --parallel $(JOBS)"
 
 cpp-cross-abi: cpp-cross-build
 	$(DOCKER) run --rm \
 		-u $(UID):$(GID) \
+		$(CROSS_TOOLCHAIN_VOLUME) \
 		-v "$(CURDIR):$(CURDIR)" \
 		-w "$(CURDIR)" \
 		$(DOCKER_IMAGE_CROSS_ARMHF) \
-		bash -lc "echo '== file ==' && file $(CROSS_CPP_BUILD_DIR)/fast_receiver && echo && echo '== needed ==' && readelf -d $(CROSS_CPP_BUILD_DIR)/fast_receiver | sed -n '1,120p' && echo && echo '== versions ==' && readelf --version-info $(CROSS_CPP_BUILD_DIR)/fast_receiver | sed -n '1,220p'"
+		bash -lc "$(CROSS_TOOLCHAIN_ENV) echo '== file ==' && file $(CROSS_CPP_BUILD_DIR)/fast_receiver && echo && echo '== needed ==' && readelf -d $(CROSS_CPP_BUILD_DIR)/fast_receiver | sed -n '1,120p' && echo && echo '== versions ==' && readelf --version-info $(CROSS_CPP_BUILD_DIR)/fast_receiver | sed -n '1,220p'"
 
 cpp-clean:
 	rm -rf "$(CPP_BUILD_DIR)"
@@ -256,7 +331,8 @@ docker-shell-cross-armhf: docker-image-cross-armhf
 	$(DOCKER) run --rm -it \
 		-u $(UID):$(GID) \
 		$(CROSS_SYSROOT_VOLUME) \
+		$(CROSS_TOOLCHAIN_VOLUME) \
 		-v "$(CURDIR):$(CURDIR)" \
 		-w "$(CURDIR)" \
 		$(DOCKER_IMAGE_CROSS_ARMHF) \
-		bash
+		bash -lc "$(CROSS_TOOLCHAIN_ENV) exec bash"

@@ -13,6 +13,7 @@ if(NOT CMAKE_CROSSCOMPILING
 endif()
 
 find_package(mFAST REQUIRED)
+find_package(Threads REQUIRED)
 
 if(DEFINED MFAST_FAST_TYPE_GEN_EXECUTABLE)
     if(NOT TARGET fast_type_gen)
@@ -46,6 +47,8 @@ target_link_libraries(fast_data_feed
     mfast_xml_parser_static
     mfast_coder_static
     mfast_static
+    Threads::Threads
+    pthread
 )
 
 add_executable(fpga_shared_stream_test tests/fpga_shared_stream_test.cpp)

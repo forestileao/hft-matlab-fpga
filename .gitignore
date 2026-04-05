@@ -1,5 +1,7 @@
 # Third-party checkout
 mFAST/
+.toolchains/
+.toolchain-cache/
 
 # C++ build trees
 cpp/build/

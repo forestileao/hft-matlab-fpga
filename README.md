@@ -1,163 +1,143 @@
-# Low-Cost High-Frequency Trading System with FPGA HLS
+# DE10-Nano Quick Start
 
-## Team
+This repository is a small FPGA trading-system prototype for the Intel DE10-Nano.
 
-- **Students:** Pedro F. Leao, Lucas P. Flores
-- **Advisor:** Carlos Raimundo Erig Lima
-- **Project Start:** April 2025
+At a high level, the project combines:
 
-## Overview
+- `cpp/`: ARM-side programs that generate and receive a simplified FAST-style market data feed
+- `vhdl/`: FPGA-side shared-stream bridge logic and testbenches
+- `matlab/`: MATLAB project files used for modeling and HDL-oriented work
 
-Modern financial markets require ultra-low-latency trading systems, where microseconds can materially impact performance. Traditional software-based high-frequency trading (HFT) systems are constrained by sequential CPU execution, operating system overhead, and limited parallelism.
+The current software flow lets the ARM processor on the DE10-Nano:
 
-This project proposes a **low-cost FPGA-based HFT platform** using **MATLAB HDL Coder** targeting the **Intel Cyclone V DE10-Nano**. The goal is to evaluate whether hardware-native parallelism can provide deterministic low latency and strong throughput compared with software-only approaches.
+- run a sample market data feed server
+- receive and decode FAST messages
+- optionally forward decoded frames through the FPGA MMIO shared-stream bridge
 
-## Problem Statement
+This README focuses on the shortest path to build and deploy the C++ binaries for the DE10-Nano target.
 
-Conventional HFT implementations face several limitations:
+## Default Target
 
-- High latency due to sequential CPU processing
-- Non-deterministic overhead from operating systems
-- Parallelism limits from von Neumann architectures
-- High cost of specialized commercial FPGA solutions
+The Makefile is preconfigured for:
 
-These limitations motivate an alternative architecture based on FPGA parallelism and timing determinism, combined with modern high-level synthesis (HLS) tools that lower development complexity.
+- board: `root@192.168.7.1`
+- remote home: `/home/root`
+- local sysroot: `/tmp/de10nano-sysroot`
 
-## Objectives
+If your board IP changes, override `DE10_HOST`, for example:
 
-The main objective is to design and validate an automated FPGA HFT system using MATLAB-to-HDL code generation.
+```bash
+make de10-build DE10_HOST=root@192.168.7.42
+```
 
-### Specific Goals
+## One-Time Setup
 
-- Implement an automated hardware-parallel trading pipeline on DE10-Nano
-- Convert MATLAB algorithms into optimized HDL with HDL Coder
-- Build a modular architecture including:
-  - Financial protocol handling (FIX/FAST study and simplified integration)
-  - Order book processing
-  - Trading decision engine
-- Benchmark performance against software implementations and reported literature results
+Download the tested old ARM toolchain and pull a sysroot from the board:
 
-## Related Work
+```bash
+make de10-setup
+```
 
-- **Boutros et al. (2017)**: FPGA-based HFT using HLS, showing significant latency reduction versus software-only systems.
-- **Leber et al. (2011)**: FPGA acceleration for HFT with sub-microsecond latency in critical pipeline stages.
+This does two things:
 
-These studies support the feasibility of FPGA acceleration for market data processing and order execution logic.
+- downloads the older Bootlin ARM toolchain into `.toolchains/`
+- copies `/lib`, `/usr/lib`, and `/usr/include` from the board into `/tmp/de10nano-sysroot`
 
-## Methodology
+Rerunning `make de10-sysroot` or `make de10-setup` refreshes the local sysroot copy from scratch.
 
-The project is structured in four phases:
+## Build For The Board
 
-1. **Literature Review**
+```bash
+make de10-build
+```
 
-   - Study FPGA-HFT systems and required financial protocols (FIX, FAST)
+Binaries are written to:
 
-2. **Environment and Platform Setup**
+- `cpp/build-cross-de10/fast_receiver`
+- `cpp/build-cross-de10/fast_data_feed`
 
-   - Configure MATLAB HDL Coder toolchain
-   - Analyze Intel Cyclone V DE10-Nano capabilities and constraints
+## Check ABI
 
-3. **System Development**
+```bash
+make de10-abi
+```
 
-   - Market data feed simulator via Ethernet
-   - Simplified hardware-optimized order book processor
-   - Trading decision engine
-   - Latency/throughput analysis module
+Use this if you want to confirm the binary still matches the board runtime.
 
-4. **Validation and Comparison**
-   - Stress and functional testing
-   - Performance comparison with software baselines and literature references
+## Copy To The Board
 
-## Proposed Architecture
+```bash
+make de10-copy
+```
 
-The initial architecture is modular and pipeline-oriented:
+This copies both binaries to:
 
-1. **Market Data Input Module**
-2. **Protocol Parser / Message Normalization**
-3. **Order Book Update Engine**
-4. **Strategy Decision Engine**
-5. **Order Output / Execution Interface**
-6. **Metrics and Instrumentation Module**
+- `/home/root/fast_receiver`
+- `/home/root/fast_data_feed`
 
-This structure allows independent optimization and synthesis of critical path components.
+## Smoke Test On The Board
 
-## Evaluation Plan
+```bash
+make de10-smoke
+```
 
-Evaluation is based on three dimensions: correctness, latency determinism, and throughput scalability.
+This starts both programs briefly on the board and prints the running processes.
 
-### Test Procedures
+## Stop The Programs On The Board
 
-- Simulated market feeds with varying message rates
-- Order book integrity validation under continuous updates
-- Throughput stress tests for maximum sustainable rate
+```bash
+make de10-stop
+```
 
-### Core Metrics
+## Manual Run
 
-- End-to-end latency (message reception to order decision/output)
-- Market message throughput
-- FPGA resource utilization (LUTs, registers, BRAM)
-- Jitter of internal FPGA processing latency
+Start the feed:
 
-## Expected Results
+```bash
+ssh root@192.168.7.1 'cd /home/root && ./fast_data_feed'
+```
 
-- Functional FPGA HFT prototype with hardware-native parallelism
-- Demonstration of MATLAB HDL Coder feasibility for critical financial workloads
-- Comparative latency/throughput analysis across implementation approaches
-- Cost-benefit assessment of low-cost FPGA platforms for HFT research and education
+Start the receiver:
 
-## Feasibility and Constraints
+```bash
+ssh root@192.168.7.1 'cd /home/root && ./fast_receiver'
+```
 
-- **Budget:** low, based on DE10-Nano and academic MATLAB licenses
-- **Infrastructure:** development workstation + FPGA board
-- **Main risks:** timing closure complexity and limited low-cost FPGA resources
-- **Ethics:** not applicable for real trading impact, since only simulated market data is used
+Stop both:
 
-## Expected Impact
+```bash
+ssh root@192.168.7.1 'killall fast_receiver fast_data_feed >/dev/null 2>&1 || true'
+```
 
-- **Technological:** practical evidence of modern HLS use in latency-critical finance
-- **Educational:** support for teaching embedded systems and high-performance finance
-- **Economic:** lower-cost path for HFT prototyping
-- **Scientific:** insights into hardware parallelism for real-time market data processing
+If you want the FPGA MMIO path enabled:
 
-## Deliverables
+```bash
+ssh root@192.168.7.1 'cd /home/root && HFT_FPGA_MMIO_BASE=0xFF200000 ./fast_receiver'
+```
 
-For the first stage (TCC1), expected deliverables include:
+## Useful Extra Commands
 
-- Consolidated literature review on HFT and FPGA systems
-- Full technical specification of the proposed architecture
-- Functional prototype of network and order book base modules
-- Technical feasibility report for the selected platform
-
-## Repository Structure
-
-Current top-level folders:
-
-- `matlab/` MATLAB models and HDL Coder assets
-- `vhdl/` generated/handwritten HDL modules and integration files
-- `cpp/` software baseline, utilities, and comparison tooling
-
-## Testing
-
-All tests run through Docker to avoid host dependency conflicts.
+Host-side C++ test:
 
 ```bash
 make cpp-test
+```
+
+ARM emulation check:
+
+```bash
+make cpp-test-armv7
+```
+
+VHDL testbench:
+
+```bash
 make vhdl-test
 make vhdl-test-fast
 ```
 
-The VHDL simulation produces:
+## Notes
 
-- `vhdl/build/tb_arm_fpga_shared_stream_bridge.vcd`
-- `vhdl/build/tb_arm_fpga_shared_stream_bridge_fast.vcd`
-
-Open waveforms with:
-
-```bash
-make vhdl-wave
-```
-
-## References
-
-1. Andrew Boutros, Brett Grady, Mustafa Abbas, and Paul Chow. _Build Fast, Trade Fast: FPGA-Based High-Frequency Trading Using High-Level Synthesis._ 2017 International Conference on ReConFigurable Computing and FPGAs (ReConFig), Cancun, Mexico, 2017.
-2. Christian Leber, Benjamin Geib, and Heiner Litz. _High Frequency Trading Acceleration Using FPGAs._ 2011 21st International Conference on Field Programmable Logic and Applications, Chania, Greece, 2011.
+- The stock Ubuntu ARM cross-compiler is too new for the DE10-Nano Angstrom image.
+- The Makefile uses an older Bootlin toolchain automatically through `make de10-*`.
+- `patches/mfast-armv7-boost-hash.patch` is still required for 32-bit ARM `mFAST` builds.
