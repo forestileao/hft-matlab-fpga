@@ -3,6 +3,7 @@
 This document describes the shared-memory streaming block used by:
 - ARM software (`cpp/src/fast_receiver.cpp`, `cpp/src/fpga_shared_stream.h`)
 - FPGA bridge logic (`vhdl/arm_fpga_shared_stream_bridge.vhd`)
+- FPGA decision wrapper (`vhdl/hft_trade_engine.vhd`, `vhdl/trade_decision_core.vhd`)
 
 It also explains how to validate results from registers/waveforms.
 
@@ -44,6 +45,14 @@ FAST TCP feed ->| fast_receiver.cpp                            |
           |   cmd_valid/cmd_data  --->  FPGA pipeline input           |
           |   rsp_valid/rsp_data  <---  FPGA pipeline output          |
           +-----------------------------------------------------------+
+                                      |
+                                      v
+                +----------------------------------------------+
+                |      trade_decision_core / hft_trade_engine  |
+                |  - decodes market frame                      |
+                |  - decides NOOP / BUY / SELL                 |
+                |  - writes 128-bit response frame             |
+                +----------------------------------------------+
 ```
 
 ## 3. Ring Model
@@ -149,7 +158,25 @@ rsp_ready ---------/----\------------ (deasserts when RX full)
 transfer      X
 ```
 
-## 8. How To Validate On Hardware
+## 8. Response Payload
+
+The current FPGA decision wrapper returns:
+
+- `word0`: echoed sequence number
+- `word1`: action code
+  - `0 = NOOP`
+  - `1 = BUY`
+  - `2 = SELL`
+- `word2`: echoed fixed-point price (`price * 1e4`)
+- `word3`: echoed quantity
+
+This is the frame shape consumed by `fast_receiver.cpp` when it prints:
+
+```text
+[FPGA->ARM] seq=... action=BUY|SELL|NOOP price_1e4=... qty=...
+```
+
+## 9. How To Validate On Hardware
 
 Minimal runtime checks:
 1. Read `MAGIC` and `VERSION`.
@@ -173,7 +200,7 @@ Quick interpretation of `STATUS`:
 - bit2 `1`: RX has unread data
 - bit3 `1`: RX ring full (FPGA backpressured)
 
-## 9. Testbenches Available
+## 10. Testbenches Available
 
 Basic functional TB:
 - `vhdl/tb_arm_fpga_shared_stream_bridge.vhd`
@@ -184,11 +211,17 @@ Burst/FAST-like TB:
 - validates burst traffic, backpressure, wrap-around, and order
 - command: `make vhdl-test-fast VHDL_STOP_TIME=200us`
 
+End-to-end bridge + strategy TB:
+- `vhdl/tb_hft_trade_engine.vhd`
+- validates ARM-style TX publishes, FPGA decisions, RX responses, and action codes
+- command: `make vhdl-test-engine`
+
 Wave files:
 - `vhdl/build/tb_arm_fpga_shared_stream_bridge.vcd`
 - `vhdl/build/tb_arm_fpga_shared_stream_bridge_fast.vcd`
+- `vhdl/build/tb_hft_trade_engine.vcd`
 
-## 10. Common Failure Patterns
+## 11. Common Failure Patterns
 
 If results look wrong, check:
 1. Using fixed `0x500` RX base with non-default `DEPTH`.
@@ -196,3 +229,4 @@ If results look wrong, check:
 3. Updating `RX_TAIL` before reading all 4 RX words.
 4. Writing more than ring capacity without draining (`DEPTH-1` effective usable entries).
 5. Endianness assumptions when decoding packed `word1`.
+6. Mismatch between strategy response frame format and what `fast_receiver.cpp` expects.

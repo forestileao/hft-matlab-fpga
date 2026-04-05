@@ -1,22 +1,57 @@
-# DE10-Nano Quick Start
+# HFT FPGA Prototype
 
-This repository is a small FPGA trading-system prototype for the Intel DE10-Nano.
+This repository is a small FPGA-assisted trading prototype for the Intel DE10-Nano.
 
 At a high level, the project combines:
 
 - `cpp/`: ARM-side programs that generate and receive a simplified FAST-style market data feed
-- `vhdl/`: FPGA-side shared-stream bridge logic and testbenches
-- `matlab/`: MATLAB project files used for modeling and HDL-oriented work
+- `vhdl/`: FPGA-side shared-stream bridge, a simple trade-decision engine, and testbenches
+- `matlab/`: MATLAB project files and a matching placeholder strategy model for HDL-oriented work
 
-The current software flow lets the ARM processor on the DE10-Nano:
+The implemented pipeline today is:
 
 - run a sample market data feed server
 - receive and decode FAST messages
-- optionally forward decoded frames through the FPGA MMIO shared-stream bridge
+- forward decoded 128-bit frames through the FPGA MMIO shared-stream bridge
+- have FPGA logic return `NOOP`, `BUY`, or `SELL`
+- print those decisions back on the ARM side
 
-This README focuses on the shortest path to build and deploy the C++ binaries for the DE10-Nano target.
+The current FPGA strategy is intentionally simple:
 
-## Default Target
+- `BUY` when side is buy and quantity is at least `2000`
+- `SELL` when side is sell and quantity is at least `2000`
+- otherwise `NOOP`
+
+That rule is implemented in both:
+
+- `vhdl/trade_decision_core.vhd`
+- `matlab/trade_decision_model.m`
+
+This keeps the interface stable while leaving a clean place to swap in a future MATLAB-generated HDL block.
+
+## Quick Test
+
+Run the full host-side sanity pass:
+
+```bash
+make check
+```
+
+That runs:
+
+- `cpp-test`: C++ MMIO wrapper test
+- `cpp-smoke`: `fast_data_feed` + `fast_receiver` together in Docker
+- `vhdl-test-all`: bridge-only, stress, and end-to-end strategy simulations
+
+If you want only the new end-to-end FPGA-path simulation:
+
+```bash
+make vhdl-test-engine
+```
+
+The VCD lands in `vhdl/build/tb_hft_trade_engine.vcd`.
+
+## DE10-Nano Target
 
 The Makefile is preconfigured for:
 
@@ -83,6 +118,18 @@ make de10-smoke
 
 This starts both programs briefly on the board and prints the running processes.
 
+To run the receiver against FPGA logic loaded in the fabric, set the MMIO base on the board:
+
+```bash
+ssh root@192.168.7.1 'cd /home/root && HFT_FPGA_MMIO_BASE=0xFF200000 ./fast_receiver'
+```
+
+When FPGA responses are present, the receiver prints lines like:
+
+```text
+[FPGA->ARM] seq=11 action=BUY price_1e4=1850000 qty=2500
+```
+
 ## Stop The Programs On The Board
 
 ```bash
@@ -109,32 +156,27 @@ Stop both:
 ssh root@192.168.7.1 'killall fast_receiver fast_data_feed >/dev/null 2>&1 || true'
 ```
 
-If you want the FPGA MMIO path enabled:
-
-```bash
-ssh root@192.168.7.1 'cd /home/root && HFT_FPGA_MMIO_BASE=0xFF200000 ./fast_receiver'
-```
-
 ## Useful Extra Commands
 
-Host-side C++ test:
+- `make cpp-test`
+- `make cpp-smoke`
+- `make cpp-test-armv7`
+- `make vhdl-test`
+- `make vhdl-test-fast`
+- `make vhdl-test-engine`
+- `make vhdl-test-all`
 
-```bash
-make cpp-test
-```
+## Quartus Prime Lite
 
-ARM emulation check:
+This repo now includes synthesizable HDL for the bridge plus decision engine, but it still does not include a complete Quartus project.
 
-```bash
-make cpp-test-armv7
-```
+In Quartus Prime Lite, create a project and add:
 
-VHDL testbench:
+- `vhdl/arm_fpga_shared_stream_bridge.vhd`
+- `vhdl/trade_decision_core.vhd`
+- `vhdl/hft_trade_engine.vhd`
 
-```bash
-make vhdl-test
-make vhdl-test-fast
-```
+Use `hft_trade_engine` as the top-level entity for synthesis of the trading block itself. Board-specific pin assignments, HPS-to-FPGA interconnect, and platform integration are still outside this repo.
 
 ## Notes
 

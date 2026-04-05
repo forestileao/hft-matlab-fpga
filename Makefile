@@ -43,6 +43,8 @@ VHDL_BUILD_DIR ?= $(VHDL_DIR)/build
 VHDL_TB ?= tb_arm_fpga_shared_stream_bridge
 VHDL_TB_FILE ?= $(VHDL_DIR)/$(VHDL_TB).vhd
 VHDL_TB_FAST ?= tb_arm_fpga_shared_stream_bridge_fast
+VHDL_TB_ENGINE ?= tb_hft_trade_engine
+VHDL_SOURCES ?= $(VHDL_DIR)/arm_fpga_shared_stream_bridge.vhd $(VHDL_TB_FILE)
 VHDL_VCD ?= $(VHDL_BUILD_DIR)/$(VHDL_TB).vcd
 VHDL_STOP_TIME ?= 20us
 
@@ -60,10 +62,11 @@ CROSS_SYSROOT_VOLUME := $(if $(CROSS_SYSROOT),-v "$(abspath $(CROSS_SYSROOT)):$(
 CROSS_TOOLCHAIN_VOLUME := $(if $(CROSS_TOOLCHAIN_DIR),-v "$(abspath $(CROSS_TOOLCHAIN_DIR)):$(CROSS_TOOLCHAIN_MOUNT):ro",)
 CROSS_TOOLCHAIN_ENV := $(if $(CROSS_TOOLCHAIN_DIR),PATH=$(CROSS_TOOLCHAIN_MOUNT)/bin:$$PATH,)
 
-.PHONY: help docker-image docker-image-cross-armhf mfast-clone mfast-patch mfast-configure mfast-build mfast-install mfast-rebuild mfast-clean mfast-cross-configure mfast-cross-build mfast-cross-install cpp-configure cpp-build cpp-test cpp-test-armv7 cpp-cross-configure cpp-cross-build cpp-cross-abi cpp-clean vhdl-test vhdl-test-fast vhdl-wave vhdl-clean docker-shell docker-shell-cross-armhf de10-toolchain de10-sysroot de10-setup de10-build de10-abi de10-copy de10-stop de10-smoke
+.PHONY: help check docker-image docker-image-cross-armhf mfast-clone mfast-patch mfast-configure mfast-build mfast-install mfast-rebuild mfast-clean mfast-cross-configure mfast-cross-build mfast-cross-install cpp-configure cpp-build cpp-test cpp-smoke cpp-test-armv7 cpp-cross-configure cpp-cross-build cpp-cross-abi cpp-clean vhdl-test vhdl-test-fast vhdl-test-engine vhdl-test-all vhdl-wave vhdl-clean docker-shell docker-shell-cross-armhf de10-toolchain de10-sysroot de10-setup de10-build de10-abi de10-copy de10-stop de10-smoke
 
 help:
 	@echo "Targets:"
+	@echo "  check           Run host C++ tests, feed smoke test, and all VHDL simulations"
 	@echo "  de10-toolchain  Download/extract the tested DE10-Nano ARM toolchain"
 	@echo "  de10-sysroot    Pull /lib + /usr/lib + /usr/include from $(DE10_HOST)"
 	@echo "  de10-setup      Prepare both the toolchain and local sysroot"
@@ -87,6 +90,7 @@ help:
 	@echo "  cpp-configure   Configure cpp/ against mFAST install in Docker"
 	@echo "  cpp-build       Build cpp/ targets in Docker"
 	@echo "  cpp-test        Build and run cpp tests (CTest) in Docker"
+	@echo "  cpp-smoke       Run fast_data_feed and fast_receiver together in Docker"
 	@echo "  cpp-test-armv7  Build and run cpp tests under emulated ARMv7 Docker"
 	@echo "  cpp-cross-configure Configure cpp/ for ARM cross-build against CROSS_SYSROOT"
 	@echo "  cpp-cross-build Build ARM cross targets into cpp/build-cross"
@@ -94,6 +98,8 @@ help:
 	@echo "  cpp-clean       Remove cpp build directory"
 	@echo "  vhdl-test       Run VHDL testbench with GHDL and emit VCD"
 	@echo "  vhdl-test-fast  Run burst/FAST-like VHDL testbench with GHDL"
+	@echo "  vhdl-test-engine Run the bridge + strategy end-to-end VHDL testbench"
+	@echo "  vhdl-test-all   Run all VHDL simulations"
 	@echo "  vhdl-wave       Open generated VCD in GTKWave if available"
 	@echo "  vhdl-clean      Remove VHDL build artifacts"
 	@echo "  docker-shell    Open an interactive shell in the build container"
@@ -104,6 +110,8 @@ docker-image:
 
 docker-image-cross-armhf:
 	$(DOCKER) build -t $(DOCKER_IMAGE_CROSS_ARMHF) -f Dockerfile.cross-armhf .
+
+check: cpp-test cpp-smoke vhdl-test-all
 
 de10-toolchain:
 	mkdir -p ".toolchains" ".toolchain-cache"
@@ -255,6 +263,15 @@ cpp-test: cpp-configure
 		$(DOCKER_IMAGE) \
 		bash -lc "cmake --build $(CPP_BUILD_DIR) --parallel $(JOBS) --target fpga_shared_stream_test && ctest --test-dir $(CPP_BUILD_DIR) --output-on-failure"
 
+cpp-smoke: cpp-build
+	$(DOCKER) run --rm \
+		$(DOCKER_PLATFORM_ARG) \
+		-u $(UID):$(GID) \
+		-v "$(CURDIR):$(CURDIR)" \
+		-w "$(CURDIR)" \
+		$(DOCKER_IMAGE) \
+		bash -lc "set -e; stdbuf -oL -eL ./$(CPP_BUILD_DIR)/fast_data_feed >/tmp/fast_data_feed.log 2>&1 & feed_pid=\$$!; sleep 1; timeout 3s stdbuf -oL -eL ./$(CPP_BUILD_DIR)/fast_receiver >/tmp/fast_receiver.log 2>&1 || test \$$? -eq 124; kill \$$feed_pid >/dev/null 2>&1 || true; wait \$$feed_pid >/dev/null 2>&1 || true; sed -n '1,12p' /tmp/fast_receiver.log"
+
 cpp-test-armv7:
 	$(MAKE) cpp-test DOCKER_PLATFORM=$(ARMV7_PLATFORM) DOCKER_IMAGE=$(ARMV7_DOCKER_IMAGE)
 
@@ -298,11 +315,18 @@ vhdl-test: docker-image
 		-v "$(CURDIR):$(CURDIR)" \
 		-w "$(CURDIR)" \
 		$(DOCKER_IMAGE) \
-		bash -lc "ghdl -a --std=08 --workdir=$(VHDL_BUILD_DIR) $(VHDL_DIR)/arm_fpga_shared_stream_bridge.vhd $(VHDL_TB_FILE) && ghdl -e --std=08 --workdir=$(VHDL_BUILD_DIR) $(VHDL_TB) && ghdl -r --std=08 --workdir=$(VHDL_BUILD_DIR) $(VHDL_TB) --vcd=$(VHDL_VCD) --stop-time=$(VHDL_STOP_TIME)"
+		bash -lc "ghdl -a --std=08 --workdir=$(VHDL_BUILD_DIR) $(VHDL_SOURCES) && ghdl -e --std=08 --workdir=$(VHDL_BUILD_DIR) $(VHDL_TB) && ghdl -r --std=08 --workdir=$(VHDL_BUILD_DIR) $(VHDL_TB) --vcd=$(VHDL_VCD) --stop-time=$(VHDL_STOP_TIME)"
 
 vhdl-test-fast: VHDL_TB=$(VHDL_TB_FAST)
 vhdl-test-fast: VHDL_TB_FILE=$(VHDL_DIR)/$(VHDL_TB_FAST).vhd
 vhdl-test-fast: vhdl-test
+
+vhdl-test-engine: VHDL_TB=$(VHDL_TB_ENGINE)
+vhdl-test-engine: VHDL_TB_FILE=$(VHDL_DIR)/$(VHDL_TB_ENGINE).vhd
+vhdl-test-engine: VHDL_SOURCES=$(VHDL_DIR)/arm_fpga_shared_stream_bridge.vhd $(VHDL_DIR)/trade_decision_core.vhd $(VHDL_DIR)/hft_trade_engine.vhd $(VHDL_DIR)/$(VHDL_TB_ENGINE).vhd
+vhdl-test-engine: vhdl-test
+
+vhdl-test-all: vhdl-test vhdl-test-fast vhdl-test-engine
 
 vhdl-wave:
 	@if [ -f "$(VHDL_VCD)" ]; then \

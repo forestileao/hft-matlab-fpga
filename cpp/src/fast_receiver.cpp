@@ -65,6 +65,18 @@ static uint32_t price_to_fixed_1e4(const mfast::decimal_cref& price)
     return static_cast<uint32_t>(scaled);
 }
 
+static const char* action_to_string(uint32_t action)
+{
+    switch (action) {
+        case 1:
+            return "BUY";
+        case 2:
+            return "SELL";
+        default:
+            return "NOOP";
+    }
+}
+
 static bool init_fpga_bridge(FpgaSharedStream* bridge)
 {
     const char* base_env = std::getenv("HFT_FPGA_MMIO_BASE");
@@ -187,10 +199,10 @@ int main()
             if (bridge_enabled) {
                 FpgaSharedStream::Frame rx{};
                 while (bridge.Receive(&rx)) {
-                    std::cout << "[FPGA->ARM] w0=" << rx.word0
-                              << " w1=0x" << std::hex << rx.word1
-                              << " w2=" << std::dec << rx.word2
-                              << " w3=" << rx.word3 << "\n";
+                    std::cout << "[FPGA->ARM] seq=" << rx.word0
+                              << " action=" << action_to_string(rx.word1)
+                              << " price_1e4=" << rx.word2
+                              << " qty=" << rx.word3 << "\n";
                 }
             }
         } catch (const boost::exception& e) {
