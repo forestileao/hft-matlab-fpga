@@ -9,9 +9,15 @@ incremental_db/
 
 # Generated reports and programming files
 output_files/
+hft/
+hft.sopcinfo
+hps_isw_handoff/
+hps_sdram_p0_summary.csv
 
 # Generated simulation exports
 simulation/
+.qsys_edit/
+unsaved/
 
 # Other generated project artifacts
 *.qws
