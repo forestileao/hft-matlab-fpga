@@ -70,4 +70,4 @@ begin
       rsp_data_o  => rsp_data_s,
       rsp_ready_i => rsp_ready_s
     );
-end architecture;
+end architecture rtl;

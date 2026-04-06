@@ -4,6 +4,7 @@ This document describes the shared-memory streaming block used by:
 - ARM software (`cpp/src/fast_receiver.cpp`, `cpp/src/fpga_shared_stream.h`)
 - FPGA bridge logic (`vhdl/arm_fpga_shared_stream_bridge.vhd`)
 - FPGA decision wrapper (`vhdl/hft_trade_engine.vhd`, `vhdl/trade_decision_core.vhd`)
+- HPS-facing bus wrapper (`vhdl/hft_trade_engine_avalon_mm.vhd`)
 
 It also explains how to validate results from registers/waveforms.
 
@@ -216,10 +217,16 @@ End-to-end bridge + strategy TB:
 - validates ARM-style TX publishes, FPGA decisions, RX responses, and action codes
 - command: `make vhdl-test-engine`
 
+Avalon-MM wrapper TB:
+- `vhdl/tb_hft_trade_engine_avalon_mm.vhd`
+- validates the board-facing bus wrapper used for HPS integration
+- command: `make vhdl-test-avalon`
+
 Wave files:
 - `vhdl/build/tb_arm_fpga_shared_stream_bridge.vcd`
 - `vhdl/build/tb_arm_fpga_shared_stream_bridge_fast.vcd`
 - `vhdl/build/tb_hft_trade_engine.vcd`
+- `vhdl/build/tb_hft_trade_engine_avalon_mm.vcd`
 
 ## 11. Common Failure Patterns
 

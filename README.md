@@ -16,6 +16,11 @@ The implemented pipeline today is:
 - have FPGA logic return `NOOP`, `BUY`, or `SELL`
 - print those decisions back on the ARM side
 
+For real board integration, the FPGA block is also wrapped as an Avalon-MM slave:
+
+- `vhdl/hft_trade_engine_avalon_mm.vhd`
+- `quartus/hft_trade_engine_avalon_mm_hw.tcl`
+
 The current FPGA strategy is intentionally simple:
 
 - `BUY` when side is buy and quantity is at least `2000`
@@ -41,7 +46,7 @@ That runs:
 
 - `cpp-test`: C++ MMIO wrapper test
 - `cpp-smoke`: `fast_data_feed` + `fast_receiver` together in Docker
-- `vhdl-test-all`: bridge-only, stress, and end-to-end strategy simulations
+- `vhdl-test-all`: bridge-only, stress, end-to-end strategy, and Avalon wrapper simulations
 
 If you want only the new end-to-end FPGA-path simulation:
 
@@ -50,6 +55,18 @@ make vhdl-test-engine
 ```
 
 The VCD lands in `vhdl/build/tb_hft_trade_engine.vcd`.
+
+If you want the board-facing Avalon wrapper simulation:
+
+```bash
+make vhdl-test-avalon
+```
+
+To sanity-check that Quartus can index the custom Platform Designer component:
+
+```bash
+make quartus-ip-index
+```
 
 ## DE10-Nano Target
 
@@ -161,9 +178,11 @@ ssh root@192.168.7.1 'killall fast_receiver fast_data_feed >/dev/null 2>&1 || tr
 - `make cpp-test`
 - `make cpp-smoke`
 - `make cpp-test-armv7`
+- `make quartus-ip-index`
 - `make vhdl-test`
 - `make vhdl-test-fast`
 - `make vhdl-test-engine`
+- `make vhdl-test-avalon`
 - `make vhdl-test-all`
 
 ## Quartus Prime Lite
@@ -175,8 +194,20 @@ In Quartus Prime Lite, create a project and add:
 - `vhdl/arm_fpga_shared_stream_bridge.vhd`
 - `vhdl/trade_decision_core.vhd`
 - `vhdl/hft_trade_engine.vhd`
+- `vhdl/hft_trade_engine_avalon_mm.vhd`
 
-Use `hft_trade_engine` as the top-level entity for synthesis of the trading block itself. Board-specific pin assignments, HPS-to-FPGA interconnect, and platform integration are still outside this repo.
+Use:
+
+- `hft_trade_engine` for the pure engine block
+- `hft_trade_engine_avalon_mm` for the HPS-facing bus wrapper
+
+If you are using Platform Designer, add the custom component:
+
+- `quartus/hft_trade_engine_avalon_mm_hw.tcl`
+
+The DE10-Nano integration steps and MMIO base-address formula are in:
+
+- `docs/de10-nano-quartus-integration.md`
 
 ## Notes
 

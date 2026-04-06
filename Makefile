@@ -7,6 +7,9 @@ DOCKER_PLATFORM ?=
 DOCKER_PLATFORM_ARG := $(if $(DOCKER_PLATFORM),--platform $(DOCKER_PLATFORM),)
 ARMV7_PLATFORM ?= linux/arm/v7
 ARMV7_DOCKER_IMAGE ?= hft-mfast-builder-armv7:latest
+IP_MAKE_IPX ?= /opt/intelFPGA/25.1/quartus/sopc_builder/bin/ip-make-ipx
+QUARTUS_IP_DIR ?= quartus
+QUARTUS_IP_INDEX ?= .quartus-cache/components.ipx
 DE10_HOST ?= root@192.168.7.1
 DE10_HOME ?= /home/root
 DE10_SYSROOT ?= /tmp/de10nano-sysroot
@@ -44,6 +47,7 @@ VHDL_TB ?= tb_arm_fpga_shared_stream_bridge
 VHDL_TB_FILE ?= $(VHDL_DIR)/$(VHDL_TB).vhd
 VHDL_TB_FAST ?= tb_arm_fpga_shared_stream_bridge_fast
 VHDL_TB_ENGINE ?= tb_hft_trade_engine
+VHDL_TB_AVALON ?= tb_hft_trade_engine_avalon_mm
 VHDL_SOURCES ?= $(VHDL_DIR)/arm_fpga_shared_stream_bridge.vhd $(VHDL_TB_FILE)
 VHDL_VCD ?= $(VHDL_BUILD_DIR)/$(VHDL_TB).vcd
 VHDL_STOP_TIME ?= 20us
@@ -62,11 +66,12 @@ CROSS_SYSROOT_VOLUME := $(if $(CROSS_SYSROOT),-v "$(abspath $(CROSS_SYSROOT)):$(
 CROSS_TOOLCHAIN_VOLUME := $(if $(CROSS_TOOLCHAIN_DIR),-v "$(abspath $(CROSS_TOOLCHAIN_DIR)):$(CROSS_TOOLCHAIN_MOUNT):ro",)
 CROSS_TOOLCHAIN_ENV := $(if $(CROSS_TOOLCHAIN_DIR),PATH=$(CROSS_TOOLCHAIN_MOUNT)/bin:$$PATH,)
 
-.PHONY: help check docker-image docker-image-cross-armhf mfast-clone mfast-patch mfast-configure mfast-build mfast-install mfast-rebuild mfast-clean mfast-cross-configure mfast-cross-build mfast-cross-install cpp-configure cpp-build cpp-test cpp-smoke cpp-test-armv7 cpp-cross-configure cpp-cross-build cpp-cross-abi cpp-clean vhdl-test vhdl-test-fast vhdl-test-engine vhdl-test-all vhdl-wave vhdl-clean docker-shell docker-shell-cross-armhf de10-toolchain de10-sysroot de10-setup de10-build de10-abi de10-copy de10-stop de10-smoke
+.PHONY: help check quartus-ip-index docker-image docker-image-cross-armhf mfast-clone mfast-patch mfast-configure mfast-build mfast-install mfast-rebuild mfast-clean mfast-cross-configure mfast-cross-build mfast-cross-install cpp-configure cpp-build cpp-test cpp-smoke cpp-test-armv7 cpp-cross-configure cpp-cross-build cpp-cross-abi cpp-clean vhdl-test vhdl-test-fast vhdl-test-engine vhdl-test-avalon vhdl-test-all vhdl-wave vhdl-clean docker-shell docker-shell-cross-armhf de10-toolchain de10-sysroot de10-setup de10-build de10-abi de10-copy de10-stop de10-smoke
 
 help:
 	@echo "Targets:"
 	@echo "  check           Run host C++ tests, feed smoke test, and all VHDL simulations"
+	@echo "  quartus-ip-index Index the custom Quartus/Platform Designer component"
 	@echo "  de10-toolchain  Download/extract the tested DE10-Nano ARM toolchain"
 	@echo "  de10-sysroot    Pull /lib + /usr/lib + /usr/include from $(DE10_HOST)"
 	@echo "  de10-setup      Prepare both the toolchain and local sysroot"
@@ -99,6 +104,7 @@ help:
 	@echo "  vhdl-test       Run VHDL testbench with GHDL and emit VCD"
 	@echo "  vhdl-test-fast  Run burst/FAST-like VHDL testbench with GHDL"
 	@echo "  vhdl-test-engine Run the bridge + strategy end-to-end VHDL testbench"
+	@echo "  vhdl-test-avalon Run the board-facing Avalon-MM wrapper testbench"
 	@echo "  vhdl-test-all   Run all VHDL simulations"
 	@echo "  vhdl-wave       Open generated VCD in GTKWave if available"
 	@echo "  vhdl-clean      Remove VHDL build artifacts"
@@ -112,6 +118,10 @@ docker-image-cross-armhf:
 	$(DOCKER) build -t $(DOCKER_IMAGE_CROSS_ARMHF) -f Dockerfile.cross-armhf .
 
 check: cpp-test cpp-smoke vhdl-test-all
+
+quartus-ip-index:
+	mkdir -p "$(dir $(QUARTUS_IP_INDEX))"
+	"$(IP_MAKE_IPX)" --source-directory="$(CURDIR)/$(QUARTUS_IP_DIR)" --output="$(QUARTUS_IP_INDEX)"
 
 de10-toolchain:
 	mkdir -p ".toolchains" ".toolchain-cache"
@@ -326,7 +336,12 @@ vhdl-test-engine: VHDL_TB_FILE=$(VHDL_DIR)/$(VHDL_TB_ENGINE).vhd
 vhdl-test-engine: VHDL_SOURCES=$(VHDL_DIR)/arm_fpga_shared_stream_bridge.vhd $(VHDL_DIR)/trade_decision_core.vhd $(VHDL_DIR)/hft_trade_engine.vhd $(VHDL_DIR)/$(VHDL_TB_ENGINE).vhd
 vhdl-test-engine: vhdl-test
 
-vhdl-test-all: vhdl-test vhdl-test-fast vhdl-test-engine
+vhdl-test-avalon: VHDL_TB=$(VHDL_TB_AVALON)
+vhdl-test-avalon: VHDL_TB_FILE=$(VHDL_DIR)/$(VHDL_TB_AVALON).vhd
+vhdl-test-avalon: VHDL_SOURCES=$(VHDL_DIR)/arm_fpga_shared_stream_bridge.vhd $(VHDL_DIR)/trade_decision_core.vhd $(VHDL_DIR)/hft_trade_engine.vhd $(VHDL_DIR)/hft_trade_engine_avalon_mm.vhd $(VHDL_DIR)/$(VHDL_TB_AVALON).vhd
+vhdl-test-avalon: vhdl-test
+
+vhdl-test-all: vhdl-test vhdl-test-fast vhdl-test-engine vhdl-test-avalon
 
 vhdl-wave:
 	@if [ -f "$(VHDL_VCD)" ]; then \

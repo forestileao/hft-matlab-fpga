@@ -70,6 +70,8 @@ architecture rtl of arm_fpga_shared_stream_bridge is
   signal tx_full_s  : std_logic;
   signal rx_empty_s : std_logic;
   signal rx_full_s  : std_logic;
+  signal cmd_valid_s : std_logic;
+  signal rsp_ready_s : std_logic;
 
   function f_inc_wrap(v : unsigned) return unsigned is
     variable r : unsigned(v'range);
@@ -108,9 +110,12 @@ begin
   rx_empty_s <= '1' when rx_head_q = rx_tail_q else '0';
   rx_full_s  <= '1' when f_inc_wrap(rx_head_q) = rx_tail_q else '0';
 
-  cmd_valid_o <= not tx_empty_s;
+  cmd_valid_s <= not tx_empty_s;
+  rsp_ready_s <= not rx_full_s;
+
+  cmd_valid_o <= cmd_valid_s;
   cmd_data_o  <= tx_ram_q(to_integer(tx_tail_q));
-  rsp_ready_o <= not rx_full_s;
+  rsp_ready_o <= rsp_ready_s;
 
   mm_rdata_o <= mm_rdata_q;
   mm_ready_o <= mm_ready_q;
@@ -135,7 +140,7 @@ begin
         mm_rdata_q <= (others => '0');
 
         -- Consume ARM->FPGA queue into stream.
-        if cmd_valid_o = '1' and cmd_ready_i = '1' then
+        if cmd_valid_s = '1' and cmd_ready_i = '1' then
           tx_tail_q <= f_inc_wrap(tx_tail_q);
         end if;
 
@@ -227,4 +232,3 @@ begin
   end process;
 
 end architecture;
-

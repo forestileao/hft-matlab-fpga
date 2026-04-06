@@ -27,6 +27,7 @@ architecture rtl of trade_decision_core is
   constant C_ACTION_BUY  : natural := 1;
   constant C_ACTION_SELL : natural := 2;
 
+  signal cmd_ready_s : std_logic;
   signal rsp_valid_q : std_logic := '0';
   signal rsp_data_q  : std_logic_vector(G_SLOT_WORDS * 32 - 1 downto 0) := (others => '0');
 
@@ -56,7 +57,8 @@ architecture rtl of trade_decision_core is
     return rsp;
   end function;
 begin
-  cmd_ready_o <= '1' when rsp_valid_q = '0' or rsp_ready_i = '1' else '0';
+  cmd_ready_s <= '1' when rsp_valid_q = '0' or rsp_ready_i = '1' else '0';
+  cmd_ready_o <= cmd_ready_s;
 
   rsp_valid_o <= rsp_valid_q;
   rsp_data_o  <= rsp_data_q;
@@ -72,7 +74,7 @@ begin
           rsp_valid_q <= '0';
         end if;
 
-        if cmd_valid_i = '1' and cmd_ready_o = '1' then
+        if cmd_valid_i = '1' and cmd_ready_s = '1' then
           rsp_data_q <= f_build_response(
             cmd_data_i,
             G_BUY_QTY_THRESHOLD,

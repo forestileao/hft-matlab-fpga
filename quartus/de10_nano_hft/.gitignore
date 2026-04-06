@@ -1,0 +1,28 @@
+# Keep the Quartus project files themselves.
+!de10_nano_hft.qpf
+!de10_nano_hft.qsf
+!.gitignore
+
+# Quartus build databases
+db/
+incremental_db/
+
+# Generated reports and programming files
+output_files/
+
+# Generated simulation exports
+simulation/
+
+# Other generated project artifacts
+*.qws
+*.qdf
+*.jdi
+*.sof
+*.rbf
+*.summary
+*.pin
+*.done
+*.sld
+*.smsg
+*.rpt
+*.txt

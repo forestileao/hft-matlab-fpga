@@ -2,6 +2,7 @@
 mFAST/
 .toolchains/
 .toolchain-cache/
+.quartus-cache/
 
 # C++ build trees
 cpp/build/
@@ -18,3 +19,14 @@ cpp/build-*/
 vhdl/build/
 *.vcd
 work-obj08.cf
+
+# Quartus outputs
+db/
+incremental_db/
+*.qws
+*.sopcinfo
+*.jdi
+*.sof
+*.rbf
+*.summary
+*.qdf
