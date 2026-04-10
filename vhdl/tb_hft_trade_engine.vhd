@@ -5,10 +5,10 @@ use ieee.numeric_std.all;
 entity tb_hft_trade_engine is
 end entity;
 
-architecture tb of tb_hft_trade_engine is
-  constant C_ADDR_WIDTH : natural := 12;
+architecture sim of tb_hft_trade_engine is
+  constant C_ADDR_WIDTH : natural := 13;
   constant C_DEPTH      : natural := 4;
-  constant C_SLOT_WORDS : natural := 4;
+  constant C_SLOT_WORDS : natural := 8;
 
   constant C_REG_MAGIC   : natural := 16#000#;
   constant C_REG_VERSION : natural := 16#004#;
@@ -32,52 +32,99 @@ architecture tb of tb_hft_trade_engine is
     return std_logic_vector(to_unsigned(v, 32));
   end function;
 
-  function f_pack_symbol_side(
-    symbol_3  : string(1 to 3);
-    side_code : natural
-  ) return std_logic_vector is
-    variable packed : unsigned(31 downto 0) := (others => '0');
-  begin
-    packed(7 downto 0)   := to_unsigned(character'pos(symbol_3(1)), 8);
-    packed(15 downto 8)  := to_unsigned(character'pos(symbol_3(2)), 8);
-    packed(23 downto 16) := to_unsigned(character'pos(symbol_3(3)), 8);
-    packed(31 downto 24) := to_unsigned(side_code, 8);
-    return std_logic_vector(packed);
-  end function;
-
   function f_slot_addr(base : natural; slot : natural; lane : natural) return natural is
   begin
     return base + slot * C_SLOT_WORDS * 4 + lane * 4;
   end function;
 
   constant C_TX_W0 : t_u32_array(0 to 2) := (
-    x"0000000B",
-    x"0000000C",
-    x"0000000D"
+    x"00000001",
+    x"00000002",
+    x"00000003"
   );
 
   constant C_TX_W1 : t_u32_array(0 to 2) := (
-    f_pack_symbol_side("AAP", 1),
-    f_pack_symbol_side("MSF", 2),
-    f_pack_symbol_side("TSL", 1)
+    x"00000000",
+    x"00000000",
+    x"00000000"
   );
 
   constant C_TX_W2 : t_u32_array(0 to 2) := (
     x"001C3A90",
-    x"003F52F0",
-    x"001AB3F0"
+    x"001C4260",
+    x"001C4260"
   );
 
   constant C_TX_W3 : t_u32_array(0 to 2) := (
     x"000009C4",
-    x"00000898",
-    x"00000320"
+    x"000004B0",
+    x"00000C80"
+  );
+
+  constant C_TX_W4 : t_u32_array(0 to 2) := (
+    x"00000001",
+    x"00000001",
+    x"00000001"
+  );
+
+  constant C_TX_W5 : t_u32_array(0 to 2) := (
+    x"00000001",
+    x"00000002",
+    x"00000002"
+  );
+
+  constant C_TX_W6 : t_u32_array(0 to 2) := (
+    x"00000000",
+    x"00000000",
+    x"00000000"
+  );
+
+  constant C_TX_W7 : t_u32_array(0 to 2) := (
+    x"00000000",
+    x"00000000",
+    x"00000000"
   );
 
   constant C_EXPECT_ACTION : t_u32_array(0 to 2) := (
+    C_ACTION_NOOP,
     C_ACTION_BUY,
-    C_ACTION_SELL,
-    C_ACTION_NOOP
+    C_ACTION_SELL
+  );
+
+  constant C_EXPECT_W2 : t_u32_array(0 to 2) := (
+    x"001C3A90",
+    x"001C3A90",
+    x"001C3A90"
+  );
+
+  constant C_EXPECT_W3 : t_u32_array(0 to 2) := (
+    x"000009C4",
+    x"000009C4",
+    x"000009C4"
+  );
+
+  constant C_EXPECT_W4 : t_u32_array(0 to 2) := (
+    x"00000000",
+    x"001C4260",
+    x"001C4260"
+  );
+
+  constant C_EXPECT_W5 : t_u32_array(0 to 2) := (
+    x"00000000",
+    x"000004B0",
+    x"00000C80"
+  );
+
+  constant C_EXPECT_W6 : t_u32_array(0 to 2) := (
+    x"00000000",
+    x"000007D0",
+    x"000007D0"
+  );
+
+  constant C_EXPECT_W7 : t_u32_array(0 to 2) := (
+    x"000009C4",
+    x"00000514",
+    x"FFFFFD44"
   );
 
   signal clk     : std_logic := '0';
@@ -134,9 +181,11 @@ begin
 
   dut : entity work.hft_trade_engine
     generic map (
-      G_ADDR_WIDTH => C_ADDR_WIDTH,
-      G_DEPTH      => C_DEPTH,
-      G_SLOT_WORDS => C_SLOT_WORDS
+      G_ADDR_WIDTH          => C_ADDR_WIDTH,
+      G_DEPTH               => C_DEPTH,
+      G_SLOT_WORDS          => C_SLOT_WORDS,
+      G_IMBALANCE_THRESHOLD => 500,
+      G_MAX_SPREAD_1E4      => 25000
     )
     port map (
       clk_i      => clk,
@@ -168,6 +217,10 @@ begin
       mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, f_slot_addr(C_TX_BASE, i, 1), C_TX_W1(i));
       mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, f_slot_addr(C_TX_BASE, i, 2), C_TX_W2(i));
       mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, f_slot_addr(C_TX_BASE, i, 3), C_TX_W3(i));
+      mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, f_slot_addr(C_TX_BASE, i, 4), C_TX_W4(i));
+      mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, f_slot_addr(C_TX_BASE, i, 5), C_TX_W5(i));
+      mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, f_slot_addr(C_TX_BASE, i, 6), C_TX_W6(i));
+      mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, f_slot_addr(C_TX_BASE, i, 7), C_TX_W7(i));
       mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, C_REG_TX_HEAD, f_u32(i + 1));
     end loop;
 
@@ -189,9 +242,17 @@ begin
       mm_read(mm_addr, mm_rd, mm_rdata, mm_ready, f_slot_addr(C_RX_BASE, i, 1), rd_val);
       assert rd_val = C_EXPECT_ACTION(i) report "RX action mismatch" severity failure;
       mm_read(mm_addr, mm_rd, mm_rdata, mm_ready, f_slot_addr(C_RX_BASE, i, 2), rd_val);
-      assert rd_val = C_TX_W2(i) report "RX response price mismatch" severity failure;
+      assert rd_val = C_EXPECT_W2(i) report "RX best bid px mismatch" severity failure;
       mm_read(mm_addr, mm_rd, mm_rdata, mm_ready, f_slot_addr(C_RX_BASE, i, 3), rd_val);
-      assert rd_val = C_TX_W3(i) report "RX response qty mismatch" severity failure;
+      assert rd_val = C_EXPECT_W3(i) report "RX best bid qty mismatch" severity failure;
+      mm_read(mm_addr, mm_rd, mm_rdata, mm_ready, f_slot_addr(C_RX_BASE, i, 4), rd_val);
+      assert rd_val = C_EXPECT_W4(i) report "RX best ask px mismatch" severity failure;
+      mm_read(mm_addr, mm_rd, mm_rdata, mm_ready, f_slot_addr(C_RX_BASE, i, 5), rd_val);
+      assert rd_val = C_EXPECT_W5(i) report "RX best ask qty mismatch" severity failure;
+      mm_read(mm_addr, mm_rd, mm_rdata, mm_ready, f_slot_addr(C_RX_BASE, i, 6), rd_val);
+      assert rd_val = C_EXPECT_W6(i) report "RX spread mismatch" severity failure;
+      mm_read(mm_addr, mm_rd, mm_rdata, mm_ready, f_slot_addr(C_RX_BASE, i, 7), rd_val);
+      assert rd_val = C_EXPECT_W7(i) report "RX imbalance mismatch" severity failure;
       mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, C_REG_RX_TAIL, f_u32(i + 1));
     end loop;
 
@@ -202,4 +263,4 @@ begin
     report "tb_hft_trade_engine PASSED" severity note;
     wait;
   end process;
-end architecture;
+end architecture sim;

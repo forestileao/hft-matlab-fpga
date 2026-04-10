@@ -13,7 +13,7 @@
 
 namespace {
 
-const std::size_t kSpan = 0x1000;
+const std::size_t kSpan = 0x2000;
 const uint32_t kRegMagic = 0x000;
 const uint32_t kRegVersion = 0x004;
 const uint32_t kRegTxHead = 0x010;
@@ -24,7 +24,6 @@ const uint32_t kRegTxDepth = 0x020;
 const uint32_t kRegRxDepth = 0x024;
 const uint32_t kRegSlotWords = 0x028;
 const uint32_t kTxBase = 0x100;
-const uint32_t kRxBase = 0x500;
 
 bool check(bool cond, const char* msg) {
   if (!cond) {
@@ -90,17 +89,21 @@ bool init_registers(const BackingFile& bf) {
          write32(bf, kRegRxTail, 0) &&
          write32(bf, kRegTxDepth, 4) &&
          write32(bf, kRegRxDepth, 4) &&
-         write32(bf, kRegSlotWords, 4);
+         write32(bf, kRegSlotWords, FpgaSharedStream::kFrameWords);
 }
 
 bool test_send_and_full(const BackingFile& bf, FpgaSharedStream* stream) {
   if (!check(stream->CanSend(), "initial CanSend should be true")) return false;
   if (!check(!stream->IsTxFull(), "initial TX should not be full")) return false;
+  if (!check(stream->SlotWords() == FpgaSharedStream::kFrameWords, "slot words mismatch")) return false;
 
-  FpgaSharedStream::Frame f1{1, 0x11111111u, 0x22222222u, 0x33333333u};
-  FpgaSharedStream::Frame f2{2, 0xAAAAAAAAu, 0xBBBBBBBBu, 0xCCCCCCCCu};
-  FpgaSharedStream::Frame f3{3, 0x12345678u, 0x00000010u, 0x00000020u};
-  FpgaSharedStream::Frame f4{4, 0x1u, 0x2u, 0x3u};
+  FpgaSharedStream::Frame f1{1, 0x11111111u, 0x22222222u, 0x33333333u,
+                             0x44444444u, 0x55555555u, 0x66666666u, 0x77777777u};
+  FpgaSharedStream::Frame f2{2, 0xAAAAAAAAu, 0xBBBBBBBBu, 0xCCCCCCCCu,
+                             0xDDDDDDDDu, 0xEEEEEEEEu, 0x99999999u, 0x88888888u};
+  FpgaSharedStream::Frame f3{3, 0x12345678u, 0x00000010u, 0x00000020u,
+                             0x00000030u, 0x00000040u, 0x00000050u, 0x00000060u};
+  FpgaSharedStream::Frame f4{4, 0x1u, 0x2u, 0x3u, 0x4u, 0x5u, 0x6u, 0x7u};
 
   if (!check(stream->Send(f1), "send f1")) return false;
   if (!check(stream->Send(f2), "send f2")) return false;
@@ -112,18 +115,14 @@ bool test_send_and_full(const BackingFile& bf, FpgaSharedStream* stream) {
   if (!check(read32(bf, kRegTxHead, &head), "read TX_HEAD")) return false;
   if (!check(head == 3, "TX_HEAD should be 3")) return false;
 
-  uint32_t slot0w0 = 0;
-  uint32_t slot0w1 = 0;
-  uint32_t slot0w2 = 0;
-  uint32_t slot0w3 = 0;
-  if (!check(read32(bf, kTxBase + 0, &slot0w0), "read tx slot0 word0")) return false;
-  if (!check(read32(bf, kTxBase + 4, &slot0w1), "read tx slot0 word1")) return false;
-  if (!check(read32(bf, kTxBase + 8, &slot0w2), "read tx slot0 word2")) return false;
-  if (!check(read32(bf, kTxBase + 12, &slot0w3), "read tx slot0 word3")) return false;
-  if (!check(slot0w0 == f1.word0 && slot0w1 == f1.word1 && slot0w2 == f1.word2 &&
-                 slot0w3 == f1.word3,
-             "slot0 payload mismatch")) {
-    return false;
+  const uint32_t expected_slot0[] = {
+      f1.word0, f1.word1, f1.word2, f1.word3,
+      f1.word4, f1.word5, f1.word6, f1.word7,
+  };
+  for (std::size_t i = 0; i < FpgaSharedStream::kFrameWords; ++i) {
+    uint32_t word = 0;
+    if (!check(read32(bf, kTxBase + static_cast<uint32_t>(i * 4), &word), "read tx slot0 word")) return false;
+    if (!check(word == expected_slot0[i], "slot0 payload mismatch")) return false;
   }
 
   if (!check(write32(bf, kRegTxTail, 1), "simulate FPGA consume one frame")) return false;
@@ -133,11 +132,15 @@ bool test_send_and_full(const BackingFile& bf, FpgaSharedStream* stream) {
 }
 
 bool test_receive_and_ack(const BackingFile& bf, FpgaSharedStream* stream) {
-  const uint32_t off = kRxBase + 0;
+  const uint32_t off = stream->RxBase();
   if (!check(write32(bf, off + 0, 0xDEADBEEFu), "write rx slot0 word0")) return false;
   if (!check(write32(bf, off + 4, 0x01020304u), "write rx slot0 word1")) return false;
   if (!check(write32(bf, off + 8, 0xAABBCCDDu), "write rx slot0 word2")) return false;
   if (!check(write32(bf, off + 12, 0x000001F4u), "write rx slot0 word3")) return false;
+  if (!check(write32(bf, off + 16, 0x01010101u), "write rx slot0 word4")) return false;
+  if (!check(write32(bf, off + 20, 0x02020202u), "write rx slot0 word5")) return false;
+  if (!check(write32(bf, off + 24, 0x03030303u), "write rx slot0 word6")) return false;
+  if (!check(write32(bf, off + 28, 0x04040404u), "write rx slot0 word7")) return false;
   if (!check(write32(bf, kRegRxHead, 1), "set RX_HEAD=1")) return false;
   if (!check(write32(bf, kRegRxTail, 0), "set RX_TAIL=0")) return false;
 
@@ -149,6 +152,10 @@ bool test_receive_and_ack(const BackingFile& bf, FpgaSharedStream* stream) {
   if (!check(rx.word1 == 0x01020304u, "rx word1 mismatch")) return false;
   if (!check(rx.word2 == 0xAABBCCDDu, "rx word2 mismatch")) return false;
   if (!check(rx.word3 == 0x000001F4u, "rx word3 mismatch")) return false;
+  if (!check(rx.word4 == 0x01010101u, "rx word4 mismatch")) return false;
+  if (!check(rx.word5 == 0x02020202u, "rx word5 mismatch")) return false;
+  if (!check(rx.word6 == 0x03030303u, "rx word6 mismatch")) return false;
+  if (!check(rx.word7 == 0x04040404u, "rx word7 mismatch")) return false;
 
   uint32_t rx_tail = 0;
   if (!check(read32(bf, kRegRxTail, &rx_tail), "read RX_TAIL")) return false;
@@ -181,6 +188,7 @@ int main() {
   ok = ok && check(stream.Version() == 1, "version mismatch");
   ok = ok && check(stream.TxDepth() == 4, "tx depth mismatch");
   ok = ok && check(stream.RxDepth() == 4, "rx depth mismatch");
+  ok = ok && check(stream.RxBase() == 0x180, "rx base mismatch");
 
   if (ok) {
     ok = test_send_and_full(bf, &stream);
@@ -199,4 +207,3 @@ int main() {
   std::cout << "[PASS] fpga_shared_stream_test\n";
   return 0;
 }
-

@@ -15,6 +15,30 @@
 static const char* SERVER_IP   = "127.0.0.1";
 static const int   SERVER_PORT = 9001;
 
+namespace {
+
+const uint32_t kEventUpsertLevel = 1;
+const uint32_t kEventDeleteLevel = 2;
+const uint32_t kEventResetBook   = 3;
+
+const uint32_t kSideBuy  = 1;
+const uint32_t kSideSell = 2;
+
+struct SymbolMapping {
+    const char* name;
+    uint32_t id;
+};
+
+const SymbolMapping kSymbolMappings[] = {
+    {"AAPL", 0},
+    {"MSFT", 1},
+    {"NVDA", 2},
+    {"GOOGL", 3},
+    {"TSLA", 4},
+};
+
+}  // namespace
+
 static bool parse_u64(const char* text, uint64_t* out)
 {
     if (text == nullptr || out == nullptr) {
@@ -30,26 +54,31 @@ static bool parse_u64(const char* text, uint64_t* out)
     return true;
 }
 
-static uint32_t pack_symbol_side(const char* symbol, const char* side)
+static uint32_t parse_side_code(const char* side)
 {
-    uint32_t packed = 0;
-    for (int i = 0; i < 3; ++i) {
-        const uint8_t c = symbol != nullptr && symbol[i] != '\0'
-                            ? static_cast<uint8_t>(symbol[i])
-                            : static_cast<uint8_t>(' ');
-        packed |= (static_cast<uint32_t>(c) << (8 * i));
-    }
-
-    uint8_t side_code = 0;
     if (side != nullptr) {
         if (side[0] == 'b' || side[0] == 'B') {
-            side_code = 1;
-        } else if (side[0] == 's' || side[0] == 'S') {
-            side_code = 2;
+            return kSideBuy;
+        }
+        if (side[0] == 's' || side[0] == 'S') {
+            return kSideSell;
         }
     }
-    packed |= (static_cast<uint32_t>(side_code) << 24);
-    return packed;
+    return 0;
+}
+
+static bool map_symbol_id(const char* symbol, uint32_t* out)
+{
+    if (symbol == nullptr || out == nullptr) {
+        return false;
+    }
+    for (const SymbolMapping& mapping : kSymbolMappings) {
+        if (std::strcmp(mapping.name, symbol) == 0) {
+            *out = mapping.id;
+            return true;
+        }
+    }
+    return false;
 }
 
 static uint32_t price_to_fixed_1e4(const mfast::decimal_cref& price)
@@ -75,6 +104,11 @@ static const char* action_to_string(uint32_t action)
         default:
             return "NOOP";
     }
+}
+
+static int32_t decode_imbalance(uint32_t raw_value)
+{
+    return static_cast<int32_t>(raw_value);
 }
 
 static bool init_fpga_bridge(FpgaSharedStream* bridge)
@@ -115,7 +149,9 @@ static bool init_fpga_bridge(FpgaSharedStream* bridge)
               << " span=0x" << span << " magic=0x" << bridge->Magic()
               << " version=" << std::dec << bridge->Version()
               << " tx_depth=" << bridge->TxDepth()
-              << " rx_depth=" << bridge->RxDepth() << "\n";
+              << " rx_depth=" << bridge->RxDepth()
+              << " slot_words=" << bridge->SlotWords()
+              << " rx_base=0x" << std::hex << bridge->RxBase() << std::dec << "\n";
     return true;
 }
 
@@ -182,12 +218,22 @@ int main()
                     << "\n";
 
                 if (bridge_enabled) {
+                    uint32_t symbol_id = 0;
+                    if (!map_symbol_id(entry.get_Symbol().c_str(), &symbol_id)) {
+                        std::cerr << "Skipping unmapped symbol for FPGA path: "
+                                  << entry.get_Symbol().c_str() << "\n";
+                        continue;
+                    }
+
                     FpgaSharedStream::Frame frame{};
                     frame.word0 = entry.get_SeqNo().value();
-                    frame.word1 = pack_symbol_side(entry.get_Symbol().c_str(),
-                                                   entry.get_Side().c_str());
+                    frame.word1 = symbol_id;
                     frame.word2 = price_to_fixed_1e4(entry.get_Price());
                     frame.word3 = entry.get_Qty().value();
+                    frame.word4 = kEventUpsertLevel;
+                    frame.word5 = parse_side_code(entry.get_Side().c_str());
+                    frame.word6 = 0;
+                    frame.word7 = 0;
 
                     if (!bridge.Send(frame)) {
                         std::cerr << "FPGA TX queue full, dropping seq="
@@ -201,8 +247,13 @@ int main()
                 while (bridge.Receive(&rx)) {
                     std::cout << "[FPGA->ARM] seq=" << rx.word0
                               << " action=" << action_to_string(rx.word1)
-                              << " price_1e4=" << rx.word2
-                              << " qty=" << rx.word3 << "\n";
+                              << " best_bid_px_1e4=" << rx.word2
+                              << " best_bid_qty=" << rx.word3
+                              << " best_ask_px_1e4=" << rx.word4
+                              << " best_ask_qty=" << rx.word5
+                              << " spread_1e4=" << rx.word6
+                              << " imbalance=" << decode_imbalance(rx.word7)
+                              << "\n";
                 }
             }
         } catch (const boost::exception& e) {

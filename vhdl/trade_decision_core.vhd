@@ -1,12 +1,13 @@
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
 
 entity trade_decision_core is
   generic (
-    G_SLOT_WORDS         : natural := 4;
-    G_BUY_QTY_THRESHOLD  : natural := 2000;
-    G_SELL_QTY_THRESHOLD : natural := 2000
+    G_SLOT_WORDS          : natural := 8;
+    G_NUM_SYMBOLS         : natural := 8;
+    G_BOOK_DEPTH          : natural := 8;
+    G_IMBALANCE_THRESHOLD : natural := 500;
+    G_MAX_SPREAD_1E4      : natural := 25000
   );
   port (
     clk_i : in std_logic;
@@ -23,66 +24,61 @@ entity trade_decision_core is
 end entity;
 
 architecture rtl of trade_decision_core is
-  constant C_ACTION_NOOP : natural := 0;
-  constant C_ACTION_BUY  : natural := 1;
-  constant C_ACTION_SELL : natural := 2;
-
-  signal cmd_ready_s : std_logic;
-  signal rsp_valid_q : std_logic := '0';
-  signal rsp_data_q  : std_logic_vector(G_SLOT_WORDS * 32 - 1 downto 0) := (others => '0');
-
-  function f_build_response(
-    cmd_frame           : std_logic_vector(G_SLOT_WORDS * 32 - 1 downto 0);
-    buy_qty_threshold   : natural;
-    sell_qty_threshold  : natural
-  ) return std_logic_vector is
-    variable rsp       : std_logic_vector(G_SLOT_WORDS * 32 - 1 downto 0) := (others => '0');
-    variable side_code : natural := 0;
-    variable qty_value : natural := 0;
-    variable action    : natural := C_ACTION_NOOP;
-  begin
-    side_code := to_integer(unsigned(cmd_frame(63 downto 56)));
-    qty_value := to_integer(unsigned(cmd_frame(127 downto 96)));
-
-    if side_code = 1 and qty_value >= buy_qty_threshold then
-      action := C_ACTION_BUY;
-    elsif side_code = 2 and qty_value >= sell_qty_threshold then
-      action := C_ACTION_SELL;
-    end if;
-
-    rsp(31 downto 0)    := cmd_frame(31 downto 0);
-    rsp(63 downto 32)   := std_logic_vector(to_unsigned(action, 32));
-    rsp(95 downto 64)   := cmd_frame(95 downto 64);
-    rsp(127 downto 96)  := cmd_frame(127 downto 96);
-    return rsp;
-  end function;
+  signal snapshot_valid_s     : std_logic;
+  signal snapshot_seq_s       : std_logic_vector(31 downto 0);
+  signal snapshot_symbol_id_s : std_logic_vector(31 downto 0);
+  signal best_bid_px_s        : std_logic_vector(31 downto 0);
+  signal best_bid_qty_s       : std_logic_vector(31 downto 0);
+  signal best_ask_px_s        : std_logic_vector(31 downto 0);
+  signal best_ask_qty_s       : std_logic_vector(31 downto 0);
+  signal spread_1e4_s         : std_logic_vector(31 downto 0);
+  signal imbalance_s          : std_logic_vector(31 downto 0);
+  signal snapshot_ready_s     : std_logic;
 begin
-  cmd_ready_s <= '1' when rsp_valid_q = '0' or rsp_ready_i = '1' else '0';
-  cmd_ready_o <= cmd_ready_s;
+  u_order_book : entity work.order_book_core
+    generic map (
+      G_SLOT_WORDS  => G_SLOT_WORDS,
+      G_NUM_SYMBOLS => G_NUM_SYMBOLS,
+      G_BOOK_DEPTH  => G_BOOK_DEPTH
+    )
+    port map (
+      clk_i                => clk_i,
+      rst_ni               => rst_ni,
+      evt_valid_i          => cmd_valid_i,
+      evt_data_i           => cmd_data_i,
+      evt_ready_o          => cmd_ready_o,
+      snapshot_valid_o     => snapshot_valid_s,
+      snapshot_seq_o       => snapshot_seq_s,
+      snapshot_symbol_id_o => snapshot_symbol_id_s,
+      best_bid_px_o        => best_bid_px_s,
+      best_bid_qty_o       => best_bid_qty_s,
+      best_ask_px_o        => best_ask_px_s,
+      best_ask_qty_o       => best_ask_qty_s,
+      spread_1e4_o         => spread_1e4_s,
+      imbalance_o          => imbalance_s,
+      snapshot_ready_i     => snapshot_ready_s
+    );
 
-  rsp_valid_o <= rsp_valid_q;
-  rsp_data_o  <= rsp_data_q;
-
-  p_main : process(clk_i)
-  begin
-    if rising_edge(clk_i) then
-      if rst_ni = '0' then
-        rsp_valid_q <= '0';
-        rsp_data_q  <= (others => '0');
-      else
-        if rsp_valid_q = '1' and rsp_ready_i = '1' then
-          rsp_valid_q <= '0';
-        end if;
-
-        if cmd_valid_i = '1' and cmd_ready_s = '1' then
-          rsp_data_q <= f_build_response(
-            cmd_data_i,
-            G_BUY_QTY_THRESHOLD,
-            G_SELL_QTY_THRESHOLD
-          );
-          rsp_valid_q <= '1';
-        end if;
-      end if;
-    end if;
-  end process;
-end architecture;
+  u_strategy : entity work.generated_strategy_core
+    generic map (
+      G_SLOT_WORDS          => G_SLOT_WORDS,
+      G_IMBALANCE_THRESHOLD => G_IMBALANCE_THRESHOLD,
+      G_MAX_SPREAD_1E4      => G_MAX_SPREAD_1E4
+    )
+    port map (
+      clk_i            => clk_i,
+      rst_ni           => rst_ni,
+      snapshot_valid_i => snapshot_valid_s,
+      snapshot_seq_i   => snapshot_seq_s,
+      best_bid_px_i    => best_bid_px_s,
+      best_bid_qty_i   => best_bid_qty_s,
+      best_ask_px_i    => best_ask_px_s,
+      best_ask_qty_i   => best_ask_qty_s,
+      spread_1e4_i     => spread_1e4_s,
+      imbalance_i      => imbalance_s,
+      snapshot_ready_o => snapshot_ready_s,
+      rsp_valid_o      => rsp_valid_o,
+      rsp_data_o       => rsp_data_o,
+      rsp_ready_i      => rsp_ready_i
+    );
+end architecture rtl;

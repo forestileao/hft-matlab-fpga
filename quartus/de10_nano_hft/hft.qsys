@@ -76,11 +76,13 @@
    kind="hft_trade_engine_avalon_mm"
    version="1.0"
    enabled="1">
-  <parameter name="G_ADDR_WIDTH" value="12" />
-  <parameter name="G_BUY_QTY_THRESHOLD" value="2000" />
+  <parameter name="G_ADDR_WIDTH" value="13" />
+  <parameter name="G_BOOK_DEPTH" value="8" />
   <parameter name="G_DEPTH" value="64" />
-  <parameter name="G_SELL_QTY_THRESHOLD" value="2000" />
-  <parameter name="G_SLOT_WORDS" value="4" />
+  <parameter name="G_IMBALANCE_THRESHOLD" value="500" />
+  <parameter name="G_MAX_SPREAD_1E4" value="25000" />
+  <parameter name="G_NUM_SYMBOLS" value="8" />
+  <parameter name="G_SLOT_WORDS" value="8" />
  </module>
  <module name="hps_0" kind="altera_hps" version="25.1" enabled="1">
   <parameter name="ABSTRACT_REAL_COMPARE_TEST" value="false" />

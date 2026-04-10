@@ -20,6 +20,9 @@ vhdl/build/
 *.vcd
 work-obj08.cf
 
+# MATLAB generated HDL outputs
+matlab/generated_hdl/
+
 # Quartus outputs
 db/
 incremental_db/

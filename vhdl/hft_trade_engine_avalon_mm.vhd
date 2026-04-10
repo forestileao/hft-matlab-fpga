@@ -3,11 +3,13 @@ use ieee.std_logic_1164.all;
 
 entity hft_trade_engine_avalon_mm is
   generic (
-    G_ADDR_WIDTH         : natural := 12;
+    G_ADDR_WIDTH         : natural := 13;
     G_DEPTH              : natural := 64;
-    G_SLOT_WORDS         : natural := 4;
-    G_BUY_QTY_THRESHOLD  : natural := 2000;
-    G_SELL_QTY_THRESHOLD : natural := 2000
+    G_SLOT_WORDS         : natural := 8;
+    G_NUM_SYMBOLS        : natural := 8;
+    G_BOOK_DEPTH         : natural := 8;
+    G_IMBALANCE_THRESHOLD : natural := 500;
+    G_MAX_SPREAD_1E4      : natural := 25000
   );
   port (
     clk_i   : in  std_logic;
@@ -44,11 +46,13 @@ architecture rtl of hft_trade_engine_avalon_mm is
 begin
   u_engine : entity work.hft_trade_engine
     generic map (
-      G_ADDR_WIDTH         => G_ADDR_WIDTH,
-      G_DEPTH              => G_DEPTH,
-      G_SLOT_WORDS         => G_SLOT_WORDS,
-      G_BUY_QTY_THRESHOLD  => G_BUY_QTY_THRESHOLD,
-      G_SELL_QTY_THRESHOLD => G_SELL_QTY_THRESHOLD
+      G_ADDR_WIDTH          => G_ADDR_WIDTH,
+      G_DEPTH               => G_DEPTH,
+      G_SLOT_WORDS          => G_SLOT_WORDS,
+      G_NUM_SYMBOLS         => G_NUM_SYMBOLS,
+      G_BOOK_DEPTH          => G_BOOK_DEPTH,
+      G_IMBALANCE_THRESHOLD => G_IMBALANCE_THRESHOLD,
+      G_MAX_SPREAD_1E4      => G_MAX_SPREAD_1E4
     )
     port map (
       clk_i      => clk_i,

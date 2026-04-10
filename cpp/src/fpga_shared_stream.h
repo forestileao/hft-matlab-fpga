@@ -15,10 +15,15 @@ class FpgaSharedStream {
     uint32_t word1;
     uint32_t word2;
     uint32_t word3;
+    uint32_t word4;
+    uint32_t word5;
+    uint32_t word6;
+    uint32_t word7;
   };
 
   static const uint32_t kMagic = 0x48465431;  // "HFT1"
-  static const std::size_t kDefaultSpan = 0x1000;
+  static const std::size_t kDefaultSpan = 0x2000;
+  static const uint32_t kFrameWords = 8;
 
   FpgaSharedStream()
       : fd_(-1),
@@ -104,6 +109,9 @@ class FpgaSharedStream {
     if (!IsOpen()) {
       return false;
     }
+    if (slot_words_ < kFrameWords) {
+      return false;
+    }
 
     const uint32_t head = ReadReg(kRegTxHead);
     const uint32_t tail = ReadReg(kRegTxTail);
@@ -130,6 +138,9 @@ class FpgaSharedStream {
     if (!IsOpen() || frame == nullptr) {
       return false;
     }
+    if (slot_words_ < kFrameWords) {
+      return false;
+    }
 
     const uint32_t head = ReadReg(kRegRxHead);
     const uint32_t tail = ReadReg(kRegRxTail);
@@ -137,7 +148,7 @@ class FpgaSharedStream {
       return false;
     }
 
-    ReadSlot(kRxBase, tail, frame);
+    ReadSlot(RxBase(), tail, frame);
     WriteReg(kRegRxTail, Next(tail, rx_depth_));
     return true;
   }
@@ -146,10 +157,12 @@ class FpgaSharedStream {
   uint32_t Version() const { return IsOpen() ? ReadReg(kRegVersion) : 0; }
   uint32_t TxDepth() const { return tx_depth_; }
   uint32_t RxDepth() const { return rx_depth_; }
+  uint32_t SlotWords() const { return slot_words_; }
+  uint32_t RxBase() const { return kTxBase + tx_depth_ * slot_words_ * sizeof(uint32_t); }
 
  private:
   static const uint32_t kDefaultDepth = 64;
-  static const uint32_t kDefaultSlotWords = 4;  // 4 x 32-bit words = 128 bits
+  static const uint32_t kDefaultSlotWords = 8;  // 8 x 32-bit words = 256 bits
 
   static const uint32_t kRegMagic = 0x000;
   static const uint32_t kRegVersion = 0x004;
@@ -162,7 +175,6 @@ class FpgaSharedStream {
   static const uint32_t kRegSlotWords = 0x028;
 
   static const uint32_t kTxBase = 0x100;
-  static const uint32_t kRxBase = 0x500;
 
   static uint32_t Next(uint32_t value, uint32_t depth) {
     return depth == 0 ? 0 : ((value + 1u) % depth);
@@ -188,6 +200,10 @@ class FpgaSharedStream {
     slot[1] = frame.word1;
     slot[2] = frame.word2;
     slot[3] = frame.word3;
+    slot[4] = frame.word4;
+    slot[5] = frame.word5;
+    slot[6] = frame.word6;
+    slot[7] = frame.word7;
     __sync_synchronize();
   }
 
@@ -198,6 +214,10 @@ class FpgaSharedStream {
     frame->word1 = slot[1];
     frame->word2 = slot[2];
     frame->word3 = slot[3];
+    frame->word4 = slot[4];
+    frame->word5 = slot[5];
+    frame->word6 = slot[6];
+    frame->word7 = slot[7];
   }
 
   int fd_;
@@ -208,4 +228,3 @@ class FpgaSharedStream {
   uint32_t rx_depth_;
   uint32_t slot_words_;
 };
-

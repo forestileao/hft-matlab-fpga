@@ -21,6 +21,8 @@ DE10_CROSS_TRIPLET ?= arm-buildroot-linux-gnueabihf
 DE10_MFAST_BUILD_DIR ?= $(MFAST_DIR)/build-cross-de10
 DE10_MFAST_INSTALL_DIR ?= $(MFAST_DIR)/install-cross-de10
 DE10_CPP_BUILD_DIR ?= $(CPP_DIR)/build-cross-de10
+MATLAB_BIN ?= $(HOME)/MATLAB/bin/matlab
+MATLAB_DIR ?= matlab
 
 MFAST_REPO ?= https://github.com/objectcomputing/mFAST.git
 MFAST_DIR ?= mFAST
@@ -48,6 +50,7 @@ VHDL_TB_FILE ?= $(VHDL_DIR)/$(VHDL_TB).vhd
 VHDL_TB_FAST ?= tb_arm_fpga_shared_stream_bridge_fast
 VHDL_TB_ENGINE ?= tb_hft_trade_engine
 VHDL_TB_AVALON ?= tb_hft_trade_engine_avalon_mm
+VHDL_TB_ORDER_BOOK ?= tb_order_book_core
 VHDL_SOURCES ?= $(VHDL_DIR)/arm_fpga_shared_stream_bridge.vhd $(VHDL_TB_FILE)
 VHDL_VCD ?= $(VHDL_BUILD_DIR)/$(VHDL_TB).vcd
 VHDL_STOP_TIME ?= 20us
@@ -66,7 +69,7 @@ CROSS_SYSROOT_VOLUME := $(if $(CROSS_SYSROOT),-v "$(abspath $(CROSS_SYSROOT)):$(
 CROSS_TOOLCHAIN_VOLUME := $(if $(CROSS_TOOLCHAIN_DIR),-v "$(abspath $(CROSS_TOOLCHAIN_DIR)):$(CROSS_TOOLCHAIN_MOUNT):ro",)
 CROSS_TOOLCHAIN_ENV := $(if $(CROSS_TOOLCHAIN_DIR),PATH=$(CROSS_TOOLCHAIN_MOUNT)/bin:$$PATH,)
 
-.PHONY: help check quartus-ip-index docker-image docker-image-cross-armhf mfast-clone mfast-patch mfast-configure mfast-build mfast-install mfast-rebuild mfast-clean mfast-cross-configure mfast-cross-build mfast-cross-install cpp-configure cpp-build cpp-test cpp-smoke cpp-test-armv7 cpp-cross-configure cpp-cross-build cpp-cross-abi cpp-clean vhdl-test vhdl-test-fast vhdl-test-engine vhdl-test-avalon vhdl-test-all vhdl-wave vhdl-clean docker-shell docker-shell-cross-armhf de10-toolchain de10-sysroot de10-setup de10-build de10-abi de10-copy de10-stop de10-smoke
+.PHONY: help check quartus-ip-index docker-image docker-image-cross-armhf mfast-clone mfast-patch mfast-configure mfast-build mfast-install mfast-rebuild mfast-clean mfast-cross-configure mfast-cross-build mfast-cross-install cpp-configure cpp-build cpp-test cpp-smoke cpp-test-armv7 cpp-cross-configure cpp-cross-build cpp-cross-abi cpp-clean vhdl-test vhdl-test-fast vhdl-test-order-book vhdl-test-engine vhdl-test-avalon vhdl-test-all vhdl-wave vhdl-clean matlab-test matlab-hdl-generate docker-shell docker-shell-cross-armhf de10-toolchain de10-sysroot de10-setup de10-build de10-abi de10-copy de10-stop de10-smoke
 
 help:
 	@echo "Targets:"
@@ -103,11 +106,14 @@ help:
 	@echo "  cpp-clean       Remove cpp build directory"
 	@echo "  vhdl-test       Run VHDL testbench with GHDL and emit VCD"
 	@echo "  vhdl-test-fast  Run burst/FAST-like VHDL testbench with GHDL"
+	@echo "  vhdl-test-order-book Run the focused order-book VHDL testbench"
 	@echo "  vhdl-test-engine Run the bridge + strategy end-to-end VHDL testbench"
 	@echo "  vhdl-test-avalon Run the board-facing Avalon-MM wrapper testbench"
 	@echo "  vhdl-test-all   Run all VHDL simulations"
 	@echo "  vhdl-wave       Open generated VCD in GTKWave if available"
 	@echo "  vhdl-clean      Remove VHDL build artifacts"
+	@echo "  matlab-test     Run the MATLAB strategy self-check in batch mode"
+	@echo "  matlab-hdl-generate Generate VHDL for matlab/strategy.m via HDL Coder"
 	@echo "  docker-shell    Open an interactive shell in the build container"
 	@echo "  docker-shell-cross-armhf Open a shell in the ARM cross-compiler container"
 
@@ -331,17 +337,22 @@ vhdl-test-fast: VHDL_TB=$(VHDL_TB_FAST)
 vhdl-test-fast: VHDL_TB_FILE=$(VHDL_DIR)/$(VHDL_TB_FAST).vhd
 vhdl-test-fast: vhdl-test
 
+vhdl-test-order-book: VHDL_TB=$(VHDL_TB_ORDER_BOOK)
+vhdl-test-order-book: VHDL_TB_FILE=$(VHDL_DIR)/$(VHDL_TB_ORDER_BOOK).vhd
+vhdl-test-order-book: VHDL_SOURCES=$(VHDL_DIR)/order_book_core.vhd $(VHDL_TB_FILE)
+vhdl-test-order-book: vhdl-test
+
 vhdl-test-engine: VHDL_TB=$(VHDL_TB_ENGINE)
 vhdl-test-engine: VHDL_TB_FILE=$(VHDL_DIR)/$(VHDL_TB_ENGINE).vhd
-vhdl-test-engine: VHDL_SOURCES=$(VHDL_DIR)/arm_fpga_shared_stream_bridge.vhd $(VHDL_DIR)/trade_decision_core.vhd $(VHDL_DIR)/hft_trade_engine.vhd $(VHDL_DIR)/$(VHDL_TB_ENGINE).vhd
+vhdl-test-engine: VHDL_SOURCES=$(VHDL_DIR)/arm_fpga_shared_stream_bridge.vhd $(VHDL_DIR)/order_book_core.vhd $(MATLAB_DIR)/generated_hdl/codegen/strategy/hdlsrc/strategy.vhd $(VHDL_DIR)/generated_strategy_core.vhd $(VHDL_DIR)/trade_decision_core.vhd $(VHDL_DIR)/hft_trade_engine.vhd $(VHDL_TB_FILE)
 vhdl-test-engine: vhdl-test
 
 vhdl-test-avalon: VHDL_TB=$(VHDL_TB_AVALON)
 vhdl-test-avalon: VHDL_TB_FILE=$(VHDL_DIR)/$(VHDL_TB_AVALON).vhd
-vhdl-test-avalon: VHDL_SOURCES=$(VHDL_DIR)/arm_fpga_shared_stream_bridge.vhd $(VHDL_DIR)/trade_decision_core.vhd $(VHDL_DIR)/hft_trade_engine.vhd $(VHDL_DIR)/hft_trade_engine_avalon_mm.vhd $(VHDL_DIR)/$(VHDL_TB_AVALON).vhd
+vhdl-test-avalon: VHDL_SOURCES=$(VHDL_DIR)/arm_fpga_shared_stream_bridge.vhd $(VHDL_DIR)/order_book_core.vhd $(MATLAB_DIR)/generated_hdl/codegen/strategy/hdlsrc/strategy.vhd $(VHDL_DIR)/generated_strategy_core.vhd $(VHDL_DIR)/trade_decision_core.vhd $(VHDL_DIR)/hft_trade_engine.vhd $(VHDL_DIR)/hft_trade_engine_avalon_mm.vhd $(VHDL_TB_FILE)
 vhdl-test-avalon: vhdl-test
 
-vhdl-test-all: vhdl-test vhdl-test-fast vhdl-test-engine vhdl-test-avalon
+vhdl-test-all: vhdl-test vhdl-test-fast vhdl-test-order-book vhdl-test-engine vhdl-test-avalon
 
 vhdl-wave:
 	@if [ -f "$(VHDL_VCD)" ]; then \
@@ -356,6 +367,12 @@ vhdl-wave:
 
 vhdl-clean:
 	rm -rf "$(VHDL_BUILD_DIR)"
+
+matlab-test:
+	"$(MATLAB_BIN)" -batch "cd('$(CURDIR)/matlab'); strategy_tb"
+
+matlab-hdl-generate:
+	"$(MATLAB_BIN)" -batch "cd('$(CURDIR)/matlab'); hdl_generator"
 
 docker-shell: docker-image
 	$(DOCKER) run --rm -it \

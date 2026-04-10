@@ -12,8 +12,10 @@ The implemented pipeline today is:
 
 - run a sample market data feed server
 - receive and decode FAST messages
-- forward decoded 128-bit frames through the FPGA MMIO shared-stream bridge
-- have FPGA logic return `NOOP`, `BUY`, or `SELL`
+- translate each decoded entry into a normalized 256-bit book event
+- forward that event through the FPGA MMIO shared-stream bridge
+- have FPGA logic maintain a simplified per-symbol order book
+- have FPGA logic return `NOOP`, `BUY`, or `SELL` plus top-of-book signals
 - print those decisions back on the ARM side
 
 For real board integration, the FPGA block is also wrapped as an Avalon-MM slave:
@@ -21,15 +23,20 @@ For real board integration, the FPGA block is also wrapped as an Avalon-MM slave
 - `vhdl/hft_trade_engine_avalon_mm.vhd`
 - `quartus/hft_trade_engine_avalon_mm_hw.tcl`
 
-The current FPGA strategy is intentionally simple:
+The current FPGA strategy is intentionally simple but now book-driven:
 
-- `BUY` when side is buy and quantity is at least `2000`
-- `SELL` when side is sell and quantity is at least `2000`
+- update bid/ask levels per symbol inside the FPGA
+- compute top-of-book spread and imbalance
+- `BUY` when imbalance is at least `500` and spread is at most `2.5000`
+- `SELL` when imbalance is at most `-500` and spread is at most `2.5000`
 - otherwise `NOOP`
 
 That rule is implemented in both:
 
+- `vhdl/order_book_core.vhd`
+- `vhdl/book_strategy_core.vhd`
 - `vhdl/trade_decision_core.vhd`
+- `matlab/strategy.m`
 - `matlab/trade_decision_model.m`
 
 This keeps the interface stable while leaving a clean place to swap in a future MATLAB-generated HDL block.
@@ -46,7 +53,7 @@ That runs:
 
 - `cpp-test`: C++ MMIO wrapper test
 - `cpp-smoke`: `fast_data_feed` + `fast_receiver` together in Docker
-- `vhdl-test-all`: bridge-only, stress, end-to-end strategy, and Avalon wrapper simulations
+- `vhdl-test-all`: bridge-only, stress, order-book, end-to-end strategy, and Avalon wrapper simulations
 
 If you want only the new end-to-end FPGA-path simulation:
 
@@ -66,6 +73,24 @@ To sanity-check that Quartus can index the custom Platform Designer component:
 
 ```bash
 make quartus-ip-index
+```
+
+To run the focused order-book testbench:
+
+```bash
+make vhdl-test-order-book
+```
+
+To run the MATLAB strategy self-check:
+
+```bash
+make matlab-test
+```
+
+To generate VHDL from MATLAB HDL Coder without using the GUI:
+
+```bash
+make matlab-hdl-generate
 ```
 
 ## DE10-Nano Target
@@ -141,10 +166,12 @@ To run the receiver against FPGA logic loaded in the fabric, set the MMIO base o
 ssh root@192.168.7.1 'cd /home/root && HFT_FPGA_MMIO_BASE=0xFF200000 ./fast_receiver'
 ```
 
+The default bridge span is now `0x2000` because the event/response slots are `8 x 32-bit` words.
+
 When FPGA responses are present, the receiver prints lines like:
 
 ```text
-[FPGA->ARM] seq=11 action=BUY price_1e4=1850000 qty=2500
+[FPGA->ARM] seq=11 action=BUY best_bid_px_1e4=1850000 best_bid_qty=2500 best_ask_px_1e4=1852000 best_ask_qty=1200 spread_1e4=2000 imbalance=1300
 ```
 
 ## Stop The Programs On The Board
@@ -181,9 +208,12 @@ ssh root@192.168.7.1 'killall fast_receiver fast_data_feed >/dev/null 2>&1 || tr
 - `make quartus-ip-index`
 - `make vhdl-test`
 - `make vhdl-test-fast`
+- `make vhdl-test-order-book`
 - `make vhdl-test-engine`
 - `make vhdl-test-avalon`
 - `make vhdl-test-all`
+- `make matlab-test`
+- `make matlab-hdl-generate`
 
 ## Quartus Prime Lite
 

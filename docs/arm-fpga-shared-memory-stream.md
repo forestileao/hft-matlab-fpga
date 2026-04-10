@@ -28,7 +28,7 @@ This ownership avoids lock contention and keeps deterministic behavior.
                 |                                              |
 FAST TCP feed ->| fast_receiver.cpp                            |
                 |  - decode FAST                               |
-                |  - pack 128-bit frame                        |
+                |  - pack 256-bit event frame                  |
                 |  - write TX slot + TX_HEAD                   |
                 |  - read RX slot + update RX_TAIL             |
                 +---------------------+------------------------+
@@ -50,9 +50,10 @@ FAST TCP feed ->| fast_receiver.cpp                            |
                                       v
                 +----------------------------------------------+
                 |      trade_decision_core / hft_trade_engine  |
-                |  - decodes market frame                      |
+                |  - updates per-symbol order book             |
+                |  - derives top-of-book signals               |
                 |  - decides NOOP / BUY / SELL                 |
-                |  - writes 128-bit response frame             |
+                |  - writes 256-bit response frame             |
                 +----------------------------------------------+
 ```
 
@@ -89,13 +90,13 @@ Offsets are byte offsets from MMIO base.
 | `0x01C` | `RX_TAIL` | RW | ARM consume pointer |
 | `0x020` | `TX_DEPTH` | RO | queue depth |
 | `0x024` | `RX_DEPTH` | RO | queue depth |
-| `0x028` | `SLOT_WORDS` | RO | words per slot (`4`) |
+| `0x028` | `SLOT_WORDS` | RO | words per slot (`8`) |
 | `0x100` | `TX_SLOTS` | RW | TX slot memory base |
 | dynamic | `RX_SLOTS` | RW | `RX_BASE = 0x100 + DEPTH * SLOT_WORDS * 4` |
 
-Default with `DEPTH=64`, `SLOT_WORDS=4`:
+Default with `DEPTH=64`, `SLOT_WORDS=8`:
 - `TX_BASE = 0x100`
-- `RX_BASE = 0x500`
+- `RX_BASE = 0x900`
 
 ## 5. Memory Layout (ASCII Graph)
 
@@ -112,28 +113,47 @@ MMIO base + 0x100  [TX slot 0 word0]
 MMIO base + 0x104  [TX slot 0 word1]
 MMIO base + 0x108  [TX slot 0 word2]
 MMIO base + 0x10C  [TX slot 0 word3]
+MMIO base + 0x110  [TX slot 0 word4]
+MMIO base + 0x114  [TX slot 0 word5]
+MMIO base + 0x118  [TX slot 0 word6]
+MMIO base + 0x11C  [TX slot 0 word7]
 ...
 MMIO base + RX_BASE [RX slot 0 word0]
 MMIO base + RX_BASE+4
-MMIO base + RX_BASE+8
-MMIO base + RX_BASE+12
+...
+MMIO base + RX_BASE+28
 ```
 
 Slot size is fixed:
-- `4 words * 4 bytes = 16 bytes`
+- `8 words * 4 bytes = 32 bytes`
 
 Address formula:
-- slot word address = `BASE + slot_index * 16 + word_index * 4`
+- slot word address = `BASE + slot_index * 32 + word_index * 4`
 
-## 6. Frame Payload (Current C++ Mapping)
+## 6. Event Payload (Current C++ Mapping)
 
 From `cpp/src/fast_receiver.cpp`:
 - `word0`: sequence number (`SeqNo`)
-- `word1`: packed symbol+side
-  - byte0..2 = first 3 symbol chars
-  - byte3 = side code (`1=buy`, `2=sell`)
+- `word1`: `symbol_id`
 - `word2`: fixed-point price (`price * 1e4`)
 - `word3`: quantity
+- `word4`: event type
+  - `1 = UPSERT_LEVEL`
+  - `2 = DELETE_LEVEL`
+  - `3 = RESET_BOOK`
+- `word5`: side code
+  - `1 = BUY`
+  - `2 = SELL`
+- `word6`: level hint or order identifier placeholder
+- `word7`: reserved
+
+Current ARM symbol mapping:
+
+- `0 = AAPL`
+- `1 = MSFT`
+- `2 = NVDA`
+- `3 = GOOGL`
+- `4 = TSLA`
 
 ## 7. Handshake Timing (ASCII)
 
@@ -161,20 +181,24 @@ transfer      X
 
 ## 8. Response Payload
 
-The current FPGA decision wrapper returns:
+The current FPGA decision wrapper returns a book-driven snapshot plus action:
 
 - `word0`: echoed sequence number
 - `word1`: action code
   - `0 = NOOP`
   - `1 = BUY`
   - `2 = SELL`
-- `word2`: echoed fixed-point price (`price * 1e4`)
-- `word3`: echoed quantity
+- `word2`: best bid price (`1e4` fixed point)
+- `word3`: best bid quantity
+- `word4`: best ask price (`1e4` fixed point)
+- `word5`: best ask quantity
+- `word6`: spread (`best_ask - best_bid`, `1e4` fixed point)
+- `word7`: signed imbalance (`best_bid_qty - best_ask_qty`, two's complement)
 
 This is the frame shape consumed by `fast_receiver.cpp` when it prints:
 
 ```text
-[FPGA->ARM] seq=... action=BUY|SELL|NOOP price_1e4=... qty=...
+[FPGA->ARM] seq=... action=BUY|SELL|NOOP best_bid_px_1e4=... best_bid_qty=... best_ask_px_1e4=... best_ask_qty=... spread_1e4=... imbalance=...
 ```
 
 ## 9. How To Validate On Hardware
@@ -190,7 +214,7 @@ Minimal runtime checks:
 5. Confirm FPGA response:
    - `STATUS.bit2` (`rx_has_data`) becomes `1`
    - `RX_HEAD` advances.
-6. Read RX slot words from `RX_BASE + RX_TAIL*16`.
+6. Read RX slot words from `RX_BASE + RX_TAIL*32`.
 7. Write updated `RX_TAIL`.
 8. Confirm queue drained:
    - `STATUS.bit2` returns to `0`.
@@ -235,5 +259,6 @@ If results look wrong, check:
 2. Publishing `TX_HEAD` before writing all 4 slot words.
 3. Updating `RX_TAIL` before reading all 4 RX words.
 4. Writing more than ring capacity without draining (`DEPTH-1` effective usable entries).
-5. Endianness assumptions when decoding packed `word1`.
-6. Mismatch between strategy response frame format and what `fast_receiver.cpp` expects.
+5. Using `HFT_FPGA_MMIO_SPAN=0x1000` with the new 8-word default layout. The default span is now `0x2000`.
+6. Mismatch between event type or `symbol_id` mapping on ARM and FPGA expectations.
+7. Mismatch between strategy response frame format and what `fast_receiver.cpp` expects.

@@ -4,9 +4,9 @@ use ieee.numeric_std.all;
 
 entity arm_fpga_shared_stream_bridge is
   generic (
-    G_ADDR_WIDTH : natural := 12; -- byte address width
+    G_ADDR_WIDTH : natural := 13; -- byte address width
     G_DEPTH      : natural := 64;
-    G_SLOT_WORDS : natural := 4   -- 4 words = 128-bit frame
+    G_SLOT_WORDS : natural := 8   -- 8 words = 256-bit frame
   );
   port (
     clk_i     : in  std_logic;

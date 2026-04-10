@@ -6,9 +6,9 @@ entity tb_arm_fpga_shared_stream_bridge_fast is
 end entity;
 
 architecture tb of tb_arm_fpga_shared_stream_bridge_fast is
-  constant C_ADDR_WIDTH : natural := 12;
+  constant C_ADDR_WIDTH : natural := 13;
   constant C_DEPTH      : natural := 8;
-  constant C_SLOT_WORDS : natural := 4;
+  constant C_SLOT_WORDS : natural := 8;
 
   constant C_REG_MAGIC    : natural := 16#000#;
   constant C_REG_VERSION  : natural := 16#004#;
@@ -124,6 +124,26 @@ architecture tb of tb_arm_fpga_shared_stream_bridge_fast is
     return C_TX_W3(idx);
   end function;
 
+  function f_tx_word4(idx : natural) return std_logic_vector is
+  begin
+    return x"00000001";
+  end function;
+
+  function f_tx_word5(idx : natural) return std_logic_vector is
+  begin
+    return std_logic_vector(to_unsigned((idx mod 2) + 1, 32));
+  end function;
+
+  function f_tx_word6(idx : natural) return std_logic_vector is
+  begin
+    return f_u32(idx);
+  end function;
+
+  function f_tx_word7(idx : natural) return std_logic_vector is
+  begin
+    return x"00000000";
+  end function;
+
   function f_rsp_word0(idx : natural) return std_logic_vector is
   begin
     return f_u32(1000 + idx);
@@ -144,13 +164,37 @@ architecture tb of tb_arm_fpga_shared_stream_bridge_fast is
     return f_u32(5000 + idx * 25);
   end function;
 
+  function f_rsp_word4(idx : natural) return std_logic_vector is
+  begin
+    return std_logic_vector(to_unsigned(16#20000000# + idx * 9, 32));
+  end function;
+
+  function f_rsp_word5(idx : natural) return std_logic_vector is
+  begin
+    return f_u32(6000 + idx * 13);
+  end function;
+
+  function f_rsp_word6(idx : natural) return std_logic_vector is
+  begin
+    return f_u32(200 + idx * 3);
+  end function;
+
+  function f_rsp_word7(idx : natural) return std_logic_vector is
+  begin
+    return std_logic_vector(to_unsigned(idx * 111, 32));
+  end function;
+
   function f_rsp_frame(idx : natural) return std_logic_vector is
-    variable frame : std_logic_vector(127 downto 0) := (others => '0');
+    variable frame : std_logic_vector(C_SLOT_WORDS * 32 - 1 downto 0) := (others => '0');
   begin
     frame(31 downto 0)    := f_rsp_word0(idx);
     frame(63 downto 32)   := f_rsp_word1(idx);
     frame(95 downto 64)   := f_rsp_word2(idx);
     frame(127 downto 96)  := f_rsp_word3(idx);
+    frame(159 downto 128) := f_rsp_word4(idx);
+    frame(191 downto 160) := f_rsp_word5(idx);
+    frame(223 downto 192) := f_rsp_word6(idx);
+    frame(255 downto 224) := f_rsp_word7(idx);
     return frame;
   end function;
 
@@ -269,6 +313,10 @@ begin
       mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, f_slot_addr(C_TX_BASE, arm_head, 1), f_tx_word1(i));
       mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, f_slot_addr(C_TX_BASE, arm_head, 2), f_tx_word2(i));
       mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, f_slot_addr(C_TX_BASE, arm_head, 3), f_tx_word3(i));
+      mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, f_slot_addr(C_TX_BASE, arm_head, 4), f_tx_word4(i));
+      mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, f_slot_addr(C_TX_BASE, arm_head, 5), f_tx_word5(i));
+      mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, f_slot_addr(C_TX_BASE, arm_head, 6), f_tx_word6(i));
+      mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, f_slot_addr(C_TX_BASE, arm_head, 7), f_tx_word7(i));
       arm_head := f_next(arm_head);
       mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, C_REG_TX_HEAD, f_u32(arm_head));
     end loop;
@@ -286,6 +334,10 @@ begin
       assert cmd_data(63 downto 32)   = f_tx_word1(tx_consume_idx) report "TX w1 mismatch (phase1)" severity failure;
       assert cmd_data(95 downto 64)   = f_tx_word2(tx_consume_idx) report "TX w2 mismatch (phase1)" severity failure;
       assert cmd_data(127 downto 96)  = f_tx_word3(tx_consume_idx) report "TX w3 mismatch (phase1)" severity failure;
+      assert cmd_data(159 downto 128) = f_tx_word4(tx_consume_idx) report "TX w4 mismatch (phase1)" severity failure;
+      assert cmd_data(191 downto 160) = f_tx_word5(tx_consume_idx) report "TX w5 mismatch (phase1)" severity failure;
+      assert cmd_data(223 downto 192) = f_tx_word6(tx_consume_idx) report "TX w6 mismatch (phase1)" severity failure;
+      assert cmd_data(255 downto 224) = f_tx_word7(tx_consume_idx) report "TX w7 mismatch (phase1)" severity failure;
       tx_consume_idx := tx_consume_idx + 1;
     end loop;
 
@@ -303,6 +355,10 @@ begin
         assert cmd_data(63 downto 32)   = f_tx_word1(tx_consume_idx) report "TX w1 mismatch (drain)" severity failure;
         assert cmd_data(95 downto 64)   = f_tx_word2(tx_consume_idx) report "TX w2 mismatch (drain)" severity failure;
         assert cmd_data(127 downto 96)  = f_tx_word3(tx_consume_idx) report "TX w3 mismatch (drain)" severity failure;
+        assert cmd_data(159 downto 128) = f_tx_word4(tx_consume_idx) report "TX w4 mismatch (drain)" severity failure;
+        assert cmd_data(191 downto 160) = f_tx_word5(tx_consume_idx) report "TX w5 mismatch (drain)" severity failure;
+        assert cmd_data(223 downto 192) = f_tx_word6(tx_consume_idx) report "TX w6 mismatch (drain)" severity failure;
+        assert cmd_data(255 downto 224) = f_tx_word7(tx_consume_idx) report "TX w7 mismatch (drain)" severity failure;
         tx_consume_idx := tx_consume_idx + 1;
         cmd_ready <= '0';
         wait until rising_edge(clk);
@@ -313,6 +369,10 @@ begin
       mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, f_slot_addr(C_TX_BASE, arm_head, 1), f_tx_word1(i));
       mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, f_slot_addr(C_TX_BASE, arm_head, 2), f_tx_word2(i));
       mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, f_slot_addr(C_TX_BASE, arm_head, 3), f_tx_word3(i));
+      mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, f_slot_addr(C_TX_BASE, arm_head, 4), f_tx_word4(i));
+      mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, f_slot_addr(C_TX_BASE, arm_head, 5), f_tx_word5(i));
+      mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, f_slot_addr(C_TX_BASE, arm_head, 6), f_tx_word6(i));
+      mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, f_slot_addr(C_TX_BASE, arm_head, 7), f_tx_word7(i));
       arm_head := f_next(arm_head);
       mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, C_REG_TX_HEAD, f_u32(arm_head));
     end loop;
@@ -326,6 +386,10 @@ begin
         assert cmd_data(63 downto 32)   = f_tx_word1(tx_consume_idx) report "TX w1 mismatch (phase2)" severity failure;
         assert cmd_data(95 downto 64)   = f_tx_word2(tx_consume_idx) report "TX w2 mismatch (phase2)" severity failure;
         assert cmd_data(127 downto 96)  = f_tx_word3(tx_consume_idx) report "TX w3 mismatch (phase2)" severity failure;
+        assert cmd_data(159 downto 128) = f_tx_word4(tx_consume_idx) report "TX w4 mismatch (phase2)" severity failure;
+        assert cmd_data(191 downto 160) = f_tx_word5(tx_consume_idx) report "TX w5 mismatch (phase2)" severity failure;
+        assert cmd_data(223 downto 192) = f_tx_word6(tx_consume_idx) report "TX w6 mismatch (phase2)" severity failure;
+        assert cmd_data(255 downto 224) = f_tx_word7(tx_consume_idx) report "TX w7 mismatch (phase2)" severity failure;
         tx_consume_idx := tx_consume_idx + 1;
       end if;
     end loop;
@@ -367,6 +431,14 @@ begin
       assert rd_val = f_rsp_word2(rx_expect_idx) report "RX w2 mismatch (phase1)" severity failure;
       mm_read(mm_addr, mm_rd, mm_rdata, mm_ready, f_slot_addr(C_RX_BASE, rx_tail_sw, 3), rd_val);
       assert rd_val = f_rsp_word3(rx_expect_idx) report "RX w3 mismatch (phase1)" severity failure;
+      mm_read(mm_addr, mm_rd, mm_rdata, mm_ready, f_slot_addr(C_RX_BASE, rx_tail_sw, 4), rd_val);
+      assert rd_val = f_rsp_word4(rx_expect_idx) report "RX w4 mismatch (phase1)" severity failure;
+      mm_read(mm_addr, mm_rd, mm_rdata, mm_ready, f_slot_addr(C_RX_BASE, rx_tail_sw, 5), rd_val);
+      assert rd_val = f_rsp_word5(rx_expect_idx) report "RX w5 mismatch (phase1)" severity failure;
+      mm_read(mm_addr, mm_rd, mm_rdata, mm_ready, f_slot_addr(C_RX_BASE, rx_tail_sw, 6), rd_val);
+      assert rd_val = f_rsp_word6(rx_expect_idx) report "RX w6 mismatch (phase1)" severity failure;
+      mm_read(mm_addr, mm_rd, mm_rdata, mm_ready, f_slot_addr(C_RX_BASE, rx_tail_sw, 7), rd_val);
+      assert rd_val = f_rsp_word7(rx_expect_idx) report "RX w7 mismatch (phase1)" severity failure;
 
       rx_tail_sw := f_next(rx_tail_sw);
       mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, C_REG_RX_TAIL, f_u32(rx_tail_sw));
@@ -398,6 +470,14 @@ begin
       assert rd_val = f_rsp_word2(rx_expect_idx) report "RX w2 mismatch (phase2)" severity failure;
       mm_read(mm_addr, mm_rd, mm_rdata, mm_ready, f_slot_addr(C_RX_BASE, rx_tail_sw, 3), rd_val);
       assert rd_val = f_rsp_word3(rx_expect_idx) report "RX w3 mismatch (phase2)" severity failure;
+      mm_read(mm_addr, mm_rd, mm_rdata, mm_ready, f_slot_addr(C_RX_BASE, rx_tail_sw, 4), rd_val);
+      assert rd_val = f_rsp_word4(rx_expect_idx) report "RX w4 mismatch (phase2)" severity failure;
+      mm_read(mm_addr, mm_rd, mm_rdata, mm_ready, f_slot_addr(C_RX_BASE, rx_tail_sw, 5), rd_val);
+      assert rd_val = f_rsp_word5(rx_expect_idx) report "RX w5 mismatch (phase2)" severity failure;
+      mm_read(mm_addr, mm_rd, mm_rdata, mm_ready, f_slot_addr(C_RX_BASE, rx_tail_sw, 6), rd_val);
+      assert rd_val = f_rsp_word6(rx_expect_idx) report "RX w6 mismatch (phase2)" severity failure;
+      mm_read(mm_addr, mm_rd, mm_rdata, mm_ready, f_slot_addr(C_RX_BASE, rx_tail_sw, 7), rd_val);
+      assert rd_val = f_rsp_word7(rx_expect_idx) report "RX w7 mismatch (phase2)" severity failure;
 
       rx_tail_sw := f_next(rx_tail_sw);
       mm_write(mm_addr, mm_wr, mm_wdata, mm_ready, C_REG_RX_TAIL, f_u32(rx_tail_sw));
