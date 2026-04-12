@@ -11,6 +11,10 @@ if uint32(best_bid_qty) == uint32(0) || uint32(best_ask_qty) == uint32(0)
     return;
 end
 
+if uint32(best_ask_px) <= uint32(best_bid_px)
+    return;
+end
+
 if uint32(spread_1e4) > max_spread_1e4
     return;
 end

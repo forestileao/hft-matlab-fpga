@@ -1,5 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 entity generated_strategy_core is
   generic (
@@ -32,6 +33,7 @@ architecture rtl of generated_strategy_core is
   signal rsp_valid_q : std_logic := '0';
   signal rsp_data_q  : std_logic_vector(G_SLOT_WORDS * 32 - 1 downto 0) := (others => '0');
   signal action_s    : std_logic_vector(31 downto 0);
+  signal safe_action_s : std_logic_vector(31 downto 0);
 
   function f_build_response(
     seq_v        : std_logic_vector(31 downto 0);
@@ -69,6 +71,12 @@ begin
       action       => action_s
     );
 
+  safe_action_s <=
+    (others => '0') when best_bid_qty_i = x"00000000" else
+    (others => '0') when best_ask_qty_i = x"00000000" else
+    (others => '0') when unsigned(best_ask_px_i) <= unsigned(best_bid_px_i) else
+    action_s;
+
   snapshot_ready_s <= '1' when rsp_valid_q = '0' or rsp_ready_i = '1' else '0';
   snapshot_ready_o <= snapshot_ready_s;
 
@@ -89,7 +97,7 @@ begin
         if snapshot_valid_i = '1' and snapshot_ready_s = '1' then
           rsp_data_q <= f_build_response(
             snapshot_seq_i,
-            action_s,
+            safe_action_s,
             best_bid_px_i,
             best_bid_qty_i,
             best_ask_px_i,

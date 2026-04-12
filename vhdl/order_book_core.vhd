@@ -233,23 +233,35 @@ begin
               p_clear_side(v_bid_price(symbol_idx_v), v_bid_qty(symbol_idx_v));
               p_clear_side(v_ask_price(symbol_idx_v), v_ask_qty(symbol_idx_v));
             elsif side_v = C_SIDE_BUY then
-              p_apply_level_update(
-                v_bid_price(symbol_idx_v),
-                v_bid_qty(symbol_idx_v),
-                price_v,
-                qty_v,
-                event_type_v = C_EVENT_DELETE_LEVEL,
-                true
-              );
+              -- Reject crossed bids. A buy level at or above the current best ask
+              -- would make the synthetic book internally inconsistent.
+              if event_type_v = C_EVENT_DELETE_LEVEL or
+                 v_ask_qty(symbol_idx_v)(0) = 0 or
+                 price_v < v_ask_price(symbol_idx_v)(0) then
+                p_apply_level_update(
+                  v_bid_price(symbol_idx_v),
+                  v_bid_qty(symbol_idx_v),
+                  price_v,
+                  qty_v,
+                  event_type_v = C_EVENT_DELETE_LEVEL,
+                  true
+                );
+              end if;
             elsif side_v = C_SIDE_SELL then
-              p_apply_level_update(
-                v_ask_price(symbol_idx_v),
-                v_ask_qty(symbol_idx_v),
-                price_v,
-                qty_v,
-                event_type_v = C_EVENT_DELETE_LEVEL,
-                false
-              );
+              -- Reject crossed asks for the same reason: best bid must remain
+              -- strictly below best ask when both sides are present.
+              if event_type_v = C_EVENT_DELETE_LEVEL or
+                 v_bid_qty(symbol_idx_v)(0) = 0 or
+                 price_v > v_bid_price(symbol_idx_v)(0) then
+                p_apply_level_update(
+                  v_ask_price(symbol_idx_v),
+                  v_ask_qty(symbol_idx_v),
+                  price_v,
+                  qty_v,
+                  event_type_v = C_EVENT_DELETE_LEVEL,
+                  false
+                );
+              end if;
             end if;
 
             best_bid_px_v := v_bid_price(symbol_idx_v)(0);
@@ -257,7 +269,7 @@ begin
             best_ask_px_v := v_ask_price(symbol_idx_v)(0);
             best_ask_qty_v := v_ask_qty(symbol_idx_v)(0);
 
-            if best_bid_qty_v /= 0 and best_ask_qty_v /= 0 and best_ask_px_v >= best_bid_px_v then
+            if best_bid_qty_v /= 0 and best_ask_qty_v /= 0 and best_ask_px_v > best_bid_px_v then
               spread_v := best_ask_px_v - best_bid_px_v;
             end if;
 

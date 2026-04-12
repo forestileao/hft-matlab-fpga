@@ -69,6 +69,8 @@ VHDL_TB_FAST ?= tb_arm_fpga_shared_stream_bridge_fast
 VHDL_TB_ENGINE ?= tb_hft_trade_engine
 VHDL_TB_AVALON ?= tb_hft_trade_engine_avalon_mm
 VHDL_TB_ORDER_BOOK ?= tb_order_book_core
+VHDL_TB_STRATEGY ?= tb_generated_strategy_core
+VHDL_STRATEGY_SOURCE ?= $(if $(wildcard $(MATLAB_STRATEGY_VHDL)),$(MATLAB_STRATEGY_VHDL),$(VHDL_DIR)/strategy_fallback.vhd)
 VHDL_SOURCES ?= $(VHDL_DIR)/arm_fpga_shared_stream_bridge.vhd $(VHDL_TB_FILE)
 VHDL_VCD ?= $(VHDL_BUILD_DIR)/$(VHDL_TB).vcd
 VHDL_STOP_TIME ?= 20us
@@ -87,7 +89,7 @@ CROSS_SYSROOT_VOLUME := $(if $(CROSS_SYSROOT),-v "$(abspath $(CROSS_SYSROOT)):$(
 CROSS_TOOLCHAIN_VOLUME := $(if $(CROSS_TOOLCHAIN_DIR),-v "$(abspath $(CROSS_TOOLCHAIN_DIR)):$(CROSS_TOOLCHAIN_MOUNT):ro",)
 CROSS_TOOLCHAIN_ENV := $(if $(CROSS_TOOLCHAIN_DIR),PATH=$(CROSS_TOOLCHAIN_MOUNT)/bin:$$PATH,)
 
-.PHONY: help build deploy check quartus-build quartus-build-no-matlab quartus-program quartus-ip-index docker-image docker-image-cross-armhf matlab-docker-image mfast-clone mfast-patch mfast-configure mfast-build mfast-install mfast-rebuild mfast-clean mfast-cross-configure mfast-cross-build mfast-cross-install cpp-configure cpp-build cpp-test cpp-smoke cpp-test-armv7 cpp-cross-configure cpp-cross-build cpp-cross-abi cpp-clean vhdl-test vhdl-test-fast vhdl-test-order-book vhdl-test-engine vhdl-test-avalon vhdl-test-all vhdl-wave vhdl-clean matlab-login matlab-test matlab-hdl-generate docker-shell docker-shell-cross-armhf de10-toolchain de10-sysroot de10-sysroot-check de10-setup de10-build-offline de10-build de10-abi de10-copy de10-deploy de10-stop de10-smoke
+.PHONY: help build deploy check quartus-build quartus-build-no-matlab quartus-program quartus-ip-index docker-image docker-image-cross-armhf matlab-docker-image mfast-clone mfast-patch mfast-configure mfast-build mfast-install mfast-rebuild mfast-clean mfast-cross-configure mfast-cross-build mfast-cross-install cpp-configure cpp-build cpp-test cpp-smoke cpp-test-armv7 cpp-cross-configure cpp-cross-build cpp-cross-abi cpp-clean vhdl-test vhdl-test-fast vhdl-test-order-book vhdl-test-strategy vhdl-test-engine vhdl-test-avalon vhdl-test-all vhdl-wave vhdl-clean matlab-login matlab-test matlab-hdl-generate docker-shell docker-shell-cross-armhf de10-toolchain de10-sysroot de10-sysroot-check de10-setup de10-build-offline de10-build de10-abi de10-copy de10-deploy de10-enable-bridges de10-stop de10-smoke
 
 help:
 	@echo "Main workflow:"
@@ -96,6 +98,7 @@ help:
 	@echo ""
 	@echo "Board:"
 	@echo "  make quartus-program Program the SOF through JTAG if USB-Blaster is available"
+	@echo "  make de10-enable-bridges Enable Linux FPGA bridge sysfs switches after programming"
 	@echo "  make de10-stop       Stop fast_receiver and fast_data_feed on the DE10-Nano"
 	@echo "  make de10-smoke      Brief board smoke test"
 	@echo ""
@@ -103,6 +106,7 @@ help:
 	@echo "  make check           Run host C++ and VHDL tests"
 	@echo "  make vhdl-test-engine"
 	@echo "  make vhdl-test-avalon"
+	@echo "  make vhdl-test-strategy"
 	@echo "  make matlab-docker-image"
 	@echo "  make matlab-login"
 	@echo "  make matlab-hdl-generate"
@@ -199,6 +203,9 @@ de10-deploy:
 	@test -x "$(DE10_CPP_BUILD_DIR)/fast_data_feed" || { echo "Missing $(DE10_CPP_BUILD_DIR)/fast_data_feed. Run 'make build' first."; exit 1; }
 	ssh "$(DE10_HOST)" 'true'
 	scp "$(DE10_CPP_BUILD_DIR)/fast_receiver" "$(DE10_CPP_BUILD_DIR)/fast_data_feed" "$(DE10_HOST):$(DE10_HOME)/"
+
+de10-enable-bridges:
+	ssh "$(DE10_HOST)" 'for b in /sys/class/fpga-bridge/*; do [ -e "$$b/enable" ] || continue; echo 1 > "$$b/enable" 2>/dev/null || true; printf "%s=" "$$(basename "$$b")"; cat "$$b/enable" 2>/dev/null || echo unknown; done'
 
 de10-stop:
 	ssh "$(DE10_HOST)" 'killall fast_receiver fast_data_feed >/dev/null 2>&1 || true'
@@ -373,17 +380,28 @@ vhdl-test-order-book: VHDL_TB_FILE=$(VHDL_DIR)/$(VHDL_TB_ORDER_BOOK).vhd
 vhdl-test-order-book: VHDL_SOURCES=$(VHDL_DIR)/order_book_core.vhd $(VHDL_TB_FILE)
 vhdl-test-order-book: vhdl-test
 
+vhdl-test-strategy: VHDL_TB=$(VHDL_TB_STRATEGY)
+vhdl-test-strategy: VHDL_TB_FILE=$(VHDL_DIR)/$(VHDL_TB_STRATEGY).vhd
+vhdl-test-strategy: VHDL_SOURCES=$(VHDL_STRATEGY_SOURCE) $(VHDL_DIR)/generated_strategy_core.vhd $(VHDL_TB_FILE)
+vhdl-test-strategy: vhdl-test
+
 vhdl-test-engine: VHDL_TB=$(VHDL_TB_ENGINE)
 vhdl-test-engine: VHDL_TB_FILE=$(VHDL_DIR)/$(VHDL_TB_ENGINE).vhd
-vhdl-test-engine: VHDL_SOURCES=$(VHDL_DIR)/arm_fpga_shared_stream_bridge.vhd $(VHDL_DIR)/order_book_core.vhd $(MATLAB_DIR)/generated_hdl/codegen/strategy/hdlsrc/strategy.vhd $(VHDL_DIR)/generated_strategy_core.vhd $(VHDL_DIR)/trade_decision_core.vhd $(VHDL_DIR)/hft_trade_engine.vhd $(VHDL_TB_FILE)
+vhdl-test-engine: VHDL_SOURCES=$(VHDL_DIR)/arm_fpga_shared_stream_bridge.vhd $(VHDL_DIR)/order_book_core.vhd $(VHDL_STRATEGY_SOURCE) $(VHDL_DIR)/generated_strategy_core.vhd $(VHDL_DIR)/trade_decision_core.vhd $(VHDL_DIR)/hft_trade_engine.vhd $(VHDL_TB_FILE)
 vhdl-test-engine: vhdl-test
 
 vhdl-test-avalon: VHDL_TB=$(VHDL_TB_AVALON)
 vhdl-test-avalon: VHDL_TB_FILE=$(VHDL_DIR)/$(VHDL_TB_AVALON).vhd
-vhdl-test-avalon: VHDL_SOURCES=$(VHDL_DIR)/arm_fpga_shared_stream_bridge.vhd $(VHDL_DIR)/order_book_core.vhd $(MATLAB_DIR)/generated_hdl/codegen/strategy/hdlsrc/strategy.vhd $(VHDL_DIR)/generated_strategy_core.vhd $(VHDL_DIR)/trade_decision_core.vhd $(VHDL_DIR)/hft_trade_engine.vhd $(VHDL_DIR)/hft_trade_engine_avalon_mm.vhd $(VHDL_TB_FILE)
+vhdl-test-avalon: VHDL_SOURCES=$(VHDL_DIR)/arm_fpga_shared_stream_bridge.vhd $(VHDL_DIR)/order_book_core.vhd $(VHDL_STRATEGY_SOURCE) $(VHDL_DIR)/generated_strategy_core.vhd $(VHDL_DIR)/trade_decision_core.vhd $(VHDL_DIR)/hft_trade_engine.vhd $(VHDL_DIR)/hft_trade_engine_avalon_mm.vhd $(VHDL_TB_FILE)
 vhdl-test-avalon: vhdl-test
 
-vhdl-test-all: vhdl-test vhdl-test-fast vhdl-test-order-book vhdl-test-engine vhdl-test-avalon
+vhdl-test-all:
+	$(MAKE) vhdl-test
+	$(MAKE) vhdl-test-fast
+	$(MAKE) vhdl-test-order-book
+	$(MAKE) vhdl-test-strategy
+	$(MAKE) vhdl-test-engine
+	$(MAKE) vhdl-test-avalon
 
 vhdl-wave:
 	@if [ -f "$(VHDL_VCD)" ]; then \

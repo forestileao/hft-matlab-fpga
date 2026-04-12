@@ -74,7 +74,7 @@ The ARM software still uses the same byte offsets:
 - `0x018` RX head
 - `0x01C` RX tail
 - `0x100` TX slot memory
-- `0x500` RX slot memory for the default `DEPTH=64`, `SLOT_WORDS=4`
+- `0x900` RX slot memory for the default `DEPTH=64`, `SLOT_WORDS=8`
 
 That means the C++ receiver can use the exact same MMIO wrapper once the block is reachable at a valid physical base.
 
