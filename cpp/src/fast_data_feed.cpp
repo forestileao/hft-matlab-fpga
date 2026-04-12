@@ -9,6 +9,7 @@
 #include <chrono>
 #include <thread>
 #include <mutex>
+#include <cmath>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -75,7 +76,7 @@ int main()
     std::uniform_int_distribution<int> sym_dist(0, (int)symbols.size() - 1);
     std::uniform_int_distribution<int> side_dist(0, (int)sides.size() - 1);
     std::uniform_int_distribution<int> qty_dist(100, 5000);
-    std::normal_distribution<double>   price_noise(0.0, 0.5);
+    std::uniform_int_distribution<int> level_ticks_dist(1, 80);
 
     uint32_t seq = 1;
     char encode_buf[1024];
@@ -83,8 +84,14 @@ int main()
     while (true) {
         const std::string& sym  = symbols[sym_dist(rng)];
         const std::string& side = sides[side_dist(rng)];
-        double price = base_price.at(sym) + price_noise(rng);
-        price = static_cast<int>(price * 100) / 100.0;
+        const double half_spread = static_cast<double>(level_ticks_dist(rng)) / 100.0;
+        double price = base_price.at(sym);
+        if (side == "buy") {
+            price -= half_spread;
+        } else {
+            price += half_spread;
+        }
+        price = std::round(price * 100.0) / 100.0;
         int qty = qty_dist(rng);
 
         SimpleMD::SimpleMD message;

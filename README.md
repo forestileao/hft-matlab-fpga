@@ -42,6 +42,12 @@ After `make build`, program the FPGA manually with Quartus Programmer:
 quartus/de10_nano_hft/output_files/de10_nano_hft.sof
 ```
 
+Then enable the HPS-to-FPGA bridges from Linux:
+
+```bash
+make de10-enable-bridges
+```
+
 Then copy the ARM binaries to the DE10-Nano:
 
 ```bash
@@ -59,6 +65,8 @@ In another terminal:
 ```bash
 ssh root@192.168.7.1 'cd /home/root && HFT_FPGA_MMIO_BASE=0xFF200000 ./fast_receiver'
 ```
+
+`fast_receiver` keeps running if `fast_data_feed` exits. Restart the feed and the receiver reconnects automatically.
 
 Stop both programs with:
 
@@ -315,6 +323,12 @@ The current strategy is intentionally simple:
 - `SELL` when imbalance is at most `-500` and spread is at most `2.5000`
 - otherwise `NOOP`
 
+The prototype also protects against crossed books:
+
+- the synthetic feed generates buys below each symbol mid-price and sells above it
+- `order_book_core` rejects bid/ask updates that would cross the current book
+- the strategy wrapper forces `NOOP` if `best_ask_px <= best_bid_px`
+
 ## Quartus Project
 
 Open this project in Quartus Prime Lite:
@@ -347,6 +361,7 @@ make matlab-hdl-generate
 make check
 make vhdl-test-engine
 make vhdl-test-avalon
+make vhdl-test-strategy
 make quartus-program
 make de10-stop
 ```

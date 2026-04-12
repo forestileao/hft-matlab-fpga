@@ -212,7 +212,11 @@ begin
     variable rd_val : std_logic_vector(31 downto 0);
   begin
     rst_n <= '0';
-    wait for 40 ns;
+    wait for 20 ns;
+    av_read(avs_chipselect, avs_address, avs_read, avs_readdata, avs_waitrequest, C_REG_MAGIC_W, rd_val);
+    assert rd_val = x"00000000" report "reset read should complete safely" severity failure;
+
+    wait for 20 ns;
     wait until rising_edge(clk);
     rst_n <= '1';
     wait until rising_edge(clk);

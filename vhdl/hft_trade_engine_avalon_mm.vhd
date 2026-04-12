@@ -1,5 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 entity hft_trade_engine_avalon_mm is
   generic (
@@ -27,9 +28,12 @@ entity hft_trade_engine_avalon_mm is
 end entity;
 
 architecture rtl of hft_trade_engine_avalon_mm is
+  constant C_TIMEOUT_CYCLES : natural := 15;
+
   type t_state is (S_IDLE, S_ISSUE, S_WAIT, S_COMPLETE);
 
   signal state_q : t_state := S_IDLE;
+  signal timeout_q : unsigned(3 downto 0) := (others => '0');
 
   signal req_addr_q  : std_logic_vector(G_ADDR_WIDTH - 3 downto 0) := (others => '0');
   signal req_read_q  : std_logic := '0';
@@ -70,8 +74,12 @@ begin
   mm_wr_s    <= '1' when state_q = S_ISSUE and req_write_q = '1' else '0';
   mm_rd_s    <= '1' when state_q = S_ISSUE and req_read_q = '1' else '0';
 
-  avs_readdata_o <= read_data_q;
-  avs_waitrequest_o <= '0' when state_q = S_COMPLETE or
+  avs_readdata_o <= (others => '0') when rst_ni = '0' else read_data_q;
+
+  -- Never hold the HPS lightweight bridge forever. If this IP is held in reset
+  -- by HPS reset wiring, a Linux /dev/mem read must still complete safely.
+  avs_waitrequest_o <= '0' when rst_ni = '0' or
+                                state_q = S_COMPLETE or
                                 (state_q = S_IDLE and avs_chipselect_i = '0' and avs_read_i = '0' and avs_write_i = '0')
                        else '1';
 
@@ -85,6 +93,7 @@ begin
         req_write_q <= '0';
         req_wdata_q <= (others => '0');
         read_data_q <= (others => '0');
+        timeout_q   <= (others => '0');
       else
         case state_q is
           when S_IDLE =>
@@ -93,10 +102,12 @@ begin
               req_read_q  <= avs_read_i;
               req_write_q <= avs_write_i;
               req_wdata_q <= avs_writedata_i;
+              timeout_q   <= (others => '0');
               state_q     <= S_ISSUE;
             end if;
 
           when S_ISSUE =>
+            timeout_q <= (others => '0');
             state_q <= S_WAIT;
 
           when S_WAIT =>
@@ -105,11 +116,19 @@ begin
                 read_data_q <= mm_rdata_s;
               end if;
               state_q <= S_COMPLETE;
+            elsif to_integer(timeout_q) = C_TIMEOUT_CYCLES then
+              if req_read_q = '1' then
+                read_data_q <= x"BAADF00D";
+              end if;
+              state_q <= S_COMPLETE;
+            else
+              timeout_q <= timeout_q + 1;
             end if;
 
           when S_COMPLETE =>
             req_read_q  <= '0';
             req_write_q <= '0';
+            timeout_q   <= (others => '0');
             state_q     <= S_IDLE;
         end case;
       end if;

@@ -120,8 +120,21 @@ begin
     assert spread_1e4 = x"000003E8" report "spread mismatch after stronger bid" severity failure;
     assert imbalance = x"00000258" report "imbalance mismatch after stronger bid, got " & to_hstring(imbalance) severity failure;
 
-    push_event(evt_valid, evt_data, evt_ready, 4, 0, 1852000, 0, C_EVENT_DELETE_LEVEL, C_SIDE_SELL);
-    assert snapshot_seq = x"00000004" report "seq mismatch after delete" severity failure;
+    push_event(evt_valid, evt_data, evt_ready, 4, 0, 1850500, 999, C_EVENT_UPSERT_LEVEL, C_SIDE_SELL);
+    assert snapshot_seq = x"00000004" report "seq mismatch after crossed ask" severity failure;
+    assert best_bid_px = x"001C3E78" report "crossed ask should not change best bid" severity failure;
+    assert best_ask_px = x"001C4260" report "crossed ask should be rejected" severity failure;
+    assert best_ask_qty = x"000004B0" report "crossed ask should not change ask qty" severity failure;
+    assert spread_1e4 = x"000003E8" report "spread should remain valid after crossed ask rejection" severity failure;
+
+    push_event(evt_valid, evt_data, evt_ready, 5, 0, 1853000, 999, C_EVENT_UPSERT_LEVEL, C_SIDE_BUY);
+    assert snapshot_seq = x"00000005" report "seq mismatch after crossed bid" severity failure;
+    assert best_bid_px = x"001C3E78" report "crossed bid should be rejected" severity failure;
+    assert best_ask_px = x"001C4260" report "crossed bid should not change best ask" severity failure;
+    assert spread_1e4 = x"000003E8" report "spread should remain valid after crossed bid rejection" severity failure;
+
+    push_event(evt_valid, evt_data, evt_ready, 6, 0, 1852000, 0, C_EVENT_DELETE_LEVEL, C_SIDE_SELL);
+    assert snapshot_seq = x"00000006" report "seq mismatch after delete" severity failure;
     assert best_ask_px = x"00000000" report "best ask should clear after delete" severity failure;
     assert best_ask_qty = x"00000000" report "best ask qty should clear after delete" severity failure;
     assert spread_1e4 = x"00000000" report "spread should clear after delete" severity failure;
