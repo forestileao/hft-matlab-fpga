@@ -22,6 +22,7 @@ work-obj08.cf
 
 # MATLAB generated HDL outputs
 matlab/generated_hdl/
+.matlab-docker-home/
 
 # Quartus outputs
 db/

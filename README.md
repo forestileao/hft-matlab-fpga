@@ -1,246 +1,358 @@
-# HFT FPGA Prototype
+# HFT MATLAB FPGA Prototype
 
-This repository is a small FPGA-assisted trading prototype for the Intel DE10-Nano.
+This project is a low-cost FPGA-assisted high-frequency trading research prototype built around MATLAB, VHDL, C++, and the Intel/Terasic DE10-Nano.
 
-At a high level, the project combines:
+The goal is to demonstrate an end-to-end market-data pipeline where ARM Linux receives a feed, the FPGA maintains simplified market state, and a MATLAB HDL Coder strategy decides whether to `BUY`, `SELL`, or do `NOOP`.
 
-- `cpp/`: ARM-side programs that generate and receive a simplified FAST-style market data feed
-- `vhdl/`: FPGA-side shared-stream bridge, a simple trade-decision engine, and testbenches
-- `matlab/`: MATLAB project files and a matching placeholder strategy model for HDL-oriented work
+It is not a real trading system and it does not send exchange orders. It is a TCC/research platform for studying:
 
-The implemented pipeline today is:
+- ARM-to-FPGA communication through the HPS lightweight bridge
+- FPGA-side order book/state processing
+- MATLAB-to-VHDL strategy generation
+- DE10-Nano deployment with Quartus Prime Lite
 
-- run a sample market data feed server
-- receive and decode FAST messages
-- translate each decoded entry into a normalized 256-bit book event
-- forward that event through the FPGA MMIO shared-stream bridge
-- have FPGA logic maintain a simplified per-symbol order book
-- have FPGA logic return `NOOP`, `BUY`, or `SELL` plus top-of-book signals
-- print those decisions back on the ARM side
+At a high level, the prototype does this:
 
-For real board integration, the FPGA block is also wrapped as an Avalon-MM slave:
+1. Generate a synthetic FAST-style market-data feed.
+2. Decode it on the ARM/HPS side.
+3. Pack each market-data update into a fixed 8-word FPGA frame.
+4. Send that frame through the HPS lightweight bridge into FPGA logic.
+5. Maintain a small FPGA order book.
+6. Run a MATLAB HDL Coder strategy block in the FPGA.
+7. Return `NOOP`, `BUY`, or `SELL` plus top-of-book data to Linux.
 
-- `vhdl/hft_trade_engine_avalon_mm.vhd`
-- `quartus/hft_trade_engine_avalon_mm_hw.tcl`
+## The Normal Workflow
 
-The current FPGA strategy is intentionally simple but now book-driven:
-
-- update bid/ask levels per symbol inside the FPGA
-- compute top-of-book spread and imbalance
-- `BUY` when imbalance is at least `500` and spread is at most `2.5000`
-- `SELL` when imbalance is at most `-500` and spread is at most `2.5000`
-- otherwise `NOOP`
-
-That rule is implemented in both:
-
-- `vhdl/order_book_core.vhd`
-- `vhdl/book_strategy_core.vhd`
-- `vhdl/trade_decision_core.vhd`
-- `matlab/strategy.m`
-- `matlab/trade_decision_model.m`
-
-This keeps the interface stable while leaving a clean place to swap in a future MATLAB-generated HDL block.
-
-## Quick Test
-
-Run the full host-side sanity pass:
+Do this when setting up a fresh machine or after changing the board image:
 
 ```bash
-make check
+make de10-sysroot
+make matlab-login
 ```
 
-That runs:
-
-- `cpp-test`: C++ MMIO wrapper test
-- `cpp-smoke`: `fast_data_feed` + `fast_receiver` together in Docker
-- `vhdl-test-all`: bridge-only, stress, order-book, end-to-end strategy, and Avalon wrapper simulations
-
-If you want only the new end-to-end FPGA-path simulation:
+Then the normal build/deploy flow is:
 
 ```bash
-make vhdl-test-engine
+make build
 ```
 
-The VCD lands in `vhdl/build/tb_hft_trade_engine.vcd`.
-
-If you want the board-facing Avalon wrapper simulation:
-
-```bash
-make vhdl-test-avalon
-```
-
-To sanity-check that Quartus can index the custom Platform Designer component:
-
-```bash
-make quartus-ip-index
-```
-
-To run the focused order-book testbench:
-
-```bash
-make vhdl-test-order-book
-```
-
-To run the MATLAB strategy self-check:
-
-```bash
-make matlab-test
-```
-
-To generate VHDL from MATLAB HDL Coder without using the GUI:
-
-```bash
-make matlab-hdl-generate
-```
-
-## DE10-Nano Target
-
-The Makefile is preconfigured for:
-
-- board: `root@192.168.7.1`
-- remote home: `/home/root`
-- local sysroot: `/tmp/de10nano-sysroot`
-
-If your board IP changes, override `DE10_HOST`, for example:
-
-```bash
-make de10-build DE10_HOST=root@192.168.7.42
-```
-
-## One-Time Setup
-
-Download the tested old ARM toolchain and pull a sysroot from the board:
-
-```bash
-make de10-setup
-```
-
-This does two things:
-
-- downloads the older Bootlin ARM toolchain into `.toolchains/`
-- copies `/lib`, `/usr/lib`, and `/usr/include` from the board into `/tmp/de10nano-sysroot`
-
-Rerunning `make de10-sysroot` or `make de10-setup` refreshes the local sysroot copy from scratch.
-
-## Build For The Board
-
-```bash
-make de10-build
-```
-
-Binaries are written to:
-
-- `cpp/build-cross-de10/fast_receiver`
-- `cpp/build-cross-de10/fast_data_feed`
-
-## Check ABI
-
-```bash
-make de10-abi
-```
-
-Use this if you want to confirm the binary still matches the board runtime.
-
-## Copy To The Board
-
-```bash
-make de10-copy
-```
-
-This copies both binaries to:
-
-- `/home/root/fast_receiver`
-- `/home/root/fast_data_feed`
-
-## Smoke Test On The Board
-
-```bash
-make de10-smoke
-```
-
-This starts both programs briefly on the board and prints the running processes.
-
-To run the receiver against FPGA logic loaded in the fabric, set the MMIO base on the board:
-
-```bash
-ssh root@192.168.7.1 'cd /home/root && HFT_FPGA_MMIO_BASE=0xFF200000 ./fast_receiver'
-```
-
-The default bridge span is now `0x2000` because the event/response slots are `8 x 32-bit` words.
-
-When FPGA responses are present, the receiver prints lines like:
+After `make build`, program the FPGA manually with Quartus Programmer:
 
 ```text
-[FPGA->ARM] seq=11 action=BUY best_bid_px_1e4=1850000 best_bid_qty=2500 best_ask_px_1e4=1852000 best_ask_qty=1200 spread_1e4=2000 imbalance=1300
+quartus/de10_nano_hft/output_files/de10_nano_hft.sof
 ```
 
-## Stop The Programs On The Board
+Then copy the ARM binaries to the DE10-Nano:
 
 ```bash
-make de10-stop
+make deploy
 ```
 
-## Manual Run
-
-Start the feed:
+Finally run the feed and receiver on the board:
 
 ```bash
 ssh root@192.168.7.1 'cd /home/root && ./fast_data_feed'
 ```
 
-Start the receiver:
+In another terminal:
 
 ```bash
-ssh root@192.168.7.1 'cd /home/root && ./fast_receiver'
+ssh root@192.168.7.1 'cd /home/root && HFT_FPGA_MMIO_BASE=0xFF200000 ./fast_receiver'
 ```
 
-Stop both:
+Stop both programs with:
 
 ```bash
-ssh root@192.168.7.1 'killall fast_receiver fast_data_feed >/dev/null 2>&1 || true'
+make de10-stop
 ```
 
-## Useful Extra Commands
+## Important Manual Step
 
-- `make cpp-test`
-- `make cpp-smoke`
-- `make cpp-test-armv7`
-- `make quartus-ip-index`
-- `make vhdl-test`
-- `make vhdl-test-fast`
-- `make vhdl-test-order-book`
-- `make vhdl-test-engine`
-- `make vhdl-test-avalon`
-- `make vhdl-test-all`
-- `make matlab-test`
-- `make matlab-hdl-generate`
+`make build` creates the FPGA bitstream, but it does not automatically program the board unless you explicitly use JTAG automation.
 
-## Quartus Prime Lite
+The generated bitstream is:
 
-This repo now includes synthesizable HDL for the bridge plus decision engine, but it still does not include a complete Quartus project.
+```text
+quartus/de10_nano_hft/output_files/de10_nano_hft.sof
+```
 
-In Quartus Prime Lite, create a project and add:
+Program that `.sof` in Quartus Programmer before running `fast_receiver` with `HFT_FPGA_MMIO_BASE=0xFF200000`.
 
-- `vhdl/arm_fpga_shared_stream_bridge.vhd`
-- `vhdl/trade_decision_core.vhd`
-- `vhdl/hft_trade_engine.vhd`
-- `vhdl/hft_trade_engine_avalon_mm.vhd`
+If USB-Blaster/JTAG works from your shell, this command can program it:
 
-Use:
+```bash
+make quartus-program
+```
 
-- `hft_trade_engine` for the pure engine block
-- `hft_trade_engine_avalon_mm` for the HPS-facing bus wrapper
+Otherwise, open Quartus Programmer and program the `.sof` manually.
 
-If you are using Platform Designer, add the custom component:
+## One-Time Setup Details
 
-- `quartus/hft_trade_engine_avalon_mm_hw.tcl`
+### Board Sysroot
 
-The DE10-Nano integration steps and MMIO base-address formula are in:
+`make build` cross-compiles ARM binaries for the DE10-Nano. To do that without SSH during every build, it needs a local copy of the board libraries and headers:
 
-- `docs/de10-nano-quartus-integration.md`
+```text
+/tmp/de10nano-sysroot
+```
+
+Create or refresh it with:
+
+```bash
+make de10-sysroot
+```
+
+This command does use SSH once. It copies `/lib`, `/usr/lib`, and `/usr/include` from:
+
+```text
+root@192.168.7.1
+```
+
+It also adds Boost headers into the sysroot for the cross-build.
+
+If you see this error:
+
+```text
+Incomplete /tmp/de10nano-sysroot: missing usr/include/boost/version.hpp.
+Run 'make de10-sysroot' once while the board is reachable.
+```
+
+the fix is exactly:
+
+```bash
+make de10-sysroot
+```
+
+After that, rerun:
+
+```bash
+make build
+```
+
+`make build` now checks this at the start so it fails fast instead of waiting until the end.
+
+### MATLAB Docker Login
+
+The MATLAB strategy is generated with HDL Coder through Docker.
+
+Build/login once:
+
+```bash
+make matlab-login
+```
+
+This uses:
+
+```text
+hft-matlab-hdl:r2025b
+```
+
+and stores the MathWorks login in this Docker volume:
+
+```text
+hft-matlab-home-r2025b
+```
+
+If MATLAB cannot read your terminal, force Docker TTY mode:
+
+```bash
+make matlab-login MATLAB_DOCKER_FLAGS="-it"
+```
+
+To rebuild the MATLAB Docker image:
+
+```bash
+make matlab-docker-image MATLAB_DOCKER_REBUILD=1
+```
+
+## What `make build` Does
+
+`make build` is intended to be the one local build command.
+
+It does:
+
+- check the local DE10-Nano sysroot
+- regenerate `strategy.vhd` from `matlab/strategy.m`
+- run host C++ tests
+- run the feed/receiver smoke test
+- run VHDL simulations
+- cross-build `fast_receiver` and `fast_data_feed` for the DE10-Nano ARM Linux image
+- regenerate Platform Designer HDL
+- compile the Quartus `.sof`
+
+It does not:
+
+- SSH into the board
+- copy files to the board
+- program the FPGA automatically
+- silently reuse an old `strategy.vhd` if MATLAB fails
+
+## What `make deploy` Does
+
+`make deploy` only copies the already-built ARM binaries to:
+
+```text
+root@192.168.7.1:/home/root
+```
+
+It copies:
+
+```text
+cpp/build-cross-de10/fast_receiver
+cpp/build-cross-de10/fast_data_feed
+```
+
+Use `make build` first, then program the `.sof`, then use `make deploy`.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    Feed["fast_data_feed<br/>synthetic FAST feed"]
+    Receiver["fast_receiver<br/>decode + pack event"]
+    MMIO["FpgaSharedStream<br/>/dev/mem MMIO"]
+    Bridge["HPS lightweight bridge<br/>0xFF200000"]
+    Avalon["hft_trade_engine_avalon_mm<br/>Avalon-MM slave"]
+    Rings["arm_fpga_shared_stream_bridge<br/>TX/RX rings"]
+    Book["order_book_core<br/>FPGA order book"]
+    Wrapper["generated_strategy_core<br/>strategy wrapper"]
+    Strategy["strategy.vhd<br/>MATLAB HDL Coder"]
+    Output["fast_receiver output<br/>action + book snapshot"]
+
+    Feed -- "TCP FAST-like messages" --> Receiver
+    Receiver -- "8-word book event" --> MMIO
+    MMIO -- "writes TX ring" --> Bridge
+    Bridge -- "Avalon-MM transaction" --> Avalon
+    Avalon -- "register access" --> Rings
+    Rings -- "event stream" --> Book
+    Book -- "best bid/ask + spread + imbalance" --> Wrapper
+    Wrapper -- "strategy inputs" --> Strategy
+    Strategy -- "NOOP / BUY / SELL" --> Wrapper
+    Wrapper -- "8-word response" --> Rings
+    Rings -- "RX ring response" --> Avalon
+    Avalon -- "read response" --> Bridge
+    Bridge -- "MMIO read" --> MMIO
+    MMIO -- "decoded response" --> Output
+```
+
+The key idea:
+
+- ARM/HPS software parses FAST and talks to FPGA registers.
+- FPGA logic does the book update and strategy decision.
+- The bridge between them is an 8-word shared-memory frame over MMIO.
+
+## Frame Contract
+
+ARM to FPGA event:
+
+| Word | Meaning |
+|---|---|
+| `word0` | sequence number |
+| `word1` | `symbol_id` |
+| `word2` | price scaled by `1e4` |
+| `word3` | quantity |
+| `word4` | event type: `1=UPSERT_LEVEL`, `2=DELETE_LEVEL`, `3=RESET_BOOK` |
+| `word5` | side: `1=BUY`, `2=SELL` |
+| `word6` | level hint / future order-id placeholder |
+| `word7` | reserved |
+
+FPGA to ARM response:
+
+| Word | Meaning |
+|---|---|
+| `word0` | echoed sequence number |
+| `word1` | action: `0=NOOP`, `1=BUY`, `2=SELL` |
+| `word2` | best bid price scaled by `1e4` |
+| `word3` | best bid quantity |
+| `word4` | best ask price scaled by `1e4` |
+| `word5` | best ask quantity |
+| `word6` | spread scaled by `1e4` |
+| `word7` | signed imbalance, `best_bid_qty - best_ask_qty` |
+
+The full bridge/register documentation is in:
+
+```text
+docs/arm-fpga-shared-memory-stream.md
+```
+
+## MATLAB Strategy
+
+The strategy source is:
+
+```text
+matlab/strategy.m
+```
+
+The HDL generation script is:
+
+```text
+matlab/hdl_generator.m
+```
+
+Generate VHDL with:
+
+```bash
+make matlab-hdl-generate
+```
+
+Generated VHDL lands at:
+
+```text
+matlab/generated_hdl/codegen/strategy/hdlsrc/strategy.vhd
+```
+
+Quartus includes that generated file through:
+
+```text
+quartus/hft_trade_engine_avalon_mm_hw.tcl
+```
+
+The current strategy is intentionally simple:
+
+- update bid/ask levels inside FPGA logic
+- compute best bid, best ask, spread, and imbalance
+- `BUY` when imbalance is at least `500` and spread is at most `2.5000`
+- `SELL` when imbalance is at most `-500` and spread is at most `2.5000`
+- otherwise `NOOP`
+
+## Quartus Project
+
+Open this project in Quartus Prime Lite:
+
+```text
+quartus/de10_nano_hft/de10_nano_hft.qpf
+```
+
+The main Platform Designer system is:
+
+```text
+quartus/de10_nano_hft/hft.qsys
+```
+
+The generated FPGA bitstream is:
+
+```text
+quartus/de10_nano_hft/output_files/de10_nano_hft.sof
+```
+
+## Useful Commands
+
+```bash
+make help
+make build
+make deploy
+make de10-sysroot
+make matlab-login
+make matlab-hdl-generate
+make check
+make vhdl-test-engine
+make vhdl-test-avalon
+make quartus-program
+make de10-stop
+```
 
 ## Notes
 
 - The stock Ubuntu ARM cross-compiler is too new for the DE10-Nano Angstrom image.
-- The Makefile uses an older Bootlin toolchain automatically through `make de10-*`.
-- `patches/mfast-armv7-boost-hash.patch` is still required for 32-bit ARM `mFAST` builds.
+- The Makefile uses an older Bootlin ARM toolchain for the DE10-Nano build.
+- `patches/mfast-armv7-boost-hash.patch` is required for 32-bit ARM `mFAST` builds.

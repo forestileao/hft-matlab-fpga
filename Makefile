@@ -10,6 +10,14 @@ ARMV7_DOCKER_IMAGE ?= hft-mfast-builder-armv7:latest
 IP_MAKE_IPX ?= /opt/intelFPGA/25.1/quartus/sopc_builder/bin/ip-make-ipx
 QUARTUS_IP_DIR ?= quartus
 QUARTUS_IP_INDEX ?= .quartus-cache/components.ipx
+QUARTUS_PROJECT_DIR ?= quartus/de10_nano_hft
+QUARTUS_PROJECT ?= de10_nano_hft
+QSYS_GENERATE ?= /opt/intelFPGA/25.1/quartus/sopc_builder/bin/qsys-generate
+QUARTUS_MAP ?= quartus_map
+QUARTUS_FIT ?= quartus_fit
+QUARTUS_ASM ?= quartus_asm
+QUARTUS_PGM ?= quartus_pgm
+QUARTUS_SOF ?= $(QUARTUS_PROJECT_DIR)/output_files/$(QUARTUS_PROJECT).sof
 DE10_HOST ?= root@192.168.7.1
 DE10_HOME ?= /home/root
 DE10_SYSROOT ?= /tmp/de10nano-sysroot
@@ -21,8 +29,18 @@ DE10_CROSS_TRIPLET ?= arm-buildroot-linux-gnueabihf
 DE10_MFAST_BUILD_DIR ?= $(MFAST_DIR)/build-cross-de10
 DE10_MFAST_INSTALL_DIR ?= $(MFAST_DIR)/install-cross-de10
 DE10_CPP_BUILD_DIR ?= $(CPP_DIR)/build-cross-de10
-MATLAB_BIN ?= $(HOME)/MATLAB/bin/matlab
 MATLAB_DIR ?= matlab
+MATLAB_STRATEGY_VHDL ?= $(MATLAB_DIR)/generated_hdl/codegen/strategy/hdlsrc/strategy.vhd
+MATLAB_RUNNER ?= docker
+MATLAB_BIN ?= $(HOME)/MATLAB/R2025b/bin/matlab
+MATLAB_DOCKER_BASE_IMAGE ?= mathworks/matlab:r2025b
+MATLAB_DOCKER_IMAGE ?= hft-matlab-hdl:r2025b
+MATLAB_DOCKER_VOLUME ?= hft-matlab-home-r2025b
+MATLAB_DOCKER_FLAGS ?= $(shell test -t 0 && echo -it || true)
+MATLAB_DOCKER_REBUILD ?= 0
+MATLAB_PRODUCTS ?= MATLAB MATLAB_Coder HDL_Coder Fixed-Point_Designer
+MATLAB_FORCE ?= 1
+MATLAB_BATCH := cd('$(CURDIR)/$(MATLAB_DIR)'); hdl_generator
 
 MFAST_REPO ?= https://github.com/objectcomputing/mFAST.git
 MFAST_DIR ?= mFAST
@@ -69,53 +87,27 @@ CROSS_SYSROOT_VOLUME := $(if $(CROSS_SYSROOT),-v "$(abspath $(CROSS_SYSROOT)):$(
 CROSS_TOOLCHAIN_VOLUME := $(if $(CROSS_TOOLCHAIN_DIR),-v "$(abspath $(CROSS_TOOLCHAIN_DIR)):$(CROSS_TOOLCHAIN_MOUNT):ro",)
 CROSS_TOOLCHAIN_ENV := $(if $(CROSS_TOOLCHAIN_DIR),PATH=$(CROSS_TOOLCHAIN_MOUNT)/bin:$$PATH,)
 
-.PHONY: help check quartus-ip-index docker-image docker-image-cross-armhf mfast-clone mfast-patch mfast-configure mfast-build mfast-install mfast-rebuild mfast-clean mfast-cross-configure mfast-cross-build mfast-cross-install cpp-configure cpp-build cpp-test cpp-smoke cpp-test-armv7 cpp-cross-configure cpp-cross-build cpp-cross-abi cpp-clean vhdl-test vhdl-test-fast vhdl-test-order-book vhdl-test-engine vhdl-test-avalon vhdl-test-all vhdl-wave vhdl-clean matlab-test matlab-hdl-generate docker-shell docker-shell-cross-armhf de10-toolchain de10-sysroot de10-setup de10-build de10-abi de10-copy de10-stop de10-smoke
+.PHONY: help build deploy check quartus-build quartus-build-no-matlab quartus-program quartus-ip-index docker-image docker-image-cross-armhf matlab-docker-image mfast-clone mfast-patch mfast-configure mfast-build mfast-install mfast-rebuild mfast-clean mfast-cross-configure mfast-cross-build mfast-cross-install cpp-configure cpp-build cpp-test cpp-smoke cpp-test-armv7 cpp-cross-configure cpp-cross-build cpp-cross-abi cpp-clean vhdl-test vhdl-test-fast vhdl-test-order-book vhdl-test-engine vhdl-test-avalon vhdl-test-all vhdl-wave vhdl-clean matlab-login matlab-test matlab-hdl-generate docker-shell docker-shell-cross-armhf de10-toolchain de10-sysroot de10-sysroot-check de10-setup de10-build-offline de10-build de10-abi de10-copy de10-deploy de10-stop de10-smoke
 
 help:
-	@echo "Targets:"
-	@echo "  check           Run host C++ tests, feed smoke test, and all VHDL simulations"
-	@echo "  quartus-ip-index Index the custom Quartus/Platform Designer component"
-	@echo "  de10-toolchain  Download/extract the tested DE10-Nano ARM toolchain"
-	@echo "  de10-sysroot    Pull /lib + /usr/lib + /usr/include from $(DE10_HOST)"
-	@echo "  de10-setup      Prepare both the toolchain and local sysroot"
-	@echo "  de10-build      Build ARM binaries for the DE10-Nano target"
-	@echo "  de10-abi        Print ABI requirements for the DE10-Nano build"
-	@echo "  de10-copy       Copy DE10-Nano binaries to $(DE10_HOST):$(DE10_HOME)"
-	@echo "  de10-stop       Stop fast_receiver and fast_data_feed on the DE10-Nano"
-	@echo "  de10-smoke      Start both binaries briefly on the DE10-Nano"
-	@echo "  docker-image    Build the Docker image with C++/CMake/Boost toolchain"
-	@echo "  docker-image-cross-armhf Build the cross-compiler image for ARM hard-float"
-	@echo "  mfast-clone     Clone mFAST recursively if missing; always sync submodules"
-	@echo "  mfast-patch     Apply repository patches to mFAST after clone"
-	@echo "  mfast-configure Configure mFAST in Docker"
-	@echo "  mfast-build     Build mFAST in Docker"
-	@echo "  mfast-install   Install mFAST artifacts to mFAST/install on host"
-	@echo "  mfast-cross-configure Configure mFAST with the sysroot-aware ARM cross toolchain"
-	@echo "  mfast-cross-build Build mFAST with the sysroot-aware ARM cross toolchain"
-	@echo "  mfast-cross-install Install ARM cross-built mFAST artifacts to mFAST/install-cross"
-	@echo "  mfast-rebuild   Clean and build mFAST in Docker"
-	@echo "  mfast-clean     Remove mFAST build directory"
-	@echo "  cpp-configure   Configure cpp/ against mFAST install in Docker"
-	@echo "  cpp-build       Build cpp/ targets in Docker"
-	@echo "  cpp-test        Build and run cpp tests (CTest) in Docker"
-	@echo "  cpp-smoke       Run fast_data_feed and fast_receiver together in Docker"
-	@echo "  cpp-test-armv7  Build and run cpp tests under emulated ARMv7 Docker"
-	@echo "  cpp-cross-configure Configure cpp/ for ARM cross-build against CROSS_SYSROOT"
-	@echo "  cpp-cross-build Build ARM cross targets into cpp/build-cross"
-	@echo "  cpp-cross-abi   Print ABI/version requirements for the cross-built receiver"
-	@echo "  cpp-clean       Remove cpp build directory"
-	@echo "  vhdl-test       Run VHDL testbench with GHDL and emit VCD"
-	@echo "  vhdl-test-fast  Run burst/FAST-like VHDL testbench with GHDL"
-	@echo "  vhdl-test-order-book Run the focused order-book VHDL testbench"
-	@echo "  vhdl-test-engine Run the bridge + strategy end-to-end VHDL testbench"
-	@echo "  vhdl-test-avalon Run the board-facing Avalon-MM wrapper testbench"
-	@echo "  vhdl-test-all   Run all VHDL simulations"
-	@echo "  vhdl-wave       Open generated VCD in GTKWave if available"
-	@echo "  vhdl-clean      Remove VHDL build artifacts"
-	@echo "  matlab-test     Run the MATLAB strategy self-check in batch mode"
-	@echo "  matlab-hdl-generate Generate VHDL for matlab/strategy.m via HDL Coder"
-	@echo "  docker-shell    Open an interactive shell in the build container"
-	@echo "  docker-shell-cross-armhf Open a shell in the ARM cross-compiler container"
+	@echo "Main workflow:"
+	@echo "  make build          Offline build/test: MATLAB HDL, DE10 binaries, and Quartus SOF"
+	@echo "  make deploy         Copy already-built DE10 binaries to $(DE10_HOST):$(DE10_HOME)"
+	@echo ""
+	@echo "Board:"
+	@echo "  make quartus-program Program the SOF through JTAG if USB-Blaster is available"
+	@echo "  make de10-stop       Stop fast_receiver and fast_data_feed on the DE10-Nano"
+	@echo "  make de10-smoke      Brief board smoke test"
+	@echo ""
+	@echo "Debug:"
+	@echo "  make check           Run host C++ and VHDL tests"
+	@echo "  make vhdl-test-engine"
+	@echo "  make vhdl-test-avalon"
+	@echo "  make matlab-docker-image"
+	@echo "  make matlab-login"
+	@echo "  make matlab-hdl-generate"
+	@echo "  make de10-sysroot"
+	@echo "  make de10-abi"
 
 docker-image:
 	$(DOCKER) build $(DOCKER_PLATFORM_ARG) -t $(DOCKER_IMAGE) -f Dockerfile .
@@ -123,7 +115,33 @@ docker-image:
 docker-image-cross-armhf:
 	$(DOCKER) build -t $(DOCKER_IMAGE_CROSS_ARMHF) -f Dockerfile.cross-armhf .
 
+matlab-docker-image:
+	@if [ "$(MATLAB_DOCKER_REBUILD)" != "1" ] && $(DOCKER) image inspect "$(MATLAB_DOCKER_IMAGE)" >/dev/null 2>&1; then \
+		echo "Using existing MATLAB Docker image $(MATLAB_DOCKER_IMAGE). Set MATLAB_DOCKER_REBUILD=1 to rebuild."; \
+	else \
+		$(DOCKER) build -t "$(MATLAB_DOCKER_IMAGE)" \
+			--build-arg MATLAB_BASE_IMAGE="$(MATLAB_DOCKER_BASE_IMAGE)" \
+			--build-arg MATLAB_RELEASE="R2025b" \
+			--build-arg MATLAB_PRODUCTS="$(MATLAB_PRODUCTS)" \
+			-f Dockerfile.matlab .; \
+	fi
+
+build: de10-sysroot-check matlab-hdl-generate check de10-build-offline quartus-build-no-matlab
+
+deploy: de10-deploy
+
 check: cpp-test cpp-smoke vhdl-test-all
+
+quartus-build: matlab-hdl-generate quartus-build-no-matlab
+
+quartus-build-no-matlab:
+	cd "$(QUARTUS_PROJECT_DIR)" && "$(QSYS_GENERATE)" hft.qsys --synthesis=VHDL --output-directory=hft
+	cd "$(QUARTUS_PROJECT_DIR)" && "$(QUARTUS_MAP)" "$(QUARTUS_PROJECT)" -c "$(QUARTUS_PROJECT)"
+	cd "$(QUARTUS_PROJECT_DIR)" && "$(QUARTUS_FIT)" "$(QUARTUS_PROJECT)" -c "$(QUARTUS_PROJECT)"
+	cd "$(QUARTUS_PROJECT_DIR)" && "$(QUARTUS_ASM)" "$(QUARTUS_PROJECT)" -c "$(QUARTUS_PROJECT)"
+
+quartus-program: quartus-build
+	"$(QUARTUS_PGM)" -m JTAG -o "p;$(QUARTUS_SOF)"
 
 quartus-ip-index:
 	mkdir -p "$(dir $(QUARTUS_IP_INDEX))"
@@ -144,9 +162,13 @@ de10-sysroot: docker-image-cross-armhf
 	ssh "$(DE10_HOST)" 'tar -C / -cf - lib usr/lib usr/include' | tar -C "$(DE10_SYSROOT)" -xf -
 	docker run --rm "$(DOCKER_IMAGE_CROSS_ARMHF)" bash -lc 'tar -C /usr/include -cf - boost' | tar -C "$(DE10_SYSROOT)/usr/include" -xf -
 
+de10-sysroot-check:
+	@test -d "$(DE10_SYSROOT)" || { echo "Missing $(DE10_SYSROOT). Run 'make de10-sysroot' once while the board is reachable."; exit 1; }
+	@test -f "$(DE10_SYSROOT)/usr/include/boost/version.hpp" || { echo "Incomplete $(DE10_SYSROOT): missing usr/include/boost/version.hpp. Run 'make de10-sysroot' once while the board is reachable."; exit 1; }
+
 de10-setup: de10-toolchain de10-sysroot
 
-de10-build: de10-setup
+de10-build-offline: de10-toolchain de10-sysroot-check
 	$(MAKE) cpp-cross-build \
 		CROSS_SYSROOT="$(DE10_SYSROOT)" \
 		CROSS_TOOLCHAIN_DIR="$(CURDIR)/$(DE10_TOOLCHAIN_DIR)" \
@@ -155,6 +177,9 @@ de10-build: de10-setup
 		CROSS_MFAST_INSTALL_DIR="$(DE10_MFAST_INSTALL_DIR)" \
 		CROSS_CPP_BUILD_DIR="$(DE10_CPP_BUILD_DIR)" \
 		JOBS="$(JOBS)"
+
+de10-build: de10-setup
+	$(MAKE) de10-build-offline JOBS="$(JOBS)"
 
 de10-abi: de10-build
 	$(MAKE) cpp-cross-abi \
@@ -166,7 +191,13 @@ de10-abi: de10-build
 		CROSS_CPP_BUILD_DIR="$(DE10_CPP_BUILD_DIR)" \
 		JOBS="$(JOBS)"
 
-de10-copy: de10-build
+de10-copy: de10-build-offline
+	scp "$(DE10_CPP_BUILD_DIR)/fast_receiver" "$(DE10_CPP_BUILD_DIR)/fast_data_feed" "$(DE10_HOST):$(DE10_HOME)/"
+
+de10-deploy:
+	@test -x "$(DE10_CPP_BUILD_DIR)/fast_receiver" || { echo "Missing $(DE10_CPP_BUILD_DIR)/fast_receiver. Run 'make build' first."; exit 1; }
+	@test -x "$(DE10_CPP_BUILD_DIR)/fast_data_feed" || { echo "Missing $(DE10_CPP_BUILD_DIR)/fast_data_feed. Run 'make build' first."; exit 1; }
+	ssh "$(DE10_HOST)" 'true'
 	scp "$(DE10_CPP_BUILD_DIR)/fast_receiver" "$(DE10_CPP_BUILD_DIR)/fast_data_feed" "$(DE10_HOST):$(DE10_HOME)/"
 
 de10-stop:
@@ -368,11 +399,45 @@ vhdl-wave:
 vhdl-clean:
 	rm -rf "$(VHDL_BUILD_DIR)"
 
-matlab-test:
-	"$(MATLAB_BIN)" -batch "cd('$(CURDIR)/matlab'); strategy_tb"
+matlab-login: matlab-docker-image
+	$(DOCKER) run --rm -it -u root -e HOME=/home/matlab \
+		-v "$(CURDIR):$(CURDIR)" \
+		-v "$(MATLAB_DOCKER_VOLUME):/home/matlab" \
+		-w "$(CURDIR)/$(MATLAB_DIR)" \
+		"$(MATLAB_DOCKER_IMAGE)" -batch "disp('MATLAB Docker login OK')"
 
-matlab-hdl-generate:
-	"$(MATLAB_BIN)" -batch "cd('$(CURDIR)/matlab'); hdl_generator"
+matlab-test: matlab-docker-image
+	@if [ "$(MATLAB_RUNNER)" = "docker" ]; then \
+		$(DOCKER) run --rm $(MATLAB_DOCKER_FLAGS) -u root -e HOME=/home/matlab \
+			-v "$(CURDIR):$(CURDIR)" \
+			-v "$(MATLAB_DOCKER_VOLUME):/home/matlab" \
+			-w "$(CURDIR)/$(MATLAB_DIR)" \
+			"$(MATLAB_DOCKER_IMAGE)" -batch "cd('$(CURDIR)/$(MATLAB_DIR)'); strategy_tb"; \
+	else \
+		"$(MATLAB_BIN)" -batch "cd('$(CURDIR)/$(MATLAB_DIR)'); strategy_tb"; \
+	fi
+
+matlab-hdl-generate: matlab-docker-image
+	@if [ "$(MATLAB_FORCE)" != "1" ] && [ -f "$(MATLAB_STRATEGY_VHDL)" ]; then \
+		echo "Using existing $(MATLAB_STRATEGY_VHDL). Set MATLAB_FORCE=1 to regenerate."; \
+		exit 0; \
+	fi; \
+	set -e; \
+	if [ "$(MATLAB_RUNNER)" = "docker" ]; then \
+		$(DOCKER) run --rm $(MATLAB_DOCKER_FLAGS) -u root -e HOME=/home/matlab \
+			-v "$(CURDIR):$(CURDIR)" \
+			-v "$(MATLAB_DOCKER_VOLUME):/home/matlab" \
+			-w "$(CURDIR)/$(MATLAB_DIR)" \
+			"$(MATLAB_DOCKER_IMAGE)" -batch "$(MATLAB_BATCH)"; \
+	else \
+		"$(MATLAB_BIN)" -batch "$(MATLAB_BATCH)"; \
+	fi; \
+	if [ "$(MATLAB_RUNNER)" = "docker" ] && [ -d "$(MATLAB_DIR)/generated_hdl" ]; then \
+		$(DOCKER) run --rm --entrypoint chown -u root \
+			-v "$(CURDIR):$(CURDIR)" \
+			"$(MATLAB_DOCKER_IMAGE)" -R $(UID):$(GID) "$(CURDIR)/$(MATLAB_DIR)/generated_hdl"; \
+	fi; \
+	test -f "$(MATLAB_STRATEGY_VHDL)"
 
 docker-shell: docker-image
 	$(DOCKER) run --rm -it \

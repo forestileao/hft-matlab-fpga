@@ -4,3 +4,5 @@
 **/build-*
 **/__pycache__
 **/*.pyc
+.matlab-docker-home
+matlab/generated_hdl
