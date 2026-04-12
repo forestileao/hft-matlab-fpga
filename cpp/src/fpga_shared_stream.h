@@ -41,6 +41,7 @@ class FpgaSharedStream {
         tx_depth_(kDefaultDepth),
         rx_depth_(kDefaultDepth),
         slot_words_(kDefaultSlotWords),
+        legacy_mode_(false),
         observed_header_{} {}
 
   ~FpgaSharedStream() { Close(); }
@@ -84,26 +85,53 @@ class FpgaSharedStream {
     observed_header_.rx_depth = ReadReg(kRegRxDepth);
     observed_header_.slot_words = ReadReg(kRegSlotWords);
 
-    if (observed_header_.magic != kMagic || observed_header_.version != kVersion) {
-      last_error_ =
-          "unexpected bridge header; check HFT_FPGA_MMIO_BASE and loaded bitstream";
-      Close();
-      return false;
+    if (LooksLikeNewHeader(observed_header_)) {
+      legacy_mode_ = false;
+      tx_depth_ =
+          observed_header_.tx_depth == 0 ? kDefaultDepth : observed_header_.tx_depth;
+      rx_depth_ =
+          observed_header_.rx_depth == 0 ? kDefaultDepth : observed_header_.rx_depth;
+      slot_words_ = observed_header_.slot_words == 0 ? kDefaultSlotWords
+                                                     : observed_header_.slot_words;
+
+      if (!IsValidGeometry(span)) {
+        last_error_ =
+            "unexpected bridge geometry; check the software/FPGA frame contract";
+        Close();
+        return false;
+      }
+
+      return true;
     }
 
-    tx_depth_ = observed_header_.tx_depth == 0 ? kDefaultDepth : observed_header_.tx_depth;
-    rx_depth_ = observed_header_.rx_depth == 0 ? kDefaultDepth : observed_header_.rx_depth;
-    slot_words_ =
-        observed_header_.slot_words == 0 ? kDefaultSlotWords : observed_header_.slot_words;
+    Header legacy_header{};
+    legacy_header.magic = 0;
+    legacy_header.version = 0;
+    legacy_header.tx_depth = observed_header_.magic;
+    legacy_header.rx_depth = observed_header_.version;
+    legacy_header.slot_words = observed_header_.tx_depth;
 
-    if (!IsValidGeometry(span)) {
-      last_error_ =
-          "unexpected bridge geometry; check the software/FPGA frame contract";
-      Close();
-      return false;
+    if (LooksLikeLegacyHeader(legacy_header)) {
+      legacy_mode_ = true;
+      observed_header_ = legacy_header;
+      tx_depth_ = legacy_header.tx_depth;
+      rx_depth_ = legacy_header.rx_depth;
+      slot_words_ = legacy_header.slot_words;
+
+      if (!IsValidGeometry(span)) {
+        last_error_ =
+            "unexpected legacy bridge geometry; check HFT_FPGA_MMIO_BASE and loaded bitstream";
+        Close();
+        return false;
+      }
+
+      return true;
     }
 
-    return true;
+    last_error_ =
+        "unexpected bridge header; check HFT_FPGA_MMIO_BASE and loaded bitstream";
+    Close();
+    return false;
   }
 
   void Close() {
@@ -120,18 +148,25 @@ class FpgaSharedStream {
     tx_depth_ = kDefaultDepth;
     rx_depth_ = kDefaultDepth;
     slot_words_ = kDefaultSlotWords;
+    legacy_mode_ = false;
+    observed_header_ = {};
+    last_error_.clear();
   }
 
   bool IsOpen() const { return mmio_ != nullptr; }
+
   const std::string& LastError() const { return last_error_; }
+
   Header ObservedHeader() const { return observed_header_; }
+
+  bool IsLegacyMode() const { return legacy_mode_; }
 
   bool CanSend() const {
     if (!IsOpen()) {
       return false;
     }
-    const uint32_t head = ReadReg(kRegTxHead);
-    const uint32_t tail = ReadReg(kRegTxTail);
+    const uint32_t head = ReadReg(TxHeadOffset());
+    const uint32_t tail = ReadReg(TxTailOffset());
     return Next(head, tx_depth_) != tail;
   }
 
@@ -145,15 +180,15 @@ class FpgaSharedStream {
       return false;
     }
 
-    const uint32_t head = ReadReg(kRegTxHead);
-    const uint32_t tail = ReadReg(kRegTxTail);
+    const uint32_t head = ReadReg(TxHeadOffset());
+    const uint32_t tail = ReadReg(TxTailOffset());
     const uint32_t next = Next(head, tx_depth_);
     if (next == tail) {
       return false;
     }
 
-    WriteSlot(kTxBase, head, frame);
-    WriteReg(kRegTxHead, next);
+    WriteSlot(TxBase(), head, frame);
+    WriteReg(TxHeadOffset(), next);
     return true;
   }
 
@@ -161,8 +196,8 @@ class FpgaSharedStream {
     if (!IsOpen()) {
       return false;
     }
-    const uint32_t head = ReadReg(kRegRxHead);
-    const uint32_t tail = ReadReg(kRegRxTail);
+    const uint32_t head = ReadReg(RxHeadOffset());
+    const uint32_t tail = ReadReg(RxTailOffset());
     return head != tail;
   }
 
@@ -174,31 +209,43 @@ class FpgaSharedStream {
       return false;
     }
 
-    const uint32_t head = ReadReg(kRegRxHead);
-    const uint32_t tail = ReadReg(kRegRxTail);
+    const uint32_t head = ReadReg(RxHeadOffset());
+    const uint32_t tail = ReadReg(RxTailOffset());
     if (head == tail) {
       return false;
     }
 
     ReadSlot(RxBase(), tail, frame);
-    WriteReg(kRegRxTail, Next(tail, rx_depth_));
+    WriteReg(RxTailOffset(), Next(tail, rx_depth_));
     return true;
   }
 
-  uint32_t Magic() const { return IsOpen() ? ReadReg(kRegMagic) : 0; }
-  uint32_t Version() const { return IsOpen() ? ReadReg(kRegVersion) : 0; }
+  uint32_t Magic() const {
+    return IsOpen() ? (legacy_mode_ ? 0u : ReadReg(kRegMagic)) : 0u;
+  }
+
+  uint32_t Version() const {
+    return IsOpen() ? (legacy_mode_ ? 0u : ReadReg(kRegVersion)) : 0u;
+  }
+
   uint32_t TxDepth() const { return tx_depth_; }
   uint32_t RxDepth() const { return rx_depth_; }
   uint32_t SlotWords() const { return slot_words_; }
-  uint32_t RxBase() const { return kTxBase + tx_depth_ * slot_words_ * sizeof(uint32_t); }
+
+  uint32_t TxBase() const { return kRingBase; }
+
+  uint32_t RxBase() const {
+    return TxBase() + tx_depth_ * slot_words_ * sizeof(uint32_t);
+  }
 
  private:
   static const uint32_t kVersion = 1;
   static const uint32_t kDefaultDepth = 64;
-  static const uint32_t kDefaultSlotWords = 8;  // 8 x 32-bit words = 256 bits
+  static const uint32_t kDefaultSlotWords = 8;
   static const uint32_t kMaxDepth = 1024;
   static const uint32_t kMaxSlotWords = 64;
 
+  // New header layout
   static const uint32_t kRegMagic = 0x000;
   static const uint32_t kRegVersion = 0x004;
   static const uint32_t kRegTxHead = 0x010;
@@ -209,7 +256,39 @@ class FpgaSharedStream {
   static const uint32_t kRegRxDepth = 0x024;
   static const uint32_t kRegSlotWords = 0x028;
 
-  static const uint32_t kTxBase = 0x100;
+  // Legacy layout
+  static const uint32_t kLegacyRegTxDepth = 0x000;
+  static const uint32_t kLegacyRegRxDepth = 0x004;
+  static const uint32_t kLegacyRegSlotWords = 0x008;
+  static const uint32_t kLegacyRegTxHead = 0x00C;
+  static const uint32_t kLegacyRegTxTail = 0x010;
+  static const uint32_t kLegacyRegRxHead = 0x014;
+  static const uint32_t kLegacyRegRxTail = 0x018;
+
+  static const uint32_t kRingBase = 0x100;
+
+  bool LooksLikeNewHeader(const Header& h) const {
+    if (h.magic != kMagic || h.version != kVersion) {
+      return false;
+    }
+    if (h.tx_depth == 0 || h.rx_depth == 0 || h.slot_words == 0) {
+      return false;
+    }
+    return true;
+  }
+
+  bool LooksLikeLegacyHeader(const Header& h) const {
+    if (h.tx_depth < 2 || h.rx_depth < 2) {
+      return false;
+    }
+    if (h.tx_depth > kMaxDepth || h.rx_depth > kMaxDepth) {
+      return false;
+    }
+    if (h.slot_words < kFrameWords || h.slot_words > kMaxSlotWords) {
+      return false;
+    }
+    return true;
+  }
 
   bool IsValidGeometry(std::size_t span) const {
     if (tx_depth_ < 2 || rx_depth_ < 2 || tx_depth_ > kMaxDepth ||
@@ -230,9 +309,25 @@ class FpgaSharedStream {
     return depth == 0 ? 0 : ((value + 1u) % depth);
   }
 
+  uint32_t TxHeadOffset() const {
+    return legacy_mode_ ? kLegacyRegTxHead : kRegTxHead;
+  }
+
+  uint32_t TxTailOffset() const {
+    return legacy_mode_ ? kLegacyRegTxTail : kRegTxTail;
+  }
+
+  uint32_t RxHeadOffset() const {
+    return legacy_mode_ ? kLegacyRegRxHead : kRegRxHead;
+  }
+
+  uint32_t RxTailOffset() const {
+    return legacy_mode_ ? kLegacyRegRxTail : kRegRxTail;
+  }
+
   uint32_t ReadReg(uint32_t offset) const {
     volatile uint32_t* reg =
-        reinterpret_cast<volatile uint32_t*>(mmio_ + offset);
+        reinterpret_cast<volatile uint32_t*>(const_cast<volatile uint8_t*>(mmio_) + offset);
     return *reg;
   }
 
@@ -259,7 +354,8 @@ class FpgaSharedStream {
 
   void ReadSlot(uint32_t base, uint32_t index, Frame* frame) const {
     volatile uint32_t* slot = reinterpret_cast<volatile uint32_t*>(
-        mmio_ + base + index * (slot_words_ * sizeof(uint32_t)));
+        const_cast<volatile uint8_t*>(mmio_) +
+        base + index * (slot_words_ * sizeof(uint32_t)));
     frame->word0 = slot[0];
     frame->word1 = slot[1];
     frame->word2 = slot[2];
@@ -277,6 +373,7 @@ class FpgaSharedStream {
   uint32_t tx_depth_;
   uint32_t rx_depth_;
   uint32_t slot_words_;
+  bool legacy_mode_;
   Header observed_header_;
   std::string last_error_;
 };

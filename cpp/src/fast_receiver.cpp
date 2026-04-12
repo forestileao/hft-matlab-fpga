@@ -185,56 +185,64 @@ static void scan_fpga_bridge(uint64_t base, std::size_t span, const std::string&
     }
 }
 
-static bool init_fpga_bridge(FpgaSharedStream* bridge)
-{
-    const char* base_env = std::getenv("HFT_FPGA_MMIO_BASE");
-    if (base_env == nullptr) {
-        std::cout << "FPGA MMIO bridge disabled (set HFT_FPGA_MMIO_BASE to enable)\n";
-        return false;
+static bool init_fpga_bridge(FpgaSharedStream* bridge) {
+  const char* base_env = std::getenv("HFT_FPGA_MMIO_BASE");
+  if (base_env == nullptr) {
+    std::cout << "FPGA MMIO bridge disabled (set HFT_FPGA_MMIO_BASE to enable)\n";
+    return false;
+  }
+
+  uint64_t base = 0;
+  if (!parse_u64(base_env, &base)) {
+    std::cerr << "Invalid HFT_FPGA_MMIO_BASE value: " << base_env << "\n";
+    return false;
+  }
+
+  std::size_t span = FpgaSharedStream::kDefaultSpan;
+  const char* span_env = std::getenv("HFT_FPGA_MMIO_SPAN");
+  if (span_env != nullptr) {
+    uint64_t parsed_span = 0;
+    if (!parse_u64(span_env, &parsed_span) || parsed_span == 0) {
+      std::cerr << "Invalid HFT_FPGA_MMIO_SPAN value: " << span_env << "\n";
+      return false;
     }
+    span = static_cast<std::size_t>(parsed_span);
+  }
 
-    uint64_t base = 0;
-    if (!parse_u64(base_env, &base)) {
-        std::cerr << "Invalid HFT_FPGA_MMIO_BASE value: " << base_env << "\n";
-        return false;
+  const char* dev_env = std::getenv("HFT_FPGA_MMIO_DEV");
+  const std::string dev_path = dev_env == nullptr ? "/dev/mem" : dev_env;
+
+  if (!bridge->Open(base, span, dev_path)) {
+    std::cerr << "Failed to open FPGA MMIO bridge at base=0x"
+              << std::hex << base
+              << " span=0x" << span
+              << " dev=" << dev_path
+              << std::dec;
+    if (!bridge->LastError().empty()) {
+      std::cerr << ": " << bridge->LastError();
     }
+    std::cerr << " (";
+    print_bridge_header(bridge->ObservedHeader());
+    std::cerr << ")";
+    std::cerr << "\n";
+    scan_fpga_bridge(base, span, dev_path);
+    return false;
+  }
 
-    std::size_t span = FpgaSharedStream::kDefaultSpan;
-    const char* span_env = std::getenv("HFT_FPGA_MMIO_SPAN");
-    if (span_env != nullptr) {
-        uint64_t parsed_span = 0;
-        if (!parse_u64(span_env, &parsed_span) || parsed_span == 0) {
-            std::cerr << "Invalid HFT_FPGA_MMIO_SPAN value: " << span_env << "\n";
-            return false;
-        }
-        span = static_cast<std::size_t>(parsed_span);
-    }
+  std::cout << "FPGA MMIO bridge enabled: base=0x"
+            << std::hex << base
+            << " span=0x" << span
+            << " magic=0x" << bridge->Magic()
+            << " version=" << std::dec << bridge->Version()
+            << " tx_depth=" << bridge->TxDepth()
+            << " rx_depth=" << bridge->RxDepth()
+            << " slot_words=" << bridge->SlotWords()
+            << " rx_base=0x" << std::hex << bridge->RxBase()
+            << std::dec
+            << (bridge->IsLegacyMode() ? " mode=legacy" : " mode=new")
+            << "\n";
 
-    const char* dev_env = std::getenv("HFT_FPGA_MMIO_DEV");
-    const std::string dev_path = dev_env == nullptr ? "/dev/mem" : dev_env;
-
-    if (!bridge->Open(base, span, dev_path)) {
-        std::cerr << "Failed to open FPGA MMIO bridge at base=0x" << std::hex << base
-                  << " span=0x" << span << " dev=" << dev_path << std::dec;
-        if (!bridge->LastError().empty()) {
-            std::cerr << ": " << bridge->LastError();
-        }
-        std::cerr << " (";
-        print_bridge_header(bridge->ObservedHeader());
-        std::cerr << ")";
-        std::cerr << "\n";
-        scan_fpga_bridge(base, span, dev_path);
-        return false;
-    }
-
-    std::cout << "FPGA MMIO bridge enabled: base=0x" << std::hex << base
-              << " span=0x" << span << " magic=0x" << bridge->Magic()
-              << " version=" << std::dec << bridge->Version()
-              << " tx_depth=" << bridge->TxDepth()
-              << " rx_depth=" << bridge->RxDepth()
-              << " slot_words=" << bridge->SlotWords()
-              << " rx_base=0x" << std::hex << bridge->RxBase() << std::dec << "\n";
-    return true;
+  return true;
 }
 
 int main()
@@ -245,7 +253,7 @@ int main()
 
     FpgaSharedStream bridge;
     const bool bridge_enabled = init_fpga_bridge(&bridge);
-
+    
     std::vector<char> buf(8192);
 
     while (true) {

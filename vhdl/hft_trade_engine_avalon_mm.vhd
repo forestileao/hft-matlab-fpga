@@ -4,17 +4,18 @@ use ieee.numeric_std.all;
 
 entity hft_trade_engine_avalon_mm is
   generic (
-    G_ADDR_WIDTH         : natural := 13;
-    G_DEPTH              : natural := 64;
-    G_SLOT_WORDS         : natural := 8;
-    G_NUM_SYMBOLS        : natural := 8;
-    G_BOOK_DEPTH         : natural := 8;
-    G_IMBALANCE_THRESHOLD : natural := 500;
-    G_MAX_SPREAD_1E4      : natural := 25000
+    G_ADDR_WIDTH           : natural := 13;
+    G_DEPTH                : natural := 64;
+    G_SLOT_WORDS           : natural := 8;
+    G_NUM_SYMBOLS          : natural := 8;
+    G_BOOK_DEPTH           : natural := 8;
+    G_IMBALANCE_THRESHOLD  : natural := 500;
+    G_MAX_SPREAD_1E4       : natural := 25000;
+    G_TIMEOUT_CYCLES       : natural := 15
   );
   port (
-    clk_i   : in  std_logic;
-    rst_ni  : in  std_logic;
+    clk_i             : in  std_logic;
+    rst_ni            : in  std_logic;
 
     avs_chipselect_i  : in  std_logic;
     avs_address_i     : in  std_logic_vector(G_ADDR_WIDTH - 3 downto 0);
@@ -22,31 +23,34 @@ entity hft_trade_engine_avalon_mm is
     avs_write_i       : in  std_logic;
     avs_byteenable_i  : in  std_logic_vector(3 downto 0);
     avs_writedata_i   : in  std_logic_vector(31 downto 0);
+
     avs_readdata_o    : out std_logic_vector(31 downto 0);
     avs_waitrequest_o : out std_logic
   );
 end entity;
 
 architecture rtl of hft_trade_engine_avalon_mm is
-  constant C_TIMEOUT_CYCLES : natural := 15;
-
   type t_state is (S_IDLE, S_ISSUE, S_WAIT, S_COMPLETE);
 
-  signal state_q : t_state := S_IDLE;
-  signal timeout_q : unsigned(3 downto 0) := (others => '0');
+  constant C_TIMEOUT_VALUE : std_logic_vector(31 downto 0) := x"BAADF00D";
 
-  signal req_addr_q  : std_logic_vector(G_ADDR_WIDTH - 3 downto 0) := (others => '0');
-  signal req_read_q  : std_logic := '0';
-  signal req_write_q : std_logic := '0';
-  signal req_wdata_q : std_logic_vector(31 downto 0) := (others => '0');
-  signal read_data_q : std_logic_vector(31 downto 0) := (others => '0');
+  signal state_q      : t_state := S_IDLE;
+  signal timeout_q    : unsigned(7 downto 0) := (others => '0');
 
-  signal mm_addr_s  : std_logic_vector(G_ADDR_WIDTH - 1 downto 0);
-  signal mm_wr_s    : std_logic;
-  signal mm_rd_s    : std_logic;
-  signal mm_wdata_s : std_logic_vector(31 downto 0);
-  signal mm_rdata_s : std_logic_vector(31 downto 0);
-  signal mm_ready_s : std_logic;
+  signal req_addr_q   : std_logic_vector(G_ADDR_WIDTH - 3 downto 0) := (others => '0');
+  signal req_read_q   : std_logic := '0';
+  signal req_write_q  : std_logic := '0';
+  signal req_wdata_q  : std_logic_vector(31 downto 0) := (others => '0');
+
+  signal read_data_q  : std_logic_vector(31 downto 0) := (others => '0');
+
+  signal mm_addr_s    : std_logic_vector(G_ADDR_WIDTH - 1 downto 0);
+  signal mm_wr_s      : std_logic;
+  signal mm_rd_s      : std_logic;
+  signal mm_wdata_s   : std_logic_vector(31 downto 0);
+  signal mm_rdata_s   : std_logic_vector(31 downto 0);
+  signal mm_ready_s   : std_logic;
+
 begin
   u_engine : entity work.hft_trade_engine
     generic map (
@@ -71,29 +75,32 @@ begin
 
   mm_addr_s  <= req_addr_q & "00";
   mm_wdata_s <= req_wdata_q;
-  mm_wr_s    <= '1' when state_q = S_ISSUE and req_write_q = '1' else '0';
-  mm_rd_s    <= '1' when state_q = S_ISSUE and req_read_q = '1' else '0';
 
-  avs_readdata_o <= (others => '0') when rst_ni = '0' else read_data_q;
+  mm_wr_s <= '1' when (state_q = S_ISSUE and req_write_q = '1') else '0';
+  mm_rd_s <= '1' when (state_q = S_ISSUE and req_read_q  = '1') else '0';
 
-  -- Never hold the HPS lightweight bridge forever. If this IP is held in reset
-  -- by HPS reset wiring, a Linux /dev/mem read must still complete safely.
-  avs_waitrequest_o <= '0' when rst_ni = '0' or
-                                state_q = S_COMPLETE or
-                                (state_q = S_IDLE and avs_chipselect_i = '0' and avs_read_i = '0' and avs_write_i = '0')
-                       else '1';
+  avs_readdata_o <= read_data_q when rst_ni = '1' else (others => '0');
+
+  -- Important:
+  -- Never keep the lightweight bridge stalled forever.
+  -- During reset, Linux /dev/mem must not hang.
+  avs_waitrequest_o <= '0' when (
+      rst_ni = '0' or
+      state_q = S_COMPLETE or
+      (state_q = S_IDLE and avs_chipselect_i = '0' and avs_read_i = '0' and avs_write_i = '0')
+    ) else '1';
 
   p_main : process(clk_i)
   begin
     if rising_edge(clk_i) then
       if rst_ni = '0' then
         state_q     <= S_IDLE;
+        timeout_q   <= (others => '0');
         req_addr_q  <= (others => '0');
         req_read_q  <= '0';
         req_write_q <= '0';
         req_wdata_q <= (others => '0');
         read_data_q <= (others => '0');
-        timeout_q   <= (others => '0');
       else
         case state_q is
           when S_IDLE =>
@@ -108,7 +115,7 @@ begin
 
           when S_ISSUE =>
             timeout_q <= (others => '0');
-            state_q <= S_WAIT;
+            state_q   <= S_WAIT;
 
           when S_WAIT =>
             if mm_ready_s = '1' then
@@ -116,9 +123,9 @@ begin
                 read_data_q <= mm_rdata_s;
               end if;
               state_q <= S_COMPLETE;
-            elsif to_integer(timeout_q) = C_TIMEOUT_CYCLES then
+            elsif to_integer(timeout_q) >= G_TIMEOUT_CYCLES then
               if req_read_q = '1' then
-                read_data_q <= x"BAADF00D";
+                read_data_q <= C_TIMEOUT_VALUE;
               end if;
               state_q <= S_COMPLETE;
             else
@@ -134,4 +141,4 @@ begin
       end if;
     end if;
   end process;
-end architecture rtl;
+end architecture;
