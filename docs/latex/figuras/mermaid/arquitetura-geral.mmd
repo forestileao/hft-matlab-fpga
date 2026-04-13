@@ -1,0 +1,36 @@
+%%{init: {"theme": "base", "flowchart": {"htmlLabels": false}, "themeVariables": {"fontFamily": "Arial", "primaryColor": "#ffffff", "primaryTextColor": "#111111", "lineColor": "#333333", "clusterBkg": "#f8f8f8", "clusterBorder": "#666666"}}}%%
+flowchart TB
+    subgraph SW["Software no ARM/HPS"]
+        Feed["fast_data_feed<br/>feed FAST sintetico"]
+        Receiver["fast_receiver<br/>decodifica e normaliza"]
+        MMIO["FpgaSharedStream<br/>MMIO via /dev/mem"]
+    end
+
+    subgraph IF["Interface ARM-FPGA"]
+        Bridge["HPS lightweight bridge<br/>base 0xFF200000"]
+        Avalon["hft_trade_engine_avalon_mm<br/>escravo Avalon-MM"]
+        Rings["arm_fpga_shared_stream_bridge<br/>filas TX/RX"]
+    end
+
+    subgraph FPGA["Logica programavel"]
+        Book["order_book_core<br/>livro de ofertas"]
+        Wrapper["generated_strategy_core<br/>wrapper da estrategia"]
+        Strategy["strategy.vhd<br/>gerado por MATLAB HDL Coder"]
+    end
+
+    Output["Saida no ARM<br/>acao + snapshot do livro"]
+
+    Feed -->|"mensagens TCP/FAST"| Receiver
+    Receiver -->|"evento de 8 palavras"| MMIO
+    MMIO -->|"escrita TX"| Bridge
+    Bridge -->|"transacao Avalon-MM"| Avalon
+    Avalon -->|"registradores e slots"| Rings
+    Rings -->|"stream de evento"| Book
+    Book -->|"best bid/ask, spread, imbalance"| Wrapper
+    Wrapper -->|"entradas da estrategia"| Strategy
+    Strategy -->|"NOOP, BUY ou SELL"| Wrapper
+    Wrapper -->|"resposta de 8 palavras"| Rings
+    Rings -->|"leitura RX"| Avalon
+    Avalon --> Bridge
+    Bridge --> MMIO
+    MMIO --> Output

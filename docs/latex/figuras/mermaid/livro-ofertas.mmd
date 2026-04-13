@@ -1,0 +1,25 @@
+%%{init: {"theme": "base", "flowchart": {"htmlLabels": false}, "themeVariables": {"fontFamily": "Arial", "primaryColor": "#ffffff", "primaryTextColor": "#111111", "lineColor": "#333333", "clusterBkg": "#f8f8f8", "clusterBorder": "#666666"}}}%%
+flowchart TB
+    Event["Evento normalizado<br/>symbol, side, price, qty"]
+    Decode["Decodificacao do quadro<br/>8 palavras de 32 bits"]
+    Select["Selecao do simbolo<br/>e lado do livro"]
+
+    subgraph Book["Livro por nivel de preco"]
+        Bid["Vetor de compras<br/>ordem decrescente"]
+        Ask["Vetor de vendas<br/>ordem crescente"]
+    end
+
+    Top["Calculo do topo<br/>best bid e best ask"]
+    Signals["Sinais derivados<br/>spread e imbalance"]
+    Strategy["Estrategia gerada por HLS<br/>NOOP, BUY ou SELL"]
+    Response["Resposta FPGA -> ARM<br/>acao + snapshot"]
+
+    Event --> Decode
+    Decode --> Select
+    Select --> Bid
+    Select --> Ask
+    Bid --> Top
+    Ask --> Top
+    Top --> Signals
+    Signals --> Strategy
+    Strategy --> Response

@@ -1,0 +1,350 @@
+%%%% CAPÍTULO 4 - RESULTADOS E DISCUSSÃO
+
+\chapter{Resultados}\label{cap:resultados}
+
+Este capítulo apresenta o sistema obtido, sua modelagem, aspectos de implementação e validação. Os resultados são principalmente funcionais, pois a campanha quantitativa completa de latência, vazão e uso de recursos ainda depende da instrumentação descrita no \autoref{subsec:metodoMedicoes}.
+
+\section{Escopo do sistema}\label{sec:escopoSistema}
+
+O sistema desenvolvido é uma plataforma de pipeline HFT assistida por FPGA, com foco na geração de estratégias por MATLAB HDL Coder. Ele recebe dados sintéticos de mercado, normaliza eventos em software, transporta quadros por MMIO, atualiza um livro de ofertas simplificado em VHDL, executa uma regra de decisão gerada a partir de MATLAB e retorna uma resposta ao ARM. A arquitetura demonstra viabilidade de co-projeto hardware/software em uma plataforma de baixo custo.
+
+O sistema contém quatro superfícies principais. A primeira é a superfície de dados, formada por FAST e TCP. A segunda é a superfície software/hardware, formada por \codigo{FpgaSharedStream} e pelos registradores da ponte. A terceira é a superfície de processamento em hardware, formada por livro de ofertas e estratégia gerada. A quarta é a superfície de validação, formada por testes C++, testbenches VHDL e comandos Make.
+
+O sistema não cobre negociação real, risco, roteamento de ordens, autenticação, \textit{market replay} real, multicast, timestamping de precisão ou comparação estatística com dados de bolsa. Essas ausências delimitam o protótipo, mas também definem trabalhos futuros claros.
+
+\section{Modelagem do sistema}\label{sec:modelagemSistema}
+
+\subsection{Modelo de componentes}\label{subsec:modeloComponentes}
+
+A \autoref{fig:placeholderFluxoDados} representa o fluxo de dados implementado. O feed sintético opera no domínio de software; o receptor atua como adaptador entre protocolo financeiro e protocolo de hardware; a ponte converte acessos MMIO em streams internos; o livro de ofertas mantém estado; a estratégia converte sinais de mercado em ação.
+
+\begin{figure}[htb]
+\caption{Fluxo de dados do protótipo}
+\label{fig:placeholderFluxoDados}
+\centering
+\includegraphics[width=0.95\textwidth]{fluxo-temporal-evento}
+\fonte{Elaborado pelos autores a partir de diagrama Mermaid.}
+\end{figure}
+
+Os requisitos funcionais implementados são:
+
+\begin{itemize}
+  \item gerar mensagens sintéticas de mercado com símbolos e lados conhecidos;
+  \item decodificar mensagens FAST e recuperar campos de interesse;
+  \item habilitar ou desabilitar caminho FPGA por variável de ambiente;
+  \item enviar eventos ao FPGA por fila TX;
+  \item manter livro de ofertas por símbolo e lado;
+  \item calcular melhor compra, melhor venda, \textit{spread} e desbalanceamento;
+  \item gerar ação NOOP, BUY ou SELL;
+  \item disponibilizar resposta ao software por fila RX;
+  \item validar o contrato por testes automatizados.
+\end{itemize}
+
+Os requisitos não funcionais priorizados são determinismo, rastreabilidade do contrato, simplicidade de reprodução e baixo custo. Requisitos ainda não atendidos incluem medição precisa de latência, robustez contra falhas de hardware em campo, segurança operacional, integração com dados reais e análise formal de temporização pós-síntese.
+
+\subsection{Modelo de estados das filas}\label{subsec:modeloEstadosFilas}
+
+As filas circulares podem ser compreendidas por três estados observáveis: vazia, parcialmente ocupada e cheia. A fila vazia ocorre quando cabeça e cauda possuem o mesmo valor. A fila parcialmente ocupada ocorre quando a cabeça está à frente da cauda em aritmética modular. A fila cheia ocorre quando avançar a cabeça alcançaria a cauda. Essa definição é usada tanto no software quanto no hardware.
+
+Esse modelo evita a necessidade de um contador compartilhado de ocupação. Em um ambiente produtor-consumidor, contador compartilhado exigiria atualização por ambos os lados e poderia introduzir condição de corrida. Com ponteiros separados, cada lado escreve apenas os ponteiros sob sua responsabilidade. O ARM escreve \codigo{TX_HEAD} e \codigo{RX_TAIL}; o FPGA escreve \codigo{TX_TAIL} e \codigo{RX_HEAD}. A leitura cruzada é suficiente para inferir disponibilidade.
+
+\subsection{Modelo de dados em ponto fixo}\label{subsec:modeloPontoFixo}
+
+O preço é representado como inteiro sem sinal escalado por $10^4$. Assim, um preço decimal de 185,20 é representado como 1.852.000. Essa escolha facilita comparação e subtração em hardware. Também evita sintetizar unidades de ponto flutuante, que consumiriam mais recursos e tornariam o projeto desnecessariamente complexo.
+
+A limitação é que a escala é fixa. Se o instrumento negociado exigir mais casas decimais ou valores muito altos, a representação precisará ser revista. Para os símbolos sintéticos do feed, a faixa cabe em 32 bits. Em um sistema real, a escala deveria ser definida a partir do \textit{tick size} do mercado e da faixa máxima de preço esperada.
+
+\subsection{Modelo de registradores}\label{subsec:modeloRegistradores}
+
+A ponte MMIO expõe identificadores, controle, estado, ponteiros e memórias de slots. O registrador \codigo{MAGIC} contém \codigo{0x48465431}, correspondente a \codigo{HFT1}, e permite ao software verificar se a base física está correta. \codigo{VERSION} indica a versão do protocolo. \codigo{STATUS} informa disponibilidade de envio, fila TX cheia, RX com dados e RX cheia.
+
+\begin{table}[htb]
+\caption{Mapa de registradores principal da ponte ARM--FPGA}
+\label{tab:mapaRegistradores}
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Offset} & \textbf{Nome} & \textbf{Função} \\ \midrule
+\codigo{0x000} & \codigo{MAGIC} & Assinatura \codigo{HFT1}. \\
+\codigo{0x004} & \codigo{VERSION} & Versão do protocolo. \\
+\codigo{0x008} & \codigo{CTRL} & Controle, incluindo reset suave de ponteiros. \\
+\codigo{0x00C} & \codigo{STATUS} & Bits de fila: pode enviar, TX cheia, RX com dados e RX cheia. \\
+\codigo{0x010} & \codigo{TX_HEAD} & Ponteiro publicado pelo ARM para TX. \\
+\codigo{0x014} & \codigo{TX_TAIL} & Ponteiro publicado pelo FPGA para TX. \\
+\codigo{0x018} & \codigo{RX_HEAD} & Ponteiro publicado pelo FPGA para RX. \\
+\codigo{0x01C} & \codigo{RX_TAIL} & Ponteiro publicado pelo ARM para RX. \\
+\codigo{0x020} & \codigo{TX_DEPTH} & Profundidade da fila TX. \\
+\codigo{0x024} & \codigo{RX_DEPTH} & Profundidade da fila RX. \\
+\codigo{0x028} & \codigo{SLOT_WORDS} & Quantidade de palavras por slot. \\
+\codigo{0x100} & \codigo{TX_SLOTS} & Base da memória de slots TX. \\
+dinâmico & \codigo{RX_SLOTS} & Base calculada por \codigo{0x100 + DEPTH * SLOT_WORDS * 4}. \\ \bottomrule
+\end{tabularx}
+\fonte{}
+\end{table}
+
+O mapa de registradores também funciona como mecanismo de versionamento prático. Em sistemas embarcados, é comum que software e bitstream sejam atualizados em momentos diferentes. Se o software espera slots de oito palavras e o hardware expõe quatro, a falha não é necessariamente visível como erro de compilação; ela aparece como corrupção de dados em tempo de execução. Por isso, a leitura de \codigo{SLOT_WORDS}, \codigo{TX_DEPTH} e \codigo{RX_DEPTH} é parte do resultado, não apenas uma conveniência.
+
+O registrador \codigo{CTRL} permite reinicialização lógica dos ponteiros, o que auxilia em bring-up. Sem esse mecanismo, uma execução interrompida poderia deixar cabeça e cauda em posições antigas, obrigando reprogramação da FPGA ou reset completo da placa. A existência de reset suave simplifica ciclos de teste durante desenvolvimento. A limitação é que o reset lógico não substitui uma política completa de recuperação de falhas: se o hardware estiver em estado inválido por reset de clock, erro de temporização ou ponte desabilitada, a solução ainda depende de diagnóstico no nível do sistema.
+
+\section{Apresentação do sistema}\label{sec:apresentacaoSistema}
+
+Em execução software-only, o receptor imprime linhas contendo sequência, símbolo, lado, preço e quantidade. Com FPGA habilitado, ele imprime também respostas no formato \codigo{[FPGA->ARM]}, contendo ação e instantâneo de livro. A saída esperada inclui campos como \codigo{best_bid_px_1e4}, \codigo{best_ask_px_1e4}, \codigo{spread_1e4} e \codigo{imbalance}.
+
+A interface do protótipo é textual porque o foco está na cadeia de dados e não em uma aplicação gráfica. Para fins de monografia, a \autoref{fig:placeholderExecucao} sugere uma figura com duas janelas de terminal: uma executando \codigo{fast_data_feed} e outra executando \codigo{fast_receiver} com ou sem \codigo{HFT_FPGA_MMIO_BASE}.
+
+\begin{figure}[htb]
+\caption{Execução prevista do gerador e receptor}
+\label{fig:placeholderExecucao}
+\centering
+\fbox{\begin{minipage}{1\textwidth}
+\centering
+\includegraphics[width=1\textwidth]{terminal_feed_vs_receiver.png}
+\end{minipage}}
+\fonte{}
+\end{figure}
+
+O modo textual também ajuda a depuração. Cada linha impressa pelo receptor conserva a sequência do evento original, e cada resposta FPGA ecoa essa sequência. Isso permite verificar se respostas estão atrasadas, perdidas ou associadas ao evento errado. Em versões futuras, a saída textual poderia ser complementada por arquivo CSV ou logs estruturados, mas para o estágio atual a impressão direta é suficiente.
+
+\subsection{Execução funcional na DE10-Nano}\label{subsec:execucaoFuncionalDe10}
+
+Foi realizada uma execução funcional na DE10-Nano acessada por SSH. O receptor foi iniciado com \codigo{HFT_FPGA_MMIO_BASE=0xFF200000}, habilitando o caminho FPGA. A inicialização indicou leitura correta da ponte MMIO, com \codigo{magic=0x48465431}, \codigo{version=1}, \codigo{tx_depth=64}, \codigo{rx_depth=64}, \codigo{slot_words=8} e \codigo{rx_base=0x900}. Esses valores confirmam que o software encontrou o periférico esperado, reconheceu a geometria do contrato e ativou o modo novo da interface.
+
+Em seguida, o receptor conectou-se ao feed local em \codigo{127.0.0.1:9001}. O gerador \codigo{fast_data_feed} publicou mensagens sintéticas FAST com símbolos AAPL, MSFT, NVDA, GOOGL e TSLA. A partir da sequência 26, o servidor indicou cliente conectado e o receptor passou a imprimir pares de linhas: uma linha com o evento decodificado e outra com a resposta \codigo{[FPGA->ARM]}. Foram observadas respostas BUY e NOOP contendo melhor compra, melhor venda, quantidades, \textit{spread} e desbalanceamento.
+
+Como exemplo, para o evento \codigo{seq=26}, símbolo TSLA e lado de venda, a resposta retornou ação BUY, melhor compra \codigo{1749900}, melhor venda \codigo{1750100}, \textit{spread} \codigo{200} e desbalanceamento \codigo{2155}. Para eventos do símbolo AAPL, como \codigo{seq=36}, a resposta retornou NOOP com \textit{spread} \codigo{400} e desbalanceamento \codigo{121}. Esses resultados são coerentes com a regra de estratégia: BUY ocorre quando o desbalanceamento comprador supera o limiar e NOOP ocorre quando o sinal não atinge condição de compra ou venda.
+
+\begin{sourcecode}[htb]
+\caption{\label{codigo:saidaFpgaArm}Trecho da saída do receptor com respostas FPGA--ARM}
+\begin{lstlisting}[frame=single]
+FPGA MMIO bridge enabled: base=0xff200000 span=0x2000
+magic=0x48465431 version=1 tx_depth=64 rx_depth=64
+slot_words=8 rx_base=0x900 mode=new
+Connected to 127.0.0.1:9001
+
+seq=26 sym=TSLA side=sell price=175.17 qty=1547
+[FPGA->ARM] seq=26 action=BUY
+  best_bid_px_1e4=1749900 best_bid_qty=2836
+  best_ask_px_1e4=1750100 best_ask_qty=681
+  spread_1e4=200 imbalance=2155
+
+seq=27 sym=NVDA side=sell price=875.13 qty=3861
+[FPGA->ARM] seq=27 action=BUY
+  best_bid_px_1e4=8749800 best_bid_qty=3282
+  best_ask_px_1e4=8750100 best_ask_qty=2259
+  spread_1e4=300 imbalance=1023
+
+seq=36 sym=AAPL side=sell price=185.75 qty=1795
+[FPGA->ARM] seq=36 action=NOOP
+  best_bid_px_1e4=1849900 best_bid_qty=939
+  best_ask_px_1e4=1850300 best_ask_qty=818
+  spread_1e4=400 imbalance=121
+\end{lstlisting}
+\fonte{Execução funcional na DE10-Nano realizada pelos autores.}
+\end{sourcecode}
+
+O trecho apresentado no \autoref{codigo:saidaFpgaArm} evidencia dois comportamentos relevantes. Primeiro, a leitura do cabeçalho da ponte confirma que o software acessou a região MMIO correta. Segundo, as respostas \codigo{[FPGA->ARM]} mostram que o FPGA retornou ações e campos derivados do livro de ofertas para eventos reais do feed sintético. O caso TSLA e o caso NVDA resultaram em BUY devido a desbalanceamentos positivos superiores ao limiar; o caso AAPL resultou em NOOP, pois o desbalanceamento de 121 não satisfaz a condição de compra ou venda.
+
+\begin{table}[htb]
+\caption{Resumo da execução funcional na DE10-Nano}
+\label{tab:execucaoFuncionalDe10}
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Item observado} & \textbf{Evidência} \\ \midrule
+Ponte MMIO reconhecida & \codigo{magic=0x48465431}, \codigo{version=1}, \codigo{slot_words=8}. \\
+Geometria das filas & \codigo{tx_depth=64}, \codigo{rx_depth=64}, \codigo{rx_base=0x900}. \\
+Feed conectado & Receptor conectado a \codigo{127.0.0.1:9001}; servidor indica cliente conectado. \\
+Eventos processados & Sequências 26 a 52 recebidas e respondidas antes da interrupção manual. \\
+Ações observadas & BUY para desbalanceamentos positivos elevados e NOOP para AAPL com desbalanceamento baixo. \\
+Campos de livro retornados & Melhor compra, melhor venda, quantidades, \textit{spread} e desbalanceamento impressos pelo ARM. \\ \bottomrule
+\end{tabularx}
+\fonte{}
+\end{table}
+
+Esse ensaio deve ser interpretado como evidência funcional de integração em placa. Ele demonstra que o caminho feed--receptor--MMIO--FPGA--MMIO--receptor opera e que a estratégia gerada está produzindo respostas consistentes com os sinais do livro. Entretanto, ele ainda não mede latência, vazão máxima ou uso de recursos. Essas métricas exigem timestamps, contadores de ciclo e coleta sistemática, conforme planejado na metodologia.
+
+\section{Implementação do sistema}\label{sec:implementacaoSistema}
+
+\subsection{Wrapper MMIO em C++}\label{subsec:wrapperMMIO}
+
+O arquivo \codigo{fpga_shared_stream.h} implementa a classe \codigo{FpgaSharedStream}, responsável por abrir \codigo{/dev/mem} ou um arquivo de teste, mapear a região física, ler o cabeçalho do dispositivo e operar filas. A classe também possui compatibilidade com um layout legado, porém prioriza o cabeçalho novo com \codigo{MAGIC}, \codigo{VERSION} e geometria.
+
+\begin{sourcecode}[htb]
+\caption{\label{codigo:rxbase}Cálculo dinâmico da base RX no wrapper C++}
+\begin{lstlisting}[frame=single, language=C++]
+uint32_t TxBase() const { return kRingBase; }
+
+uint32_t RxBase() const {
+  return TxBase() + tx_depth_ * slot_words_ * sizeof(uint32_t);
+}
+\end{lstlisting}
+\fonte{Adaptado do código-fonte do projeto}
+\end{sourcecode}
+
+O cálculo dinâmico é relevante porque a base RX depende de profundidade e largura de slot. Se a implementação usasse um valor fixo, qualquer alteração em \codigo{G_DEPTH} ou \codigo{G_SLOT_WORDS} poderia fazer o ARM ler a região errada.
+
+O wrapper também protege contra geometria incompatível. Após mapear a região, ele lê profundidade e largura de slot. Se os valores forem nulos, excessivos ou incompatíveis com o \textit{span} mapeado, a abertura falha. Essa verificação evita que o receptor escreva fora da janela MMIO ou interprete memória aleatória como slots. Em hardware real, esse tipo de proteção é importante porque um endereço base incorreto pode apontar para outro periférico ou para uma região sem resposta.
+
+\subsection{Receptor FAST e empacotamento de eventos}\label{subsec:fastReceiver}
+
+O receptor decodifica cada entrada de mercado e monta o quadro enviado ao FPGA. A conversão de preço usa escala $10^4$, e o mapeamento de símbolo remove strings do caminho de hardware. O trecho a seguir resume o empacotamento:
+
+\begin{sourcecode}[htb]
+\caption{\label{codigo:frameCpp}Empacotamento do quadro ARM--FPGA}
+\begin{lstlisting}[frame=single, language=C++]
+frame.word0 = entry.get_SeqNo().value();
+frame.word1 = symbol_id;
+frame.word2 = price_to_fixed_1e4(entry.get_Price());
+frame.word3 = entry.get_Qty().value();
+frame.word4 = kEventUpsertLevel;
+frame.word5 = parse_side_code(entry.get_Side().c_str());
+frame.word6 = 0;
+frame.word7 = 0;
+\end{lstlisting}
+\fonte{Adaptado do código-fonte do projeto}
+\end{sourcecode}
+
+A vantagem é a clareza do contrato. A limitação é que eventos reais possuem mais campos, como tipo de atualização detalhado, identificadores de ordem, timestamp de mercado e informações de sessão.
+
+O receptor também contém lógica de varredura opcional da ponte, controlada por variável de ambiente. Essa lógica tenta localizar uma base compatível dentro da janela leve HPS--FPGA, procurando o cabeçalho esperado. O recurso não é parte do caminho crítico, mas é útil em laboratório, pois offsets do Platform Designer podem mudar durante integração.
+
+\subsection{Ponte compartilhada em VHDL}\label{subsec:ponteVhdl}
+
+O módulo \codigo{arm_fpga_shared_stream_bridge.vhd} implementa registradores, memórias TX/RX e handshakes. A função \codigo{f_slot_word_set} escreve uma palavra de 32 bits em uma lane do slot, preservando ordenação little-endian por índice de palavra. O consumo TX ocorre quando \codigo{cmd_valid_s} e \codigo{cmd_ready_i} estão ativos. A captura RX ocorre quando \codigo{rsp_valid_i} está ativo e a fila RX não está cheia.
+
+Essa ponte tem duas vantagens: desacopla o tempo de escrita do ARM do tempo de processamento do FPGA e torna o contrato testável por simulação. O principal trade-off é que MMIO com polling não é a forma mais eficiente de transferir grandes volumes; uma versão futura poderia explorar DMA ou streaming direto de rede.
+
+O bloco também expõe leitura da memória TX e RX. A leitura de TX ajuda a depurar o que o ARM escreveu. A escrita de RX por MMIO aparece como caminho opcional de depuração em simulação e bring-up. Em um produto final, a superfície de debug poderia ser reduzida para diminuir área ou evitar escritas indevidas. No protótipo, a observabilidade tem maior valor do que a minimização absoluta do mapa.
+
+\subsection{Livro de ofertas}\label{subsec:livroImplementacao}
+
+O \codigo{order_book_core.vhd} mantém quatro matrizes: preços e quantidades de compra, preços e quantidades de venda. O procedimento \codigo{p_apply_level_update} trata busca por preço existente, remoção, inserção ordenada e deslocamento. A cada evento, o bloco produz um snapshot. O circuito rejeita livros cruzados, evitando que uma compra seja inserida acima ou igual à melhor venda, ou que uma venda seja inserida abaixo ou igual à melhor compra.
+
+O comportamento do livro pode ser dividido em casos. Se o evento é reset, ambos os lados do símbolo são limpos. Se o preço já existe e a quantidade é positiva, a quantidade é atualizada no próprio nível. Se o preço já existe e a atualização é remoção ou quantidade zero, o nível é removido e os níveis seguintes são compactados. Se o preço não existe e a quantidade é positiva, o nível é inserido na posição que preserva ordenação. Se o livro está cheio e o novo nível é pior que todos os níveis armazenados, o evento é ignorado.
+
+Essa política é compatível com um livro de profundidade limitada. O sistema não precisa preservar níveis além de \codigo{G_BOOK_DEPTH}, pois a estratégia atual só usa o topo do livro. Em estratégias futuras que usem profundidade acumulada, essa decisão precisará ser reavaliada.
+
+\begin{figure}[htb]
+\caption{Pipeline lógico de atualização do livro}
+\label{fig:placeholderPipelineLivro}
+\centering
+\includegraphics[height=0.70\textheight]{pipeline-livro}
+\fonte{Elaborado pelos autores a partir de diagrama Mermaid.}
+\end{figure}
+
+\subsection{Estratégia MATLAB HDL Coder}\label{subsec:estrategiaImplementacao}
+
+A função MATLAB \codigo{strategy.m} retorna BUY se o desbalanceamento é positivo acima do limiar e o \textit{spread} está aceitável, SELL se o desbalanceamento é negativo abaixo do limiar, e NOOP caso contrário. Ela é compatível com HDL Coder por usar tipos inteiros fixos e não depender de estruturas dinâmicas. O wrapper VHDL \codigo{generated_strategy_core.vhd} encapsula o bloco gerado e monta o quadro de resposta.
+
+O wrapper da estratégia mantém protocolo de \textit{valid/ready}. Quando já existe resposta pendente e o consumidor não está pronto, o bloco não aceita novo snapshot. Essa contrapressão impede perda silenciosa de resposta. A decisão gerada é combinacional, mas a resposta é registrada, o que estabiliza o dado entregue à fila RX.
+
+\subsection{Projeto Quartus e componente customizado}\label{subsec:quartusImplementacao}
+
+O projeto Quartus em \codigo{quartus/de10_nano_hft} configura o dispositivo Cyclone V e inclui o sistema Platform Designer. O arquivo \codigo{hft.qsys} representa a conexão entre HPS, clock e componente customizado. O arquivo \codigo{hft_trade_engine_avalon_mm_hw.tcl} registra o motor HFT como IP, define parâmetros e declara a interface Avalon-MM. Com isso, o bloco pode ser instanciado no Platform Designer como um periférico acessível pelo HPS.
+
+Essa integração é essencial para sair da simulação e chegar à placa. O software assume que a base física corresponde à janela leve HPS--FPGA, usualmente \codigo{0xFF200000}, somada ao offset atribuído ao componente. Se o offset mudar, o valor de \codigo{HFT_FPGA_MMIO_BASE} deve mudar também. Essa dependência é documentada porque muitos erros de bring-up em SoC FPGA ocorrem por endereço incorreto, ponte desabilitada ou reset mal conectado.
+
+\subsection{Fluxo de build e dependências}\label{subsec:buildImplementacao}
+
+O fluxo de build resolve dependências em camadas. Primeiro, compila ou instala mFAST. Depois, gera tipos C++ do template FAST. Em seguida, constrói os executáveis de feed e receptor. Para hardware, gera VHDL da estratégia MATLAB, executa simulações com GHDL e integra os arquivos no Quartus. Para ARM, usa cross-build com sysroot extraído da placa. O objetivo desse encadeamento é evitar que uma etapa use artefatos antigos sem perceber.
+
+O alvo \codigo{make build} é mais amplo que \codigo{make check}. Ele inclui geração HDL, testes, cross-build e Quartus. Em uma rotina de desenvolvimento, mudanças pequenas no wrapper C++ podem ser validadas com \codigo{make cpp-test}; mudanças de RTL com \codigo{make vhdl-test-*}; mudanças de contrato exigem múltiplos alvos. Essa granularidade reduz tempo de feedback.
+
+O uso de Docker no fluxo de software e simulação tem impacto direto sobre a reprodutibilidade. A biblioteca mFAST e as ferramentas C++ podem ter comportamento sensível a versões de compilador e dependências. Ao fixar o ambiente, a plataforma reduz a chance de que um teste passe em uma máquina e falhe em outra por diferença de pacote. No fluxo FPGA, essa estabilidade é mais difícil porque Quartus e MATLAB possuem licenças e imagens próprias; ainda assim, o Makefile explicita os comandos esperados e documenta a dependência.
+
+\subsection{Critérios de aceitação funcional}\label{subsec:criteriosAceitacao}
+
+Com base nos testes e no contrato, foram definidos critérios de aceitação para considerar o protótipo funcional. Esses critérios são apresentados no \autoref{quad:criteriosAceitacao}. Eles servem como ponte entre implementação e avaliação acadêmica, pois transformam requisitos de engenharia em observações verificáveis.
+
+\begin{tabframed}[htb]
+\caption{Critérios de aceitação funcional}
+\label{quad:criteriosAceitacao}
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Critério} & \textbf{Evidência esperada} \\ \midrule
+Identificação da ponte & Software lê \codigo{MAGIC=0x48465431}, versão e geometria compatível antes de enviar eventos. \\
+Publicação TX correta & Payload é escrito no slot antes do avanço de \codigo{TX_HEAD}. \\
+Consumo TX correto & FPGA observa diferença entre \codigo{TX_HEAD} e \codigo{TX_TAIL}, consome slot e avança cauda. \\
+Resposta RX correta & FPGA escreve resposta completa antes de avançar \codigo{RX_HEAD}; ARM lê slot antes de avançar \codigo{RX_TAIL}. \\
+Livro ordenado & Compras permanecem em ordem decrescente e vendas em ordem crescente. \\
+Proteção de estado inválido & Atualizações que cruzariam o livro são rejeitadas ou não geram ordem. \\
+Estratégia verificável & BUY, SELL e NOOP aparecem em cenários controlados de desbalanceamento e \textit{spread}. \\
+Integração Avalon & Leituras e escritas MMIO completam sem travar \codigo{waitrequest}. \\ \bottomrule
+\end{tabularx}
+\fonte{}
+\end{tabframed}
+
+\section{Discussões}\label{sec:discussoes}
+
+Os testes automatizados indicam que o contrato funcional está coerente entre C++ e VHDL. O teste C++ valida a fila com profundidade 4, demonstrando que apenas 3 posições são utilizáveis, como esperado para a convenção \codigo{next(head) == tail}. O testbench do motor completo escreve três eventos MMIO e verifica respostas NOOP, BUY e SELL, incluindo topo de livro e desbalanceamento. O testbench do livro valida rejeição de livro cruzado, caso importante para evitar decisões sobre estado inconsistente.
+
+O principal resultado técnico é a estabilização da interface e do fluxo de geração da estratégia. Em projetos hardware/software, erros de integração frequentemente surgem de detalhes aparentemente pequenos: base RX fixa, largura de slot divergente, publicação de ponteiro antes do payload, leitura após avanço de ponteiro ou inversão de ordem de palavras. A plataforma trata esses pontos com documentação e testes, o que aumenta a confiabilidade do ambiente e permite que a estratégia MATLAB seja alterada sem redesenhar toda a infraestrutura.
+
+\subsection{Interpretação dos testes}\label{subsec:interpretacaoTestes}
+
+O teste \codigo{fpga_shared_stream_test} é relevante porque exercita o wrapper sem precisar de hardware real. Ele cria um arquivo temporário, escreve os registradores esperados e permite que a classe C++ opere como se estivesse mapeando MMIO. Esse teste verifica fila cheia com profundidade 4, o que confirma a regra de capacidade \codigo{DEPTH - 1}. Também verifica leitura de resposta e avanço de \codigo{RX_TAIL}.
+
+O testbench \codigo{tb_order_book_core} testa casos fundamentais do livro: inserção de compra, inserção de venda, melhoria de melhor compra, rejeição de venda cruzada, rejeição de compra cruzada e remoção. Esses casos são suficientes para validar os invariantes mais importantes da estrutura simplificada. O testbench do motor completo confirma que eventos escritos por MMIO atravessam a ponte, chegam ao livro, acionam a estratégia e retornam pela RX.
+
+O testbench Avalon-MM tem foco diferente: ele não valida a estratégia financeira, mas a robustez da interface de barramento. Ao verificar que \codigo{waitrequest} não fica preso durante reset e que uma transação completa ou retorna sentinela, ele cobre um risco prático de integração com Linux embarcado. Isso mostra que os testes não são redundantes; cada um protege uma camada diferente.
+
+\subsection{Riscos técnicos remanescentes}\label{subsec:riscosRemanescentes}
+
+Mesmo com os testes atuais, alguns riscos permanecem. Simulação VHDL não substitui análise de temporização pós-síntese. Um circuito funcional em GHDL pode falhar em frequência se o caminho combinacional for longo. O procedimento de atualização do livro possui laços sobre profundidade e pode limitar frequência quando \codigo{G_BOOK_DEPTH} aumentar. Portanto, medições futuras devem incluir \textit{timing report} do Quartus.
+
+Outro risco é coerência de memória no caminho MMIO em hardware real. O wrapper usa acessos voláteis e barreiras, mas o comportamento final depende também de mapeamento do dispositivo, atributos de cache e ponte HPS. Em ambientes embarcados, regiões MMIO devem ser mapeadas como dispositivo, não como memória cacheável. O uso de \codigo{/dev/mem} com \codigo{O_SYNC} é apropriado para bring-up, mas uma solução de produção exigiria driver dedicado.
+
+Há também risco de interpretação dos resultados. Como o feed é sintético e roda sobre TCP, qualquer métrica de latência obtida nesse estágio incluiria características do ambiente de teste que não representam uma bolsa real. Isso não invalida o protótipo, mas impõe cuidado na redação das conclusões. O sistema demonstra o caminho de dados e a integração; a afirmação de ganho de desempenho exige experimento comparativo controlado.
+
+O \autoref{quad:riscosMitigacoes} resume riscos remanescentes e ações de mitigação recomendadas. Essa tabela ajuda a transformar limitações em roteiro de continuidade.
+
+\begin{tabframed}[htb]
+\caption{Riscos técnicos remanescentes e mitigação}
+\label{quad:riscosMitigacoes}
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Risco} & \textbf{Mitigação recomendada} \\ \midrule
+Caminho crítico longo no livro & Coletar relatório de temporização, inserir pipeline e avaliar profundidades menores ou memórias dedicadas. \\
+MMIO limitando vazão & Comparar polling com interrupções ou DMA; medir eventos por segundo antes de saturação. \\
+Endereço físico incorreto & Usar leitura de \codigo{MAGIC}, varredura de base e documentação do offset do Platform Designer. \\
+Regeneração HLS incompatível & Manter wrapper estável, versionar portas geradas e executar testbench da estratégia após cada geração. \\
+Feed pouco realista & Adicionar replay de dados históricos, bursts, múltiplos símbolos simultâneos e timestamps. \\
+Ausência de driver dedicado & Evoluir de \codigo{/dev/mem} para módulo de kernel ou UIO com atributos de memória controlados. \\
+Comparação de desempenho incompleta & Implementar versão software-only equivalente do livro e coletar distribuição de latência. \\ \bottomrule
+\end{tabularx}
+\fonte{}
+\end{tabframed}
+
+\subsection{Espaço reservado para resultados quantitativos}\label{subsec:evolucaoExperimental}
+
+Para transformar os resultados funcionais em resultados quantitativos, serão instrumentados três pontos: entrada do evento no receptor, publicação do quadro TX e leitura da resposta RX. No FPGA, será incluído um contador de ciclos no momento de consumo TX e no momento de publicação RX. Com esses dados, será possível separar latência de software, latência de transferência e latência de processamento em hardware.
+
+A vazão pode ser avaliada aumentando a taxa do feed e observando quando \codigo{bridge.Send} começa a falhar por fila cheia. Também é possível medir ocupação média de TX e RX por leitura periódica de ponteiros. Esses experimentos permitiriam preencher os gráficos sugeridos neste capítulo e comparar configurações de profundidade de fila, profundidade do livro e limiares de estratégia.
+
+Os resultados ainda são insuficientes para afirmar ganho quantitativo de desempenho. Para isso, serão necessários experimentos com timestamp antes e depois de cada etapa, coleta de distribuições, comparação com versão software-only equivalente e relatórios de síntese com frequência máxima e uso de recursos. As metas de referência são: jitter interno inferior a $1~\mu$s, vazão mínima de 100.000 mensagens por segundo, speedup mínimo de 5 vezes em relação a uma versão software-only equivalente e ocupação de recursos compatível com a Cyclone V da DE10-Nano. O \autoref{gra:placeholderVazao} indica o tipo de gráfico reservado para essa etapa.
+
+Também deve ser medida a produtividade do fluxo HLS. Uma forma prática é implementar uma segunda estratégia MATLAB simples, por exemplo alterando os limiares de \textit{spread} e desbalanceamento, e registrar o tempo necessário desde a edição de \codigo{strategy.m} até a aprovação do testbench. Caso essa alteração não exija mudanças no barramento, no livro de ofertas ou no wrapper Avalon-MM, haverá evidência de que o objetivo de facilitar a criação de estratégias foi atendido.
+
+\begin{graph}[htb]
+\caption{Vazão e ocupação de filas sugeridas para avaliação futura}
+\label{gra:placeholderVazao}
+\centering
+\fbox{\begin{minipage}{0.9\textwidth}
+\centering
+\vspace{0.9cm}
+[GRÁFICO 2 -- Sugestão: eventos por segundo suportados antes de fila TX cheia e evolução de ocupação das filas TX/RX para diferentes taxas de chegada.]
+\vspace{0.9cm}
+\end{minipage}}
+\fonte{}
+\end{graph}
+
+\begin{graph}[htb]
+\caption{Uso de recursos FPGA sugerido para relatório pós-síntese}
+\label{gra:placeholderRecursos}
+\centering
+\fbox{\begin{minipage}{0.9\textwidth}
+\centering
+\vspace{0.9cm}
+[GRÁFICO 3 -- Sugestão: porcentagem de LUTs, registradores, memória interna e multiplicadores usados por ponte, livro de ofertas e estratégia.]
+\vspace{0.9cm}
+\end{minipage}}
+\fonte{}
+\end{graph}

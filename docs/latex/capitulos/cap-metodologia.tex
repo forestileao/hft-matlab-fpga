@@ -1,0 +1,151 @@
+%%%% CAPÍTULO 3 - MATERIAL E MÉTODOS
+
+\chapter{Materiais e Métodos}\label{cap:materialemetodos}
+
+Este capítulo descreve os materiais e os métodos utilizados para construir e validar a plataforma proposta. A ênfase metodológica recai sobre o fluxo de criação de estratégias em MATLAB, geração VHDL por HDL Coder, integração com a infraestrutura ARM--FPGA e planejamento das métricas experimentais.
+
+\section{Materiais}\label{sec:materiais}
+
+\subsection{Plataforma de hardware}\label{subsec:plataformaHardware}
+
+A plataforma alvo é a DE10-Nano, baseada em Intel Cyclone V SoC. O uso dessa placa é justificado pela presença conjunta de processador ARM e FPGA, permitindo que Linux embarcado execute a pilha C++ enquanto a lógica programável execute o núcleo de atualização de livro e decisão. No projeto Quartus, o dispositivo configurado é \codigo{5CSEBA6U23I7}, e a entidade de topo do sistema Platform Designer é \codigo{hft}.
+
+\subsection{Linguagens e bibliotecas}\label{subsec:linguagens}
+
+O software foi implementado em C++11. Os arquivos centrais são \codigo{fast_data_feed.cpp}, \codigo{fast_receiver.cpp} e \codigo{fpga_shared_stream.h}. A biblioteca mFAST é usada para geração de tipos a partir do template \codigo{SimpleMD.xml} e para codificação/decodificação FAST. A escolha por C++ decorre da necessidade de manipular sockets, buffers binários, tipos inteiros e acesso a \codigo{/dev/mem} com baixo overhead.
+
+O hardware foi descrito em VHDL, com testbenches também em VHDL. Os módulos principais são \codigo{arm_fpga_shared_stream_bridge.vhd}, \codigo{order_book_core.vhd}, \codigo{generated_strategy_core.vhd}, \codigo{trade_decision_core.vhd}, \codigo{hft_trade_engine.vhd} e \codigo{hft_trade_engine_avalon_mm.vhd}. O VHDL foi escolhido porque permite descrever explicitamente registradores, sinais, handshakes e memória interna.
+
+O MATLAB foi utilizado para a regra de estratégia em \codigo{strategy.m} e para geração automatizada de VHDL por \codigo{hdl_generator.m}. O projeto não tenta gerar toda a arquitetura por HLS; o bloco de decisão é tratado como alvo principal de MATLAB HDL Coder. Essa decisão mantém a infraestrutura de barramento sob controle manual e concentra a flexibilidade no ponto que mais interessa ao usuário: a redação da estratégia.
+
+\subsection{Ferramentas de construção e validação}\label{subsec:ferramentas}
+
+O \codigo{Makefile} é o ponto de entrada do fluxo. Ele orquestra construção de imagens Docker, instalação da mFAST, configuração CMake, testes C++, simulações VHDL, geração HDL via MATLAB, \textit{cross-build} ARM, geração do Platform Designer e compilação Quartus. Docker é usado para reduzir variação de ambiente de desenvolvimento \cite{DockerDocs}. CMake organiza os alvos C++ e a geração de tipos FAST \cite{CMakeToolchains}. GHDL executa os testbenches VHDL \cite{GHDLDocs}.
+
+O projeto também contém \codigo{Dockerfile.cross-armhf} e \codigo{toolchains/arm-linux-gnueabihf-sysroot.cmake}, usados para compilar binários compatíveis com imagens Linux ARM antigas da DE10-Nano. O uso de sysroot evita vincular o binário final contra versões de \codigo{glibc} e \codigo{libstdc++} indisponíveis no alvo.
+
+\subsection{Ambiente Quartus e MATLAB}\label{subsec:ambienteQuartusMatlab}
+
+O ambiente Quartus é utilizado para transformar os módulos VHDL em um bitstream programável na FPGA. O fluxo de integração prevê geração do sistema Platform Designer por \codigo{qsys-generate}, seguida pelas etapas \codigo{quartus_map}, \codigo{quartus_fit} e \codigo{quartus_asm}. Essas etapas correspondem, respectivamente, a análise/síntese, posicionamento/roteamento e geração do arquivo de programação. O arquivo resultante esperado é \codigo{de10_nano_hft.sof}.
+
+O ambiente MATLAB é encapsulado em Docker com a imagem \codigo{hft-matlab-hdl:r2025b}. O alvo \codigo{matlab-hdl-generate} executa \codigo{hdl_generator.m} e verifica se o arquivo VHDL gerado foi produzido. A geração é tratada como parte do build, não como ação manual de interface gráfica. Essa decisão é metodologicamente importante porque permite repetir o processo e reduz risco de divergência entre a estratégia MATLAB redigida pelo usuário e o VHDL efetivamente integrado ao sistema.
+
+\subsection{Viabilidade e delimitações}\label{subsec:viabilidadeDelimitacoes}
+
+A viabilidade prática da plataforma decorre de quatro fatores. O primeiro é o uso da DE10-Nano, uma placa de baixo custo quando comparada a soluções FPGA comerciais para HFT. O segundo é a disponibilidade de ferramentas acadêmicas, especialmente MATLAB HDL Coder, Quartus e simuladores VHDL. O terceiro é o uso de dados simulados, o que elimina dependência de acesso a bolsas, contratos de dados proprietários e questões regulatórias de envio de ordens. O quarto é a modularização do sistema, que permite validar feed, comunicação, livro, estratégia e integração em etapas separadas.
+
+Os principais riscos técnicos são timing constraints, limitação de recursos da Cyclone V, divergência entre o VHDL gerado e o wrapper de integração, e ausência inicial de métricas instrumentadas. Esses riscos foram tratados por meio de profundidades fixas, interfaces documentadas, testbenches e separação entre validação funcional e avaliação quantitativa. Quanto aos aspectos éticos, a plataforma usa apenas dados sintéticos e não realiza negociação real, de modo que não há interação com participantes de mercado nem execução de ordens financeiras.
+
+\section{Métodos}\label{sec:metodo}
+
+\subsection{Definição da plataforma de desenvolvimento}\label{subsec:definicaoPlataforma}
+
+A plataforma foi organizada em torno de uma separação entre infraestrutura e estratégia. A infraestrutura inclui comunicação, normalização de eventos, livro de ofertas, empacotamento de quadros, barramento Avalon-MM, testes e fluxo de build. A estratégia é mantida em MATLAB, com assinatura e tipos compatíveis com HDL Coder. Essa separação permite que um usuário altere a política de decisão sem modificar a ponte MMIO, o livro de ofertas ou o wrapper de integração.
+
+Como a interface ARM--FPGA é binária, foram estabelecidos invariantes de integração: base RX dinâmica, largura de oito palavras por slot, tabela de símbolos consistente com o feed, publicação de ponteiros apenas após escrita do payload e profundidade compatível com a janela MMIO. Esses invariantes protegem o fluxo de geração de estratégias, pois uma estratégia nova só é útil se os dados de entrada chegarem ao bloco gerado com semântica estável.
+
+\subsection{Definição do contrato de comunicação}\label{subsec:metodoContrato}
+
+O contrato ARM--FPGA foi tratado como elemento central. Foram identificados registradores de cabeçalho (\codigo{MAGIC}, \codigo{VERSION}, \codigo{TX_DEPTH}, \codigo{RX_DEPTH}, \codigo{SLOT_WORDS}), ponteiros (\codigo{TX_HEAD}, \codigo{TX_TAIL}, \codigo{RX_HEAD}, \codigo{RX_TAIL}), bases de memória (\codigo{TX_BASE} e \codigo{RX_BASE}) e semântica das filas. A base RX é calculada dinamicamente como \codigo{TX_BASE + DEPTH * SLOT_WORDS * 4}, evitando o erro de hardcode observado em versões anteriores. A capacidade útil foi considerada como \codigo{DEPTH - 1}, devido à convenção de fila circular em que \codigo{next(head) == tail} representa fila cheia.
+
+O contrato foi validado por leitura cruzada. No software, o método \codigo{Send} escreve o slot e depois atualiza \codigo{TX_HEAD}. No hardware, a ponte só consome quando há diferença entre cabeça e cauda e o consumidor está pronto. No caminho inverso, o FPGA escreve a resposta na RAM RX e avança \codigo{RX_HEAD}; o software lê o slot e avança \codigo{RX_TAIL}. Essa correspondência foi usada como critério de consistência entre texto, código e testbenches.
+
+A definição do contrato também incluiu a identificação de responsabilidades de escrita. O ARM é o único produtor da fila TX e, por isso, é o único agente autorizado a publicar \codigo{TX_HEAD}. O FPGA é o consumidor da TX e publica \codigo{TX_TAIL}. Na fila RX, a responsabilidade se inverte: o FPGA produz respostas e publica \codigo{RX_HEAD}, enquanto o ARM consome respostas e publica \codigo{RX_TAIL}. Essa separação reduz ambiguidades porque cada ponteiro tem um único escritor. Os dois lados podem ler os quatro ponteiros, mas não competem pela escrita do mesmo registrador.
+
+Outro aspecto metodológico foi a adoção de palavras de 32 bits como unidade de interoperabilidade. O ARM trabalha naturalmente com inteiros de 32 bits em C++, e o barramento Avalon-MM também expõe dados nessa largura no wrapper utilizado. Internamente, o VHDL concatena oito palavras em um vetor de 256 bits para transporte entre blocos. Essa conversão preserva simplicidade no mapa MMIO e, ao mesmo tempo, permite que o processamento de hardware trate o evento como um pacote único.
+
+\subsection{Construção do fluxo de dados de mercado}\label{subsec:metodoFeed}
+
+O gerador \codigo{fast_data_feed} foi estruturado como servidor TCP. A cada iteração, seleciona símbolo, lado, preço e quantidade, codifica uma mensagem FAST com mFAST e transmite o tamanho seguido do payload. O receptor \codigo{fast_receiver} implementa reconexão automática, leitura exata do quadro, decodificação FAST e impressão dos campos. No modo FPGA, o receptor converte esses campos para o quadro de oito palavras e chama \codigo{FpgaSharedStream::Send}.
+
+Para evitar que a FPGA manipule texto, a etapa de normalização é feita antes do envio. Símbolos são convertidos para IDs e lado textual é convertido para código numérico. O preço decimal é convertido para inteiro escalado. Essa normalização é parte do método porque define a fronteira de responsabilidade: software lida com formatos ricos e variáveis; hardware lida com números fixos.
+
+A escolha por TCP local não foi interpretada como tentativa de reproduzir rede de bolsa. Ela foi usada como mecanismo de teste para exercitar codificação, leitura de buffers e reconexão com menor complexidade operacional. O método evita introduzir dependências de multicast, placa de rede específica, permissões de captura ou dados proprietários. Como consequência, as conclusões sobre rede são limitadas: o trabalho avalia a estrutura de processamento e integração, não a latência de uma pilha de mercado real.
+
+\subsection{Implementação do livro de ofertas em hardware}\label{subsec:metodoLivro}
+
+O livro de ofertas foi implementado como arrays estáticos indexados por símbolo, lado e profundidade. A atualização procura preço existente, remove nível quando necessário, ou insere novo preço na posição ordenada. A ordenação é decrescente para compras e crescente para vendas. Após cada evento aceito, o bloco calcula melhor compra, melhor venda, \textit{spread} e desbalanceamento. O sinal \codigo{snapshot_valid_o} indica que um instantâneo está disponível para a estratégia.
+
+Essa implementação privilegia determinismo e simplicidade. O custo de atualização é limitado por \codigo{G_BOOK_DEPTH}, e a profundidade padrão é 8. Para um sistema real, seria necessário avaliar frequência máxima, uso de LUTs, registradores e memória, além de técnicas de pipeline para aumentar vazão. No protótipo, a prioridade foi obter comportamento funcional verificável.
+
+O método de atualização foi escolhido em vez de uma ordenação genérica. Uma ordenação completa a cada evento desperdiçaria recursos, pois a alteração ocorre em apenas um nível. A atualização incremental procura o preço afetado e desloca apenas os elementos necessários. Essa decisão reduz custo lógico e facilita explicar o pior caso, que fica limitado ao tamanho do vetor de níveis.
+
+\subsection{Geração e encapsulamento da estratégia}\label{subsec:metodoEstrategia}
+
+A estratégia foi escrita em MATLAB com tipos inteiros fixos e condições simples. O script \codigo{hdl_generator.m} configura o HDL Coder para VHDL, define argumentos de entrada e gera o bloco \codigo{strategy}. Em VHDL, \codigo{generated_strategy_core.vhd} encapsula esse bloco gerado e preserva a interface de \textit{snapshot} e resposta. O wrapper também força NOOP quando o livro está vazio ou cruzado, adicionando uma proteção independente da função MATLAB.
+
+O método de encapsulamento evita acoplar a assinatura do bloco gerado ao restante do sistema. Caso a estratégia MATLAB seja alterada, o wrapper continua sendo o ponto onde se traduzem sinais de livro para resposta de oito palavras. Essa camada é útil porque ferramentas HLS podem alterar detalhes de porta, latência ou nomes conforme configuração. Ao concentrar a adaptação em um único módulo, reduz-se o impacto de regenerar o núcleo de decisão.
+
+O papel esperado do usuário é escrever a regra de decisão dentro desse limite. A função MATLAB pode combinar \textit{spread}, desbalanceamento, preços e quantidades, desde que mantenha tipos e operações sintetizáveis. O fluxo proposto não exige que o usuário escreva VHDL para cada nova estratégia. O VHDL manual permanece como infraestrutura de execução; a função MATLAB representa a política que será testada e sintetizada.
+
+Os limiares da estratégia foram tratados como constantes didáticas, não como parâmetros calibrados em dados reais. O valor de desbalanceamento igual a 500 e o limite de \textit{spread} igual a 25000, em escala $10^4$, servem para produzir ações observáveis nos testes. Em uma pesquisa quantitativa posterior, esses limiares deveriam ser definidos por análise de dados históricos, custo de transação, volatilidade do ativo e restrições de risco.
+
+\subsection{Validação}\label{subsec:metodoValidacao}
+
+A validação foi dividida em níveis:
+
+\begin{itemize}
+  \item teste C++ \codigo{fpga_shared_stream_test}, que usa arquivo temporário como região MMIO simulada e verifica envio, recepção, cálculo de base RX e fila cheia;
+  \item teste de fumaça \codigo{cpp-smoke}, que executa feed e receptor em software;
+  \item testbench básico da ponte compartilhada;
+  \item testbench rápido da ponte, com rajadas, \textit{wrap-around} e contrapressão;
+  \item testbench do \codigo{order_book_core}, validando inserção, rejeição de livro cruzado e remoção;
+  \item testbench do \codigo{generated_strategy_core}, validando ações e proteção contra livro cruzado;
+  \item testbench do \codigo{hft_trade_engine}, que valida fluxo MMIO, anéis, livro e decisão;
+  \item testbench do wrapper Avalon-MM, verificando comportamento de \codigo{waitrequest} e \textit{timeout}.
+\end{itemize}
+
+Os comandos correspondentes são agregados por \codigo{make check} e \codigo{make vhdl-test-all}. Para execução em placa, o método prevê \codigo{make build}, programação do arquivo \codigo{.sof}, habilitação das pontes HPS--FPGA, \codigo{make deploy} e execução dos binários ARM com \codigo{HFT_FPGA_MMIO_BASE=0xFF200000}, ajustado pelo offset real do Platform Designer.
+
+O \autoref{quad:matrizValidacao} organiza os testes por risco mitigado. Essa matriz foi utilizada para verificar se cada elemento essencial da arquitetura possui pelo menos uma evidência de validação funcional.
+
+\begin{tabframed}[htb]
+\caption{Matriz de validação funcional do protótipo}
+\label{quad:matrizValidacao}
+\begin{tabularx}{\textwidth}{lXX}
+\toprule
+\textbf{Artefato} & \textbf{Risco técnico mitigado} & \textbf{Evidência de validação} \\ \midrule
+\codigo{FpgaSharedStream} & Cálculo incorreto de bases, fila cheia mal detectada, avanço de ponteiro fora de ordem. & Teste C++ com backing file e profundidade reduzida. \\
+\codigo{arm_fpga_shared_stream_bridge} & Divergência de mapa MMIO, perda de slot, erro de \textit{wrap-around}. & Testbench básico e testbench rápido com rajadas e contrapressão. \\
+\codigo{order_book_core} & Livro fora de ordem, remoção incorreta, aceitação de livro cruzado. & Testbench específico do livro de ofertas. \\
+\codigo{generated_strategy_core} & Ação incompatível com snapshot, perda de resposta, livro inválido gerando ordem. & Testbench da estratégia e verificação de NOOP em casos inválidos. \\
+\codigo{hft_trade_engine} & Falha de integração entre ponte, livro e estratégia. & Testbench de motor completo com escrita MMIO e leitura de resposta. \\
+\codigo{hft_trade_engine_avalon_mm} & Interface Avalon travada, \codigo{waitrequest} indevido, transação sem retorno. & Testbench do wrapper Avalon-MM com sentinela de timeout. \\
+\codigo{fast_data_feed}/\codigo{fast_receiver} & Incompatibilidade FAST, falha de decodificação ou empacotamento. & Teste de fumaça software-only e inspeção do empacotamento. \\ \bottomrule
+\end{tabularx}
+\fonte{}
+\end{tabframed}
+
+\subsection{Método proposto para métricas experimentais}\label{subsec:metodoMedicoes}
+
+Embora a implementação atual esteja mais forte em validação funcional do que em medição quantitativa, o método de avaliação foi definido para continuidade do trabalho. Para latência fim a fim, devem ser registrados quatro instantes: geração ou recebimento da mensagem no software, publicação do quadro TX, consumo do quadro pelo FPGA e disponibilidade da resposta RX. No ARM, esses instantes podem ser medidos inicialmente com relógio monotônico de alta resolução. No FPGA, a instrumentação recomendada é um contador de ciclos amostrado nos eventos de consumo e publicação.
+
+Para vazão, o método consiste em aumentar progressivamente a taxa do feed e observar três indicadores: retorno falso de \codigo{Send}, ocupação estimada da fila TX e atraso entre sequência de entrada e sequência de resposta. O ponto de saturação ocorre quando a chegada de eventos supera a capacidade de consumo do caminho hardware/software. A ocupação das filas pode ser calculada por diferença modular entre cabeça e cauda.
+
+Para uso de recursos, o método depende dos relatórios do Quartus. Devem ser coletados número de elementos lógicos, registradores, blocos de memória, multiplicadores, frequência máxima e caminhos críticos. A comparação mais útil é incremental: ponte isolada, ponte mais livro, ponte mais livro e estratégia. Essa decomposição permite descobrir se o gargalo vem do barramento, da atualização de livro ou do bloco gerado por HLS.
+
+Além de métricas clássicas de desempenho, este trabalho deve avaliar produtividade de criação de estratégias. Para isso, propõe-se registrar: número de linhas alteradas em \codigo{strategy.m}, tempo necessário para gerar o VHDL, quantidade de alterações manuais fora do MATLAB, número de falhas de síntese e tempo até uma estratégia passar no testbench. Essa métrica é coerente com o objetivo principal do TCC, pois mede se a plataforma realmente facilita a criação de estratégias por MATLAB.
+
+\begin{tabframed}[htb]
+\caption{Espaço reservado para métricas experimentais}
+\label{quad:metricasPlanejadas}
+\begin{tabularx}{\textwidth}{lXXX}
+\toprule
+\textbf{Métrica} & \textbf{Como medir} & \textbf{Meta de referência} & \textbf{Resultado} \\ \midrule
+Latência fim a fim & Timestamp no ARM entre recebimento do evento e leitura da resposta. & Comparar com versão software-only. & [PREENCHER] \\
+Latência interna FPGA & Contador de ciclos entre consumo TX e publicação RX. & Jitter interno inferior a $1~\mu$s. & [PREENCHER] \\
+Vazão & Eventos por segundo até ocorrência de fila cheia ou perda de resposta. & Pelo menos 100.000 mensagens/s. & [PREENCHER] \\
+Speedup & Comparação com implementação software-only equivalente. & Aceleração mínima de 5 vezes. & [PREENCHER] \\
+Uso de recursos & Relatórios Quartus de LUTs, registradores, memória e frequência máxima. & Caber na Cyclone V da DE10-Nano. & [PREENCHER] \\
+Produtividade HLS & Tempo e alterações necessárias para trocar a estratégia MATLAB. & Mudar a estratégia sem alterar barramento ou livro. & [PREENCHER] \\ \bottomrule
+\end{tabularx}
+\fonte{}
+\end{tabframed}
+
+As metas de referência foram definidas como critérios de sucesso para a campanha experimental, não como resultados já obtidos. Em particular, o speedup mínimo de 5 vezes depende de uma implementação software-only equivalente do livro e da estratégia, enquanto a vazão de 100.000 mensagens por segundo depende de ensaios com controle de taxa de chegada e coleta de ocupação das filas. Essa distinção evita confundir validação funcional com avaliação quantitativa.
+
+\subsection{Critérios de revisão técnica}\label{subsec:criteriosRevisao}
+
+A revisão técnica do trabalho utilizou quatro critérios. O primeiro foi rastreabilidade: toda afirmação sobre arquitetura deveria apontar para código, documento técnico ou comportamento de teste. O segundo foi não extrapolação: componentes inexistentes, como envio real de ordens ou controle de risco completo, não foram apresentados como implementados. O terceiro foi alinhamento de contrato: C++, VHDL, documentação e testes deveriam concordar sobre largura de quadro, ordem de palavras e base de registradores. O quarto foi adequação acadêmica: cada tecnologia citada deveria ter definição, uso no projeto, vantagem, limitação e integração.
+
+Esses critérios são especialmente importantes porque o tema HFT pode induzir exageros. Um protótipo acadêmico de baixo custo não deve ser descrito como infraestrutura de negociação profissional. A contribuição aqui é demonstrar uma cadeia funcional e testável para estudar aceleração e comunicação ARM--FPGA.

@@ -1,0 +1,96 @@
+%%%% APÊNDICE A
+
+\chapter{Contrato de Comunicação ARM--FPGA}\label{cap:apendicea}
+
+Este apêndice consolida o contrato de comunicação utilizado pelo protótipo. Ele complementa a descrição do \autoref{cap:proposta} e deve ser mantido alinhado aos arquivos \codigo{cpp/src/fpga_shared_stream.h}, \codigo{cpp/src/fast_receiver.cpp}, \codigo{vhdl/arm_fpga_shared_stream_bridge.vhd} e \codigo{docs/arm-fpga-shared-memory-stream.md}.
+
+\section{Registradores}\label{sec:apendiceRegistradores}
+
+\begin{table}[htb]
+\caption{Registradores da interface MMIO}
+\label{tab:apendiceRegistradores}
+\begin{tabularx}{\textwidth}{llllX}
+\toprule
+\textbf{Offset} & \textbf{Nome} & \textbf{Acesso} & \textbf{Dono} & \textbf{Descrição} \\ \midrule
+\codigo{0x000} & \codigo{MAGIC} & RO & FPGA & Valor \codigo{0x48465431}. \\
+\codigo{0x004} & \codigo{VERSION} & RO & FPGA & Versão do protocolo. \\
+\codigo{0x008} & \codigo{CTRL} & RW & ARM & Bit 0 reinicia ponteiros. \\
+\codigo{0x00C} & \codigo{STATUS} & RO & FPGA & Bits de disponibilidade das filas. \\
+\codigo{0x010} & \codigo{TX_HEAD} & RW & ARM & Publicação de comandos. \\
+\codigo{0x014} & \codigo{TX_TAIL} & RO & FPGA & Consumo de comandos. \\
+\codigo{0x018} & \codigo{RX_HEAD} & RO & FPGA & Publicação de respostas. \\
+\codigo{0x01C} & \codigo{RX_TAIL} & RW & ARM & Consumo de respostas. \\
+\codigo{0x020} & \codigo{TX_DEPTH} & RO & FPGA & Profundidade da fila TX. \\
+\codigo{0x024} & \codigo{RX_DEPTH} & RO & FPGA & Profundidade da fila RX. \\
+\codigo{0x028} & \codigo{SLOT_WORDS} & RO & FPGA & Palavras por quadro. \\ \bottomrule
+\end{tabularx}
+\fonte{}
+\end{table}
+
+\section{Regras de filas}\label{sec:apendiceFilas}
+
+As filas TX e RX usam a mesma semântica:
+
+\begin{itemize}
+  \item vazia: \codigo{head == tail};
+  \item cheia: \codigo{next(head) == tail};
+  \item capacidade útil: \codigo{DEPTH - 1};
+  \item produtor escreve payload antes de publicar \codigo{head};
+  \item consumidor lê payload antes de publicar \codigo{tail}.
+\end{itemize}
+
+Para \codigo{DEPTH = 64} e \codigo{SLOT_WORDS = 8}, a base TX é \codigo{0x100}, cada slot tem 32 bytes e a base RX é \codigo{0x900}.
+
+\section{Formato de evento}\label{sec:apendiceEvento}
+
+O evento enviado do ARM para o FPGA usa oito palavras. A palavra de sequência é preservada para correlação entre entrada e saída. O identificador de símbolo é numérico para evitar processamento textual em hardware. O preço é escalado por $10^4$ para representar casas decimais com inteiros.
+
+\begin{table}[htb]
+\caption{Formato do quadro ARM--FPGA}
+\label{tab:apendiceEvento}
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Palavra} & \textbf{Campo} & \textbf{Semântica} \\ \midrule
+\codigo{word0} & Sequência & Número de sequência da mensagem sintética. \\
+\codigo{word1} & Símbolo & Identificador numérico atribuído pelo receptor. \\
+\codigo{word2} & Preço & Preço em escala $10^4$. \\
+\codigo{word3} & Quantidade & Quantidade agregada no nível de preço. \\
+\codigo{word4} & Tipo de evento & Atualização/inserção, remoção ou reset. \\
+\codigo{word5} & Lado & Compra ou venda. \\
+\codigo{word6} & Reserva & Campo reservado para extensão futura. \\
+\codigo{word7} & Reserva & Campo reservado para extensão futura. \\ \bottomrule
+\end{tabularx}
+\fonte{}
+\end{table}
+
+\section{Formato de resposta}\label{sec:apendiceResposta}
+
+O software interpreta a resposta do FPGA como:
+
+\begin{itemize}
+  \item \codigo{word0}: sequência;
+  \item \codigo{word1}: ação;
+  \item \codigo{word2}: melhor compra em escala $10^4$;
+  \item \codigo{word3}: quantidade na melhor compra;
+  \item \codigo{word4}: melhor venda em escala $10^4$;
+  \item \codigo{word5}: quantidade na melhor venda;
+  \item \codigo{word6}: \textit{spread};
+  \item \codigo{word7}: desbalanceamento assinado.
+\end{itemize}
+
+\section{Checklist de alteração do contrato}\label{sec:apendiceChecklistContrato}
+
+Quando o contrato ARM--FPGA for alterado, os seguintes itens devem ser revisados em conjunto:
+
+\begin{itemize}
+  \item mapa de registradores no VHDL e na documentação;
+  \item largura \codigo{G_SLOT_WORDS} no VHDL e \codigo{kFrameWords} no C++;
+  \item cálculo da base RX no software, nos testbenches e no texto;
+  \item ordem das palavras em \codigo{fast_receiver.cpp};
+  \item decodificação das palavras em \codigo{order_book_core.vhd};
+  \item montagem da resposta em \codigo{generated_strategy_core.vhd};
+  \item testes C++ e VHDL que validam fila cheia, \textit{wrap-around} e resposta;
+  \item comandos e exemplos de execução no README e neste apêndice.
+\end{itemize}
+
+Esse checklist existe porque mudanças pequenas em interfaces binárias podem causar erros difíceis de diagnosticar. Em particular, uma alteração de largura de slot muda a base RX; uma alteração de ordem de palavra pode fazer preço ser interpretado como quantidade; e uma alteração de evento sem atualização do livro pode gerar snapshots inconsistentes.

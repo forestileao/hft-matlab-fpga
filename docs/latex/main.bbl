@@ -1,0 +1,112 @@
+\providecommand{\abntreprintinfo}[1]{%
+ \citeonline{#1}}
+\setlength{\labelsep}{0pt}\begin{thebibliography}{}
+\providecommand{\abntrefinfo}[3]{}
+\providecommand{\abntbstabout}[1]{}
+\abntbstabout{v-1.9.7 }
+
+\bibitem[Aldridge 2013]{Aldridge2013}
+\abntrefinfo{Aldridge}{ALDRIDGE}{2013}
+{ALDRIDGE, I. \textbf{High-Frequency Trading: A Practical Guide to Algorithmic Strategies and Trading Systems}. 2. ed. [\textit{S.l.}]: Wiley, 2013.}
+
+\bibitem[Boutros \textit{et al.} 2017]{Boutros2017}
+\abntrefinfo{Boutros \textit{et al.}}{BOUTROS \textit{et al.}}{2017}
+{BOUTROS, A. \textit{et al.} Build fast, trade fast: Fpga-based high-frequency trading using high-level synthesis. \textit{In}: \textbf{2017 International Conference on ReConFigurable Computing and FPGAs}. Cancun, Mexico: IEEE, 2017. p.~1--6.}
+
+\bibitem[Brogaard, Hendershott e Riordan 2014]{Brogaard2014}
+\abntrefinfo{Brogaard, Hendershott e Riordan}{BROGAARD; HENDERSHOTT; RIORDAN}{2014}
+{BROGAARD, J.; HENDERSHOTT, T.; RIORDAN, R. High-frequency trading and price discovery.
+\textbf{The Review of Financial Studies}, v.~27, n.~8, p. 2267--2306, 2014.}
+
+\bibitem[Cont, Stoikov e Talreja 2010]{Cont2010}
+\abntrefinfo{Cont, Stoikov e Talreja}{CONT; STOIKOV; TALREJA}{2010}
+{CONT, R.; STOIKOV, S.; TALREJA, R. A stochastic model for order book dynamics.
+\textbf{Operations Research}, v.~58, n.~3, p. 549--563, 2010.}
+
+\bibitem[{Docker Inc.} 2026]{DockerDocs}
+\abntrefinfo{{Docker Inc.}}{{Docker Inc.}}{2026}
+{{Docker Inc.} \textbf{Docker Documentation}.
+[\textit{S.l.}], 2026. Dispon{\'\i}vel em: \url{https://docs.docker.com/}. Acesso em: 13 abr. 2026.}
+
+\bibitem[{FIX Trading Community} 2006]{FIXFAST}
+\abntrefinfo{{FIX Trading Community}}{{FIX Trading Community}}{2006}
+{{FIX Trading Community}. \textbf{FIX Adapted for STreaming Technical Standard}.
+[\textit{S.l.}], 2006. Dispon{\'\i}vel em: \url{https://www.fixtrading.org/standards/fast-online/}. Acesso em: 13 abr. 2026.}
+
+\bibitem[{GHDL Project} 2026]{GHDLDocs}
+\abntrefinfo{{GHDL Project}}{{GHDL Project}}{2026}
+{{GHDL Project}. \textbf{GHDL Documentation}.
+[\textit{S.l.}], 2026. Dispon{\'\i}vel em: \url{https://ghdl.github.io/ghdl/}. Acesso em: 13 abr. 2026.}
+
+\bibitem[Gould \textit{et al.} 2013]{Gould2013}
+\abntrefinfo{Gould \textit{et al.}}{GOULD \textit{et al.}}{2013}
+{GOULD, M.~D. \textit{et al.} Limit order books.
+\textbf{Quantitative Finance}, v.~13, n.~11, p. 1709--1742, 2013.}
+
+\bibitem[Harris e Harris 2013]{HarrisHarris2013}
+\abntrefinfo{Harris e Harris}{HARRIS; HARRIS}{2013}
+{HARRIS, D.~M.; HARRIS, S.~L. \textbf{Digital Design and Computer Architecture}. 2. ed. [\textit{S.l.}]: Morgan Kaufmann, 2013.}
+
+\bibitem[Hasbrouck e Saar 2013]{HasbrouckSaar2013}
+\abntrefinfo{Hasbrouck e Saar}{HASBROUCK; SAAR}{2013}
+{HASBROUCK, J.; SAAR, G. Low-latency trading.
+\textbf{Journal of Financial Markets}, v.~16, n.~4, p. 646--679, 2013.}
+
+\bibitem[Hendershott, Jones e Menkveld 2011]{Hendershott2011}
+\abntrefinfo{Hendershott, Jones e Menkveld}{HENDERSHOTT; JONES; MENKVELD}{2011}
+{HENDERSHOTT, T.; JONES, C.~M.; MENKVELD, A.~J. Does algorithmic trading improve liquidity?
+\textbf{The Journal of Finance}, v.~66, n.~1, p. 1--33, 2011.}
+
+\bibitem[{Intel Corporation} 2024]{IntelAvalon}
+\abntrefinfo{{Intel Corporation}}{{Intel Corporation}}{2024a}
+{{Intel Corporation}. \textbf{Avalon Interface Specifications}.
+[\textit{S.l.}], 2024. Dispon{\'\i}vel em: \url{https://www.intel.com/content/www/us/en/docs/programmable/683091/current/avalon-memory-mapped-interfaces.html}. Acesso em: 13 abr. 2026.}
+
+\bibitem[{Intel Corporation} 2024]{IntelPlatformDesigner}
+\abntrefinfo{{Intel Corporation}}{{Intel Corporation}}{2024b}
+{{Intel Corporation}. \textbf{Intel Quartus Prime Platform Designer User Guide}.
+[\textit{S.l.}], 2024. Dispon{\'\i}vel em: \url{https://www.intel.com/content/www/us/en/docs/programmable/683609/current/platform-designer-system-integration-tool.html}. Acesso em: 13 abr. 2026.}
+
+\bibitem[{Intel Corporation} 2025]{IntelCycloneV}
+\abntrefinfo{{Intel Corporation}}{{Intel Corporation}}{2025}
+{{Intel Corporation}. \textbf{Cyclone V FPGA and SoC FPGA Product Brief}.
+[\textit{S.l.}], 2025. Dispon{\'\i}vel em: \url{https://cdrdv2-public.intel.com/853455/cyclone-v-fpgas-and-socs-product-brief.pdf}. Acesso em: 13 abr. 2026.}
+
+\bibitem[{Kitware, Inc.} 2026]{CMakeToolchains}
+\abntrefinfo{{Kitware, Inc.}}{{Kitware, Inc.}}{2026}
+{{Kitware, Inc.} \textbf{CMake Toolchains Documentation}.
+[\textit{S.l.}], 2026. Dispon{\'\i}vel em: \url{https://cmake.org/cmake/help/latest/manual/cmake-toolchains.7.html}. Acesso em: 13 abr. 2026.}
+
+\bibitem[Leber, Geib e Litz 2011]{Leber2011}
+\abntrefinfo{Leber, Geib e Litz}{LEBER; GEIB; LITZ}{2011}
+{LEBER, C.; GEIB, B.; LITZ, H. High frequency trading acceleration using fpgas. \textit{In}: \textbf{2011 21st International Conference on Field Programmable Logic and Applications}. [\textit{S.l.}: \textit{s.n.}], 2011. p. 317--322.}
+
+\bibitem[Lockwood \textit{et al.} 2012]{Lockwood2012}
+\abntrefinfo{Lockwood \textit{et al.}}{LOCKWOOD \textit{et al.}}{2012}
+{LOCKWOOD, J.~W. \textit{et al.} A low-latency library in fpga hardware for high-frequency trading. \textit{In}: \textbf{2012 IEEE 20th Annual Symposium on High-Performance Interconnects}. [\textit{S.l.}: \textit{s.n.}], 2012. p. 9--16.}
+
+\bibitem[{Object Computing, Inc.} 2026]{mFAST}
+\abntrefinfo{{Object Computing, Inc.}}{{Object Computing, Inc.}}{2026}
+{{Object Computing, Inc.} \textbf{mFAST: a C++ FIX/FAST Encoder and Decoder}.
+[\textit{S.l.}], 2026. Dispon{\'\i}vel em: \url{https://github.com/objectcomputing/mFAST}. Acesso em: 13 abr. 2026.}
+
+\bibitem[Patterson e Hennessy 2017]{PattersonHennessy2017}
+\abntrefinfo{Patterson e Hennessy}{PATTERSON; HENNESSY}{2017}
+{PATTERSON, D.~A.; HENNESSY, J.~L. \textbf{Computer Organization and Design: The Hardware/Software Interface}. 5. ed. [\textit{S.l.}]: Morgan Kaufmann, 2017.}
+
+\bibitem[{Terasic Technologies} 2024]{TerasicDE10Nano}
+\abntrefinfo{{Terasic Technologies}}{{Terasic Technologies}}{2024}
+{{Terasic Technologies}. \textbf{DE10-Nano User Manual}.
+[\textit{S.l.}], 2024. Dispon{\'\i}vel em: \url{https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=167&No=1046}. Acesso em: 13 abr. 2026.}
+
+\bibitem[{The MathWorks, Inc.} 2026]{MathWorksFixedPoint}
+\abntrefinfo{{The MathWorks, Inc.}}{{The MathWorks, Inc.}}{2026a}
+{{The MathWorks, Inc.} \textbf{Fixed-Point Designer Documentation}.
+[\textit{S.l.}], 2026. Dispon{\'\i}vel em: \url{https://www.mathworks.com/help/fixedpoint/}. Acesso em: 13 abr. 2026.}
+
+\bibitem[{The MathWorks, Inc.} 2026]{MathWorksHDLCoder}
+\abntrefinfo{{The MathWorks, Inc.}}{{The MathWorks, Inc.}}{2026b}
+{{The MathWorks, Inc.} \textbf{HDL Coder Documentation}.
+[\textit{S.l.}], 2026. Dispon{\'\i}vel em: \url{https://www.mathworks.com/help/hdlcoder/}. Acesso em: 13 abr. 2026.}
+
+\end{thebibliography}

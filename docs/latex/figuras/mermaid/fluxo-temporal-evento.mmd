@@ -1,0 +1,19 @@
+%%{init: {"theme": "base", "sequence": {"showSequenceNumbers": false}, "themeVariables": {"fontFamily": "Arial", "primaryColor": "#ffffff", "primaryTextColor": "#111111", "lineColor": "#333333"}}}%%
+sequenceDiagram
+    participant Feed as fast_data_feed
+    participant Rec as fast_receiver
+    participant MMIO as MMIO / TX-RX
+    participant FPGA as hft_trade_engine
+    participant Book as order_book_core
+    participant Strat as strategy.vhd
+
+    Feed->>Rec: Mensagem FAST sintetica
+    Rec->>Rec: Decodifica e normaliza campos
+    Rec->>MMIO: Escreve evento no TX ring
+    MMIO->>FPGA: Evento disponivel
+    FPGA->>Book: Atualiza livro de ofertas
+    Book->>Strat: Envia best bid/ask, spread, imbalance
+    Strat->>FPGA: Retorna NOOP, BUY ou SELL
+    FPGA->>MMIO: Publica resposta no RX ring
+    MMIO->>Rec: Resposta disponivel
+    Rec->>Rec: Imprime acao e snapshot

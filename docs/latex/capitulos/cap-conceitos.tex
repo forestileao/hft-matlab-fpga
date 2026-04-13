@@ -1,0 +1,164 @@
+%%%% CAPÍTULO 2 - REFERENCIAL TEÓRICO
+
+\chapter{Referencial te\'orico}\label{cap:referencialTeorico}
+
+Este capítulo apresenta os conceitos necessários para compreender o protótipo desenvolvido. A organização acompanha a cadeia real do sistema: mercado e livro de ofertas, processamento de mensagens, arquitetura ARM--FPGA, comunicação por MMIO, projeto de hardware em VHDL e HLS, e critérios de desempenho.
+
+\section{Negociação de alta frequência}\label{sec:hft}
+
+\gls{hft} é uma forma de negociação algorítmica caracterizada por tomada de decisão automatizada, alto volume de mensagens, horizonte temporal curto e forte dependência de latência. Em vez de avaliar fundamentos econômicos em períodos longos, sistemas desse tipo exploram mudanças rápidas no livro de ofertas, desequilíbrios de fluxo, arbitragem entre instrumentos e oportunidades temporárias de liquidez. A literatura associa HFT à infraestrutura de baixa latência, à automação de estratégias e à necessidade de responder a eventos de mercado antes que a informação se torne obsoleta \cite{Aldridge2013,HasbrouckSaar2013}.
+
+Em uma implementação real, o caminho crítico inclui recepção de pacotes, decodificação de protocolo, normalização de mensagens, atualização de estado de mercado, execução da estratégia, controle de risco, roteamento de ordens e confirmação. Este trabalho cobre apenas uma parte desse caminho: dados sintéticos de mercado, livro de ofertas simplificado, decisão elementar e retorno de resposta ao software. A delimitação é importante porque evita afirmar que o protótipo realiza HFT operacional; ele reproduz elementos computacionais relevantes para estudar latência e arquitetura.
+
+As vantagens de uma abordagem em hardware são a previsibilidade temporal e a exploração de paralelismo. Comparações, somas, deslocamentos em arranjos pequenos e empacotamento de palavras podem ocorrer em circuitos dedicados, sem depender de escalonamento de \gls{cpu}. As limitações são menor flexibilidade, maior custo de depuração, necessidade de definir larguras fixas e dificuldade para lidar com protocolos complexos. Por isso, o projeto utiliza hardware para o núcleo regular do problema e software para a borda flexível.
+
+\subsection{Caminho crítico em sistemas de HFT}\label{subsec:caminhoCriticoHFT}
+
+Em sistemas de negociação de baixa latência, o caminho crítico é a sequência mínima de operações entre a chegada de uma informação de mercado e a emissão de uma resposta. Mesmo quando a estratégia financeira é simples, a infraestrutura precisa executar diversas etapas: receber bytes da rede, identificar fronteiras de mensagem, decodificar campos, atualizar estado, avaliar condições, aplicar filtros de segurança, serializar uma resposta e transmiti-la. Cada etapa adiciona latência e, principalmente, variabilidade. Essa variabilidade é relevante porque dois eventos com latências médias semelhantes podem ter comportamentos muito diferentes em cauda, isto é, nos piores casos.
+
+Em uma pilha tradicional baseada em CPU, o caminho crítico atravessa camadas de software geral: driver de rede, pilha TCP/IP ou UDP/IP, cópias de buffer, chamadas de sistema, escalonador, cache, predição de desvio e sincronização entre threads. Técnicas profissionais como \textit{kernel bypass}, afinidade de CPU e \textit{busy polling} reduzem parte desse custo, mas aumentam complexidade e dependência de hardware específico. A alternativa com FPGA desloca parte do caminho para uma lógica síncrona, na qual comparações e atualizações podem ocorrer em ciclos previsíveis.
+
+O protótipo desenvolvido não elimina a pilha de rede, pois a recepção TCP e a decodificação FAST continuam no ARM. Entretanto, ele isola o trecho de atualização de livro e decisão em hardware. Essa separação é coerente com o estágio do projeto: antes de acelerar rede e protocolo, é necessário provar que o contrato de eventos, o transporte por MMIO e o núcleo de estado em FPGA funcionam corretamente. Assim, o caminho crítico estudado é menor que o de uma plataforma profissional, mas suficiente para investigar os fundamentos de co-projeto.
+
+\subsection{Determinismo e variabilidade}\label{subsec:determinismo}
+
+Determinismo, neste trabalho, não significa que o sistema sempre responderá no mesmo tempo absoluto em execução Linux completa. Significa que o trecho descrito em hardware possui transições controladas por clock e quantidade limitada de estados. Uma atualização de livro com profundidade fixa não depende de alocação dinâmica, coleta de lixo, paginação de memória ou contenção de locks. O custo fica associado à profundidade configurada e ao caminho combinacional/síncrono gerado.
+
+Essa propriedade é especialmente importante em aplicações de livro de ofertas. A cada evento, o sistema deve preservar invariantes: melhor compra abaixo da melhor venda, lados corretamente ordenados, quantidade nula removendo nível e resposta correlacionada à sequência recebida. Se a infraestrutura é não determinística, torna-se difícil diferenciar erro funcional de atraso ocasional. Ao manter a lógica central em VHDL e validá-la por testbench, o projeto reduz esse espaço de ambiguidade.
+
+\section{Livro de ofertas e dados de mercado}\label{sec:livroOfertas}
+
+O livro de ofertas limitado, ou \textit{limit order book}, é a estrutura que organiza intenções de compra e venda por preço e quantidade. O lado comprador contém ofertas de compra, com melhor compra no maior preço disponível; o lado vendedor contém ofertas de venda, com melhor venda no menor preço disponível. A diferença entre melhor venda e melhor compra é o \textit{spread}. A quantidade disponível nos melhores níveis e seu desbalanceamento podem ser usados como sinais simples de pressão compradora ou vendedora \cite{Gould2013,Cont2010}.
+
+Um livro completo em bolsa pode conter ordens individuais, prioridades por tempo, cancelamentos parciais, execuções e múltiplos tipos de evento. O protótipo adota uma abstração por nível de preço: cada evento informa símbolo, lado, preço e quantidade agregada. O FPGA mantém, para cada símbolo, vetores de preço e quantidade com profundidade fixa. No lado comprador, os preços são ordenados de forma decrescente; no lado vendedor, de forma crescente. Atualizações existentes alteram quantidade; quantidades nulas ou eventos de remoção retiram o nível; novas entradas deslocam níveis inferiores até o limite da profundidade.
+
+A principal vantagem dessa modelagem é a determinização do custo computacional. Com número fixo de símbolos e profundidade fixa, o circuito pode ser descrito com laços de limite conhecido e memória estática. A principal limitação é a perda de fidelidade em relação a um livro de ofertas real, pois não há prioridade por ordem individual, identificador real de ordem, execução parcial ou múltiplas bolsas. Ainda assim, a abstração é adequada para avaliar o fluxo de dados e a integração FPGA.
+
+\subsection{Eventos por nível e eventos por ordem}\label{subsec:eventosNivelOrdem}
+
+Há duas formas comuns de representar atualizações de livro. Na representação por ordem, cada mensagem descreve uma ordem individual, identificada por um código, com preço, quantidade, lado e estado. Cancelamentos e modificações referem-se a esse identificador. Essa abordagem é mais fiel a mercados reais, mas exige estruturas de busca por identificador, controle de prioridade temporal e tratamento de execuções parciais. Em hardware, isso tende a exigir memórias associativas, tabelas de dispersão ou estruturas indexadas, aumentando o custo de síntese.
+
+Na representação por nível, usada neste protótipo, cada mensagem atualiza diretamente uma quantidade agregada em determinado preço e lado. A operação é mais simples: encontrar o preço, substituir a quantidade, inserir o nível ou removê-lo. O custo computacional passa a depender da profundidade do livro, não do número total de ordens. A consequência é que o sistema perde a capacidade de reconstruir a fila de prioridade interna de cada preço. Para a plataforma proposta, essa simplificação é vantajosa porque permite discutir ordenação, \textit{spread} e desbalanceamento sem implementar uma bolsa completa.
+
+\subsection{Sinais derivados do topo do livro}\label{subsec:sinaisLivro}
+
+O topo do livro é formado pela melhor oferta de compra e pela melhor oferta de venda. A partir dele, o protótipo calcula o \textit{spread} e o desbalanceamento de quantidade. O \textit{spread} é calculado apenas quando ambos os lados existem e a melhor venda é maior que a melhor compra. O desbalanceamento é calculado como a diferença assinada entre quantidade no melhor nível de compra e quantidade no melhor nível de venda. Valores positivos indicam maior quantidade compradora no topo; valores negativos indicam maior quantidade vendedora.
+
+Esses sinais são simplificações de métricas usadas em microestrutura de mercado. Em sistemas reais, também poderiam ser considerados profundidade acumulada em múltiplos níveis, taxa de cancelamento, agressões recentes, tempo desde a última atualização, volatilidade local e posição atual da estratégia. O protótipo usa apenas sinais de topo porque eles cabem naturalmente em um quadro de resposta de oito palavras e são fáceis de validar por simulação.
+
+\begin{figure}[htb]
+\caption{Arquitetura conceitual do livro de ofertas simplificado}
+\label{fig:placeholderLivro}
+\centering
+\includegraphics[height=0.68\textheight]{livro-ofertas}
+\fonte{Elaborado pelos autores a partir de diagrama Mermaid.}
+\end{figure}
+
+\section{FPGA, SoC e plataforma DE10-Nano}\label{sec:fpgaSoc}
+
+Uma \gls{fpga} é um circuito integrado reconfigurável formado por blocos lógicos, interconexões programáveis, registradores, memórias internas, multiplicadores e interfaces especializadas. Diferentemente de uma CPU, que executa instruções sequenciais sobre uma unidade funcional compartilhada, a FPGA implementa diretamente o caminho de dados e o controle da aplicação. Essa característica permite paralelismo no nível de operações e previsibilidade em ciclos de clock, desde que a aplicação seja descrita com recursos e temporização adequados \cite{HarrisHarris2013}.
+
+A família Intel Cyclone V SoC combina lógica FPGA com um \gls{hps} baseado em ARM Cortex-A9, controladores de memória e pontes de comunicação entre processador e malha programável \cite{IntelCycloneV}. A DE10-Nano utiliza esse SoC em uma placa educacional, com recursos suficientes para protótipos de sistemas embarcados e aceleração por hardware \cite{TerasicDE10Nano}. Para este trabalho, a característica mais relevante não é a quantidade absoluta de recursos lógicos, mas a existência de uma ponte HPS--FPGA acessível a partir do Linux embarcado.
+
+O uso de um SoC FPGA traz um compromisso técnico. O ARM executa Linux, C++ e bibliotecas de protocolo com maior facilidade; a lógica programável executa operações regulares com latência previsível. A comunicação entre ambos, entretanto, torna-se parte crítica do projeto. Um acelerador muito rápido perde utilidade se o custo de transferência for alto, se o contrato de memória for ambíguo ou se houver divergência entre software, documentação e RTL.
+
+\subsection{Comparação entre CPU e FPGA}\label{subsec:cpuFpga}
+
+A CPU é otimizada para flexibilidade. Ela executa um fluxo de instruções, possui caches, unidades vetoriais, predição de desvios e suporte maduro a sistemas operacionais. Essa flexibilidade é ideal para protocolos complexos, tratamento de erro, alocação de objetos, logs e integração com bibliotecas. Contudo, a CPU compartilha unidades funcionais entre muitas tarefas e depende de uma microarquitetura projetada para desempenho médio elevado em cargas variadas.
+
+A FPGA é otimizada para especialização. Um comparador, um somador e um registrador podem existir fisicamente como parte do circuito da aplicação. Se o projeto exige várias comparações independentes, elas podem ocorrer simultaneamente, desde que haja recursos lógicos suficientes. Essa especialização reduz flexibilidade: alterar a estrutura exige nova síntese e programação do bitstream. No protótipo, essa troca é aceitável porque o livro de ofertas tem profundidade pequena, formato fixo e operações bem definidas.
+
+\subsection{Papel do HPS}\label{subsec:papelHPS}
+
+O \gls{hps} da DE10-Nano é o ponto de contato entre o mundo de software e a lógica reconfigurável. Ele executa Linux, acessa arquivos, abre sockets, usa bibliotecas C++ e mapeia regiões físicas. O FPGA, por sua vez, não conhece arquivos, processos ou sockets; ele observa sinais, registradores e barramentos. A fronteira entre os dois domínios é, portanto, uma tradução de abstrações: de mensagens e structs no software para palavras de 32 bits e handshakes no hardware.
+
+Essa fronteira explica por que o projeto investe tanto no contrato MMIO. Se o software assume uma largura de quadro e o hardware sintetiza outra, o erro não aparece como exceção de alto nível; aparece como palavra trocada, ponteiro inconsistente ou resposta incorreta. A disciplina de documentação e teste é o mecanismo usado para manter o HPS e o FPGA sincronizados.
+
+\section{Síntese de alto nível e MATLAB HDL Coder}\label{sec:hls}
+
+\gls{hls} é o processo de transformar uma descrição algorítmica de alto nível em uma implementação de hardware em \gls{rtl}. Em vez de escrever manualmente todos os registradores, estados e sinais de controle, o projetista descreve operações em uma linguagem como C, C++ ou MATLAB, e a ferramenta gera VHDL ou Verilog. O MATLAB HDL Coder permite gerar código HDL a partir de funções MATLAB e modelos Simulink, desde que o código respeite restrições de sintetizabilidade, tipos fixos e tamanhos conhecidos \cite{MathWorksHDLCoder}.
+
+No projeto analisado, a síntese de alto nível é usada de forma conservadora. A ponte MMIO, o livro de ofertas e o empacotamento de respostas são escritos manualmente em VHDL. A função MATLAB \codigo{strategy.m} contém apenas a regra decisória baseada em melhor compra, melhor venda, \textit{spread} e desbalanceamento. O script \codigo{hdl_generator.m} invoca o HDL Coder em modo automatizado e gera um arquivo VHDL para o bloco \codigo{strategy}. Essa separação reduz o risco de depender de código gerado em toda a arquitetura e mantém as interfaces críticas sob controle explícito.
+
+A vantagem dessa abordagem é permitir que regras algorítmicas sejam alteradas em MATLAB, ambiente familiar para modelagem matemática. A limitação é que nem todo MATLAB é sintetizável: alocação dinâmica, strings, estruturas variáveis, bibliotecas não suportadas e tipos de precisão flutuante podem inviabilizar a geração. O projeto evita esses problemas usando \codigo{uint32}, \codigo{int32}, limiares constantes e operações condicionais simples. O uso de ponto fixo escalado por $10^4$ preserva casas decimais de preço sem recorrer a ponto flutuante em hardware \cite{MathWorksFixedPoint}.
+
+\subsection{Restrições de código sintetizável}\label{subsec:restricoesHLS}
+
+Uma função MATLAB convencional pode usar vetores de tamanho variável, estruturas heterogêneas, strings, objetos, arquivos e operações dependentes do ambiente de execução. Uma função sintetizável precisa ser muito mais restrita. As entradas e saídas devem ter tipos e larguras conhecidas; laços precisam ter limites definidos; a aritmética deve ser representável em hardware; e o comportamento não pode depender de recursos que só existem no interpretador ou no sistema operacional.
+
+No projeto, a função \codigo{strategy.m} recebe seis sinais já calculados: melhor compra, quantidade de compra, melhor venda, quantidade de venda, \textit{spread} e desbalanceamento. Ela não percorre o livro, não lê arquivos, não usa strings e não aloca memória. Essa escolha não é apenas uma simplificação algorítmica; é uma escolha de engenharia para manter o bloco gerado pequeno e previsível. O restante do sistema fornece à função exatamente os campos que ela precisa, reduzindo o risco de geração HDL inesperada.
+
+\subsection{Por que não gerar todo o sistema por HLS}\label{subsec:naoGerarTudo}
+
+Embora HLS seja útil, gerar toda a ponte ARM--FPGA por MATLAB HDL Coder seria uma decisão arriscada. Barramentos, registradores, filas e handshakes dependem de contratos precisos com software e Platform Designer. Esses elementos são mais transparentes quando escritos manualmente em VHDL. Além disso, a depuração de um erro de ponte gerada automaticamente pode ser mais difícil do que a depuração de um bloco RTL pequeno e explícito.
+
+Por isso, o projeto separa infraestrutura e política. A infraestrutura de comunicação e armazenamento é manual. A política de decisão, que tende a mudar mais durante experimentos, fica em MATLAB. Essa divisão facilita estudos futuros: novas estratégias podem ser geradas sem alterar o mapa de registradores nem a forma de atualização do livro.
+
+\section{FAST, mFAST e fluxo TCP}\label{sec:fast}
+
+FAST, sigla de \textit{FIX Adapted for STreaming}, é um padrão de codificação binária orientado a reduzir o tamanho de mensagens financeiras ao explorar templates, operadores de cópia, incremento e delta \cite{FIXFAST}. Em mercados reais, protocolos desse tipo reduzem banda e custo de transmissão de dados de mercado. Na plataforma proposta, FAST é usado como elemento de realismo controlado: o gerador \codigo{fast_data_feed.cpp} cria mensagens sintéticas com símbolo, lado, preço, quantidade e sequência; o receptor \codigo{fast_receiver.cpp} decodifica as mensagens usando a biblioteca mFAST \cite{mFAST}.
+
+A comunicação de rede do protótipo é TCP local na porta 9001. O servidor transmite cada mensagem precedida por um comprimento em ordem de rede, permitindo que o cliente leia exatamente a quantidade de bytes necessária antes de chamar o decodificador. Essa decisão simplifica o ambiente experimental, pois evita lidar com multicast, UDP, perda de pacotes e \textit{kernel bypass}. A limitação é que TCP e localhost não reproduzem a pilha de dados de mercado de uma bolsa real. Para um TCC focado na integração ARM--FPGA e na geração de estratégias por HLS, a simplificação é aceitável porque mantém o feed determinável e testável.
+
+\subsection{Template SimpleMD}\label{subsec:simpleMd}
+
+O arquivo \codigo{SimpleMD.xml} define o formato das mensagens usadas no protótipo. Ele contém uma sequência \codigo{MDEntries} com campos de símbolo, lado, preço, quantidade e número de sequência. O símbolo e o lado usam operador de cópia, o preço usa delta e a sequência usa incremento. Essa estrutura reproduz, em escala reduzida, a ideia de que mensagens sucessivas de mercado possuem redundância explorável pelo codificador.
+
+A biblioteca mFAST gera tipos C++ a partir desse template. Assim, o receptor pode acessar campos por métodos tipados em vez de manipular manualmente offsets binários. A vantagem é reduzir erros de parsing no C++. A desvantagem é introduzir uma dependência externa e um passo de geração no build. O \codigo{Makefile} trata essa dependência clonando, compilando e instalando mFAST localmente.
+
+\subsection{Limites do feed sintético}\label{subsec:limitesFeed}
+
+O feed sintético escolhe símbolos e lados pseudoaleatoriamente, usa preços base e aplica deslocamentos pequenos. Isso permite gerar um fluxo contínuo sem depender de dados proprietários. Entretanto, não há bursts realistas, leilões, mensagens de abertura, pacotes fora de ordem, perda de rede, múltiplas sessões ou sincronização de relógio. Assim, os resultados obtidos com esse feed devem ser interpretados como validação funcional, não como simulação estatística completa de mercado.
+
+\section{MMIO, Avalon-MM e filas circulares}\label{sec:mmio}
+
+\gls{mmio} é uma técnica em que registradores de dispositivos são expostos no espaço de endereçamento do processador. Leituras e escritas em endereços específicos se transformam em transações de barramento. No Linux embarcado da DE10-Nano, o receptor pode mapear uma região física por \codigo{/dev/mem}, desde que a base da ponte HPS--FPGA esteja correta. O projeto usa a variável de ambiente \codigo{HFT_FPGA_MMIO_BASE} para habilitar o caminho FPGA e \codigo{HFT_FPGA_MMIO_SPAN} para definir o tamanho da janela.
+
+No lado FPGA, o componente de integração utiliza Avalon-MM, protocolo de memória mapeada empregado pelo Platform Designer da Intel para conectar mestres e escravos em sistemas SoC \cite{IntelAvalon,IntelPlatformDesigner}. O arquivo \codigo{hft_trade_engine_avalon_mm.vhd} adapta sinais Avalon, como endereço, leitura, escrita, dados e \codigo{waitrequest}, ao barramento simples usado internamente pelo motor HFT. A presença de \textit{timeout} evita que uma transação do HPS fique bloqueada indefinidamente durante reset ou falha interna.
+
+O contrato de comunicação entre ARM e FPGA é baseado em duas filas circulares: TX para ARM--FPGA e RX para FPGA--ARM. Cada fila é de produtor único e consumidor único. No TX, o ARM escreve dados no \textit{slot} e publica o avanço de \codigo{TX_HEAD}; o FPGA consome e avança \codigo{TX_TAIL}. No RX, o FPGA escreve resposta e avança \codigo{RX_HEAD}; o ARM lê e avança \codigo{RX_TAIL}. A fila usa a convenção em que \codigo{next(head) == tail} significa cheia, de modo que a capacidade útil é $D-1$. Essa escolha desperdiça um elemento, mas simplifica a distinção entre cheia e vazia.
+
+\subsection{Ordenação de publicação}\label{subsec:ordemPublicacao}
+
+A ordem de publicação é uma propriedade de corretude. No envio ARM--FPGA, o software deve escrever todas as palavras do slot antes de atualizar \codigo{TX_HEAD}. Se o ponteiro for publicado primeiro, o FPGA pode consumir um quadro parcialmente escrito. Na recepção FPGA--ARM, o ARM deve ler todas as palavras do slot antes de atualizar \codigo{RX_TAIL}. Se o ponteiro for avançado antes da leitura, o FPGA pode sobrescrever a resposta antes de o software copiá-la.
+
+O wrapper C++ usa barreiras de sincronização após escrita de registradores e slots. No VHDL, os ponteiros são atualizados em borda de clock e as memórias são lidas por índice. A combinação é simples, mas exige que a documentação permaneça alinhada com a implementação. Essa é a razão para o contrato compartilhado ser tratado como superfície crítica do sistema.
+
+\subsection{Avalon-MM como camada de integração}\label{subsec:avalon}
+
+Avalon-MM é usado para conectar o motor HFT ao HPS no Platform Designer. O wrapper \codigo{hft_trade_engine_avalon_mm.vhd} recebe sinais de chipselect, endereço, leitura, escrita, byteenable, dados de escrita e retorna dados de leitura e \codigo{waitrequest}. Internamente, ele transforma essas transações em uma interface mais simples com endereço em bytes e sinais \codigo{mm_rd_i} e \codigo{mm_wr_i}.
+
+O sinal \codigo{waitrequest} é importante porque o mestre Avalon precisa saber quando a transação foi concluída. Se o escravo mantiver \codigo{waitrequest} ativo indefinidamente, o HPS pode travar ao acessar o registrador. O projeto inclui uma máquina de estados com \textit{timeout}, retornando sentinela em caso de ausência de resposta. Essa decisão aumenta robustez de depuração, especialmente durante reset ou integração inicial da placa.
+
+\subsection{MMIO versus DMA}\label{subsec:mmioDma}
+
+O uso de MMIO com polling é apropriado para simplicidade e depuração. Cada palavra do quadro é escrita por acesso de memória mapeada, e os ponteiros são lidos periodicamente. Para fluxos muito intensos, essa abordagem pode consumir ciclos do ARM e limitar vazão. Uma alternativa seria \gls{dma}, no qual blocos maiores de dados são transferidos entre memória e FPGA com menor intervenção da CPU.
+
+O projeto não usa DMA porque o objetivo inicial é validar o contrato funcional e a lógica de decisão. Introduzir DMA exigiria buffers coerentes, controle de descritores, interrupções ou polling de status, além de maior complexidade no software embarcado. Como trabalho futuro, DMA seria um passo natural para aproximar o protótipo de uma infraestrutura de maior vazão.
+
+\begin{figure}[htb]
+\caption{Comunicação ARM--FPGA por filas circulares mapeadas em memória}
+\label{fig:placeholderFilas}
+\centering
+\includegraphics[width=0.95\textwidth]{filas-arm-fpga}
+\fonte{Elaborado pelos autores a partir de diagrama Mermaid.}
+\end{figure}
+
+\section{Latência, vazão e determinismo}\label{sec:latenciaVazao}
+
+Latência é o intervalo entre a chegada de um evento e a disponibilidade da resposta correspondente. Vazão é a quantidade de eventos processados por unidade de tempo. Em sistemas de baixa latência, o valor médio não é suficiente; variância, piores casos e caudas de distribuição são igualmente importantes. Uma solução com latência média baixa, mas picos imprevisíveis, pode ser inadequada para HFT.
+
+No protótipo, a latência total pode ser decomposta em recepção TCP, decodificação FAST, empacotamento C++, escrita MMIO, consumo da fila TX, atualização do livro em FPGA, execução da estratégia gerada por HLS, escrita na fila RX, leitura MMIO e impressão da resposta. A implementação atual valida funcionalmente essas etapas, mas ainda requer instrumentação completa com carimbos de tempo de hardware. Por isso, os gráficos de desempenho apresentados como placeholders neste TCC representam propostas de medição a serem preenchidas quando a execução em placa estiver estabilizada.
+
+\begin{graph}[htb]
+\caption{Comparação proposta de latência por caminho de processamento}
+\label{gra:placeholderLatencia}
+\centering
+\fbox{\begin{minipage}{0.88\textwidth}
+\centering
+\vspace{0.8cm}
+[GRÁFICO 1 -- Sugestão: comparar latência software-only, latência com FPGA habilitado e latência por etapa: decodificação, MMIO, livro de ofertas e estratégia.]
+\vspace{0.8cm}
+\end{minipage}}
+\fonte{}
+\end{graph}

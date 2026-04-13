@@ -1,0 +1,29 @@
+%%{init: {"theme": "base", "flowchart": {"htmlLabels": false}, "themeVariables": {"fontFamily": "Arial", "primaryColor": "#ffffff", "primaryTextColor": "#111111", "lineColor": "#333333"}}}%%
+flowchart TB
+    W0["word0<br/>seq_no"]
+    W1["word1<br/>symbol_id"]
+    W2["word2<br/>price_1e4"]
+    W3["word3<br/>qty"]
+    W4["word4<br/>event_type"]
+    W5["word5<br/>side"]
+
+    Decode["Decodificacao<br/>do evento"]
+    Check["Validacao<br/>simbolo, lado e cruzamento"]
+    Update["Atualizacao incremental<br/>inserir, alterar ou remover nivel"]
+    Compact["Compactacao e ordenacao<br/>bids decrescente<br/>asks crescente"]
+    Top["Recalculo do topo<br/>best bid e best ask"]
+    Metrics["Calculo dos sinais<br/>spread e imbalance"]
+    Snapshot["snapshot_valid<br/>para estrategia"]
+
+    W0 --> Decode
+    W1 --> Decode
+    W2 --> Decode
+    W3 --> Decode
+    W4 --> Decode
+    W5 --> Decode
+    Decode --> Check
+    Check --> Update
+    Update --> Compact
+    Compact --> Top
+    Top --> Metrics
+    Metrics --> Snapshot

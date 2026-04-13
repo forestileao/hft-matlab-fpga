@@ -1,0 +1,95 @@
+%%%% APÊNDICE B
+
+\chapter{Comandos de Construção, Teste e Execução}\label{cap:apendiceb}
+
+Este apêndice reúne comandos úteis para reproduzir a construção e validação do protótipo.
+
+\section{Validação local}\label{sec:apendiceValidacaoLocal}
+
+\begin{sourcecode}[htb]
+\caption{\label{codigo:comandosTeste}Comandos de teste local}
+\begin{lstlisting}[frame=single]
+make docker-image
+make cpp-test
+make cpp-smoke
+make vhdl-test-all
+\end{lstlisting}
+\fonte{}
+\end{sourcecode}
+
+O alvo \codigo{cpp-test} valida o wrapper MMIO com arquivo temporário. O alvo \codigo{cpp-smoke} executa o gerador e o receptor em modo software. O alvo \codigo{vhdl-test-all} executa testbenches da ponte, livro, estratégia, motor completo e wrapper Avalon-MM.
+
+\section{Geração da estratégia}\label{sec:apendiceGeracaoEstrategia}
+
+\begin{sourcecode}[htb]
+\caption{\label{codigo:geracaoHdl}Geração do bloco de estratégia por HDL Coder}
+\begin{lstlisting}[frame=single]
+make matlab-image
+make matlab-hdl-generate
+\end{lstlisting}
+\fonte{}
+\end{sourcecode}
+
+O primeiro comando prepara a imagem esperada para execução do MATLAB em ambiente controlado. O segundo executa o script \codigo{matlab/hdl_generator.m}, que chama a geração VHDL da função \codigo{strategy.m}. Após essa etapa, recomenda-se executar o testbench da estratégia e o testbench do motor completo, pois uma mudança no bloco gerado pode alterar latência, portas ou comportamento.
+
+\section{Geração HDL e build para DE10-Nano}\label{sec:apendiceDe10}
+
+\begin{sourcecode}[htb]
+\caption{\label{codigo:comandosDe10}Fluxo previsto para DE10-Nano}
+\begin{lstlisting}[frame=single]
+make de10-sysroot
+make matlab-login
+make build
+make quartus-program
+make de10-enable-bridges
+make deploy
+\end{lstlisting}
+\fonte{}
+\end{sourcecode}
+
+Após a programação do FPGA, o feed e o receptor podem ser executados na placa:
+
+\begin{sourcecode}[htb]
+\caption{\label{codigo:execucaoDe10}Execução na placa}
+\begin{lstlisting}[frame=single]
+ssh root@192.168.7.1 'cd /home/root && ./fast_data_feed'
+ssh root@192.168.7.1 \
+  'cd /home/root && HFT_FPGA_MMIO_BASE=0xFF200000 ./fast_receiver'
+\end{lstlisting}
+\fonte{}
+\end{sourcecode}
+
+O endereço \codigo{0xFF200000} corresponde à base típica da ponte leve HPS--FPGA na DE10-Nano quando o componente está no offset zero do Platform Designer. Se o componente for posicionado em outro offset, a base deve ser ajustada.
+
+\section{Variáveis de ambiente}\label{sec:apendiceVariaveis}
+
+\begin{table}[htb]
+\caption{Variáveis de ambiente do receptor}
+\label{tab:apendiceVariaveis}
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Variável} & \textbf{Função} \\ \midrule
+\codigo{HFT_FPGA_MMIO_BASE} & Base física do periférico. Quando ausente, o receptor opera em modo software-only. \\
+\codigo{HFT_FPGA_MMIO_SPAN} & Tamanho da região mapeada. Quando ausente, usa valor padrão suficiente para a geometria esperada. \\
+\codigo{HFT_FPGA_MMIO_DEV} & Dispositivo usado para mapeamento MMIO. Por padrão, \codigo{/dev/mem}. \\ \bottomrule
+\end{tabularx}
+\fonte{}
+\end{table}
+
+A presença de \codigo{HFT_FPGA_MMIO_BASE} muda o modo de operação do receptor. Por isso, testes de software devem ser executados sem essa variável, enquanto testes em placa devem defini-la explicitamente. Em ambientes compartilhados, recomenda-se imprimir a base efetiva antes de enviar eventos para evitar confusão entre offset de Platform Designer e base da ponte leve HPS--FPGA.
+
+\section{Sequência recomendada de depuração}\label{sec:apendiceDebug}
+
+Uma sequência prática de depuração é:
+
+\begin{enumerate}
+  \item executar \codigo{make cpp-test} para validar a semântica de filas no wrapper;
+  \item executar \codigo{make cpp-smoke} para validar FAST, TCP e decodificação sem FPGA;
+  \item executar \codigo{make vhdl-test-all} para validar os blocos de hardware em simulação;
+  \item gerar e programar o bitstream;
+  \item habilitar pontes HPS--FPGA;
+  \item executar o receptor com \codigo{HFT_FPGA_MMIO_BASE} e verificar leitura de \codigo{MAGIC};
+  \item iniciar o feed e observar respostas \codigo{[FPGA->ARM]}.
+\end{enumerate}
+
+Se a leitura de \codigo{MAGIC} falhar, o problema provavelmente está em endereço, bitstream ou ponte HPS--FPGA. Se \codigo{MAGIC} estiver correto, mas \codigo{Send} falhar por fila cheia, deve-se investigar consumo TX no FPGA, reset e handshakes internos. Se respostas não aparecem, mas TX é consumida, o foco passa a ser livro de ofertas, estratégia e fila RX.

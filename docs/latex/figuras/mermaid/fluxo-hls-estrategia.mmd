@@ -1,0 +1,20 @@
+%%{init: {"theme": "base", "flowchart": {"htmlLabels": false}, "themeVariables": {"fontFamily": "Arial", "primaryColor": "#ffffff", "primaryTextColor": "#111111", "lineColor": "#333333"}}}%%
+flowchart TB
+    A["Usuario escreve<br/>strategy.m"]
+    B["Restricoes de sintese<br/>tipos fixos, sem strings,<br/>sem alocacao dinamica"]
+    C["hdl_generator.m"]
+    D["MATLAB HDL Coder"]
+    E["strategy.vhd<br/>bloco VHDL gerado"]
+    F["generated_strategy_core<br/>adaptacao valid/ready<br/>e quadro de resposta"]
+    G["Testbenches<br/>estrategia e motor completo"]
+    H["Quartus / Platform Designer"]
+    I["DE10-Nano<br/>execucao no FPGA"]
+
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+    F --> G
+    G --> H
+    H --> I

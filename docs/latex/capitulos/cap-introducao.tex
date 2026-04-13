@@ -1,0 +1,63 @@
+%%%% CAPÍTULO 1 - INTRODUÇÃO
+
+\chapter{Introdução}\label{cap:introducao}
+
+Mercados eletrônicos modernos são sistemas computacionais distribuídos nos quais a formação de preços depende de mensagens de oferta, cancelamento, execução e atualização de livro de ofertas que percorrem redes de baixa latência. Nesse cenário, a capacidade de receber dados de mercado, atualizar estado interno e produzir uma decisão em intervalos previsíveis tornou-se um requisito técnico central para aplicações de negociação algorítmica e, em especial, para \gls{hft}. A literatura de microestrutura descreve que a redução de latência altera a dinâmica competitiva dos participantes e influencia liquidez, descoberta de preços e comportamento do livro de ofertas \cite{HasbrouckSaar2013,Hendershott2011,Brogaard2014}.
+
+Do ponto de vista de engenharia de computação, a dificuldade não está apenas em executar uma regra de negociação, mas em construir uma cadeia de processamento com baixo tempo de resposta, controle explícito de filas, representação adequada dos dados e integração entre software e hardware. CPUs de uso geral oferecem flexibilidade e ecossistema maduro, porém dependem de execução sequencial, hierarquia de memória, interrupções, escalonamento de sistema operacional e variabilidade temporal. \glspl{fpga}, por outro lado, permitem transformar partes do fluxo em circuitos dedicados, explorando paralelismo espacial e latência determinística no nível de ciclos de clock \cite{HarrisHarris2013,PattersonHennessy2017}.
+
+Este trabalho investiga essa alternativa por meio de uma plataforma acadêmica de baixo custo baseada na Intel/Terasic DE10-Nano, que combina processador ARM no \gls{hps} com lógica programável Cyclone V. A contribuição principal está no uso de \gls{hls} com MATLAB HDL Coder para transformar uma estratégia de trading escrita em MATLAB em um bloco VHDL integrável a uma infraestrutura previamente preparada. Nessa abordagem, a comunicação ARM--FPGA, o fluxo de dados de mercado, o livro de ofertas simplificado, os testes e o projeto Quartus formam a base do ambiente; o ponto de variação passa a ser a estratégia, que pode ser redigida em MATLAB e regenerada para hardware.
+
+\section{Considerações iniciais}\label{sec:consideracoesIniciais}
+
+O termo \gls{hft} é empregado neste trabalho para representar sistemas automatizados que processam dados de mercado e emitem decisões em janelas temporais muito reduzidas. A implementação desenvolvida não se conecta a uma bolsa real, não executa ordens financeiras e não deve ser interpretada como sistema de produção. Ela é uma plataforma experimental para estudar os elementos computacionais que aparecem em uma cadeia de HFT: recepção de mensagens, normalização de eventos, estrutura de livro de ofertas, decisão algorítmica, medição de comportamento e integração com lógica programável.
+
+A escolha por uma plataforma de baixo custo tem relevância acadêmica. Infraestruturas profissionais de HFT utilizam enlaces especializados, placas de rede de latência ultrabaixa, \textit{kernel bypass}, co-localização e FPGAs de alto desempenho. Esses recursos são financeiramente inacessíveis para a maioria dos laboratórios de graduação. A DE10-Nano, apesar de limitada em frequência, memória e recursos lógicos quando comparada a placas industriais, oferece um ambiente suficientemente rico para estudar os princípios de integração entre ARM, FPGA, barramentos, síntese de hardware e processamento determinístico \cite{TerasicDE10Nano,IntelCycloneV}.
+
+O projeto em estudo adota uma divisão pragmática: o software ARM recebe e decodifica mensagens FAST sintéticas; a FPGA mantém um estado resumido do livro de ofertas e calcula sinais de mercado; a estratégia, descrita em MATLAB, decide entre não agir, comprar ou vender e é gerada para VHDL por HDL Coder. Essa divisão evita a tentativa de sintetizar toda a pilha de rede e toda a semântica de mercado em hardware, o que ampliaria excessivamente o escopo de um TCC. Ao mesmo tempo, preserva o ponto central do trabalho: facilitar a criação de estratégias de trading em um ambiente no qual a infraestrutura de execução já está preparada.
+
+\section{Problema de pesquisa}\label{sec:problemaPesquisa}
+
+O problema tratado neste TCC pode ser formulado da seguinte forma: como construir, em uma plataforma FPGA de baixo custo, uma infraestrutura que permita implementar estratégias de trading com menor esforço de descrição RTL, preservando determinismo, paralelismo em hardware e integração com um fluxo de dados de mercado? Essa pergunta combina duas dificuldades. A primeira é arquitetural: sistemas baseados apenas em CPU sofrem com processamento sequencial, overhead do sistema operacional, variabilidade de escalonamento e limitações do modelo von Neumann. A segunda é metodológica: escrever toda a lógica de decisão diretamente em VHDL aumenta a barreira de entrada para testar novas estratégias.
+
+A proposta deste trabalho responde a esse problema com uma separação clara de responsabilidades. A infraestrutura de comunicação, livro de ofertas, filas e interface com a DE10-Nano é preparada uma vez. A estratégia fica em MATLAB, usando uma assinatura controlada e tipos compatíveis com síntese. Assim, o usuário pode se concentrar na regra de decisão e usar o MATLAB HDL Coder para gerar o bloco de hardware correspondente. O benefício esperado é reduzir o custo de experimentação de estratégias, sem abrir mão da execução em FPGA.
+
+Do ponto de vista técnico, os requisitos derivados desse problema são: baixa variabilidade temporal no trecho em hardware; representação numérica fixa para preços e quantidades; processamento de livro de ofertas em estrutura de profundidade limitada; interface ARM--FPGA documentada; validação por simulação e execução em placa; e planejamento de métricas de latência, vazão, uso de recursos e produtividade na alteração de estratégias.
+
+\section{Objetivos}\label{sec:objetivos}
+
+Esta seção apresenta o objetivo geral e os objetivos específicos do trabalho, considerando a proposta de uma plataforma orientada à geração de estratégias por HLS.
+
+\subsection{Objetivo geral}\label{subsec:objetivoGeral}
+
+Desenvolver e documentar uma plataforma de HFT de baixo custo, baseada em ARM e FPGA, cujo objetivo principal é facilitar a criação de estratégias de trading em MATLAB e sua geração para hardware por meio do MATLAB HDL Coder, mantendo previamente preparados o fluxo de dados de mercado, o livro de ofertas simplificado, a comunicação ARM--FPGA e a infraestrutura de validação.
+
+\subsection{Objetivos específicos}\label{subsec:objetivosEspecificos}
+
+Os objetivos específicos são:
+
+\begin{itemize}
+  \item estruturar um ambiente no qual a estratégia de trading seja o principal bloco substituível pelo usuário;
+  \item definir um modelo de estratégia em MATLAB compatível com HDL Coder, utilizando tipos sintetizáveis, entradas numéricas e saída de ação;
+  \item automatizar o fluxo de geração VHDL da estratégia a partir do código MATLAB;
+  \item definir o contrato de comunicação entre software ARM e lógica FPGA, incluindo registradores, ponteiros, semântica de filas e formato dos quadros;
+  \item implementar e explicar o fluxo de geração e recepção de mensagens FAST sintéticas utilizado como alimentação de mercado;
+  \item manter, no FPGA, um livro de ofertas por níveis de preço com profundidade fixa, ordenação por lado e cálculo de melhor compra, melhor venda, \textit{spread} e desbalanceamento;
+  \item integrar a estratégia gerada por MATLAB HDL Coder ao motor VHDL por meio de uma interface estável;
+  \item validar funcionalmente os componentes por testes C++, simulações VHDL e teste de fumaça entre gerador e receptor;
+  \item propor métricas para avaliar latência, vazão, uso de recursos FPGA e esforço necessário para alterar uma estratégia.
+\end{itemize}
+
+\section{Justificativa}\label{sec:justificativa}
+
+A relevância do trabalho decorre da interseção entre arquitetura de computadores, sistemas embarcados, redes e aplicações financeiras de baixa latência. Em HFT, pequenas variações de tempo de resposta podem modificar a ordem de chegada de mensagens e, consequentemente, a decisão disponível ao participante. A literatura mostra que atividades de negociação algorítmica e baixa latência afetam liquidez e descoberta de preços, ainda que os efeitos dependam do mercado, do período e da estratégia adotada \cite{Hendershott2011,Brogaard2014,HasbrouckSaar2013}. Portanto, estudar a infraestrutura computacional subjacente é relevante para compreender tanto ganhos de desempenho quanto riscos técnicos.
+
+Do ponto de vista pedagógico, o projeto força a integração de conteúdos normalmente vistos de forma separada. O receptor C++ exige programação de sistemas, sockets TCP, manipulação binária e interface com bibliotecas externas. O bloco FPGA exige VHDL, filas circulares, protocolos de barramento, controle de \textit{handshake} e testbenches. A etapa MATLAB HDL Coder introduz \gls{hls} e as restrições de escrever código algorítmico sintetizável. Essa etapa é central porque reduz a barreira para experimentar novas estratégias: em vez de reescrever o motor em VHDL, o desenvolvedor altera a função MATLAB, executa a geração HDL e valida o bloco resultante dentro da infraestrutura existente.
+
+A escolha por \gls{fpga} é justificada pelo tipo de carga de trabalho. Atualizações de livro de ofertas, empacotamento de quadros, cálculo de \textit{spread}, comparação de limiares e geração de ação são operações regulares, com largura fixa e baixa necessidade de memória dinâmica. Essas características são favoráveis à implementação em hardware dedicado. Em contrapartida, decodificação de protocolo, reconexão TCP, mensagens de erro e interação com sistema operacional permanecem no ARM, onde a flexibilidade de software é mais apropriada. Esse co-projeto evita uma solução puramente acadêmica desconectada das restrições práticas de depuração e integração.
+
+Além da motivação técnica, há impacto educacional e econômico. Educacionalmente, o trabalho aproxima sistemas embarcados, arquitetura de computadores, mercado financeiro, HLS e validação experimental em um único projeto. Economicamente, a escolha por uma DE10-Nano e por ferramentas acadêmicas permite avaliar uma alternativa de baixo custo frente a soluções comerciais especializadas. Cientificamente, o projeto contribui com uma análise prática de como ferramentas modernas de HLS podem ser aplicadas a um domínio sensível a latência, mas sem exigir que cada nova estratégia seja escrita manualmente em RTL.
+
+\section{Estrutura do trabalho}\label{sec:estruturaTrabalho}
+
+O \autoref{cap:referencialTeorico} apresenta o referencial teórico utilizado para compreender HFT, livro de ofertas, FPGA, HLS, MATLAB HDL Coder, FAST, MMIO, Avalon-MM, filas circulares e métricas de desempenho. O \autoref{cap:trabalhos:relacionados} discute trabalhos relacionados em negociação algorítmica, aceleração em FPGA, HLS e processamento de livros de ofertas. O capítulo de proposta descreve a plataforma desenvolvida, suas fronteiras, o fluxo de geração de estratégias e seus contratos de dados. O \autoref{cap:materialemetodos} detalha materiais, ferramentas, métodos de desenvolvimento e planejamento de métricas. O \autoref{cap:resultados} apresenta o sistema obtido, a modelagem, a implementação e os espaços reservados para resultados quantitativos. Por fim, o \autoref{cap:conclusoeseperspectivas} sintetiza as contribuições, limitações e perspectivas futuras.

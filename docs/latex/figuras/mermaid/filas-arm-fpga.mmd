@@ -1,0 +1,33 @@
+%%{init: {"theme": "base", "flowchart": {"htmlLabels": false}, "themeVariables": {"fontFamily": "Arial", "primaryColor": "#ffffff", "primaryTextColor": "#111111", "lineColor": "#333333", "clusterBkg": "#f8f8f8", "clusterBorder": "#666666"}}}%%
+flowchart LR
+    subgraph ARM["ARM / HPS"]
+        A1["Escreve slot TX"]
+        A2["Publica TX_HEAD"]
+        A3["Le slot RX"]
+        A4["Publica RX_TAIL"]
+    end
+
+    subgraph MMIO["Regiao MMIO compartilhada"]
+        TX["TX ring<br/>ARM -> FPGA"]
+        RX["RX ring<br/>FPGA -> ARM"]
+        REG["Registradores<br/>MAGIC, VERSION,<br/>HEAD/TAIL, STATUS"]
+    end
+
+    subgraph FPGA["FPGA"]
+        F1["Consome TX"]
+        F2["Atualiza livro<br/>e executa estrategia"]
+        F3["Escreve slot RX"]
+        F4["Publica RX_HEAD"]
+    end
+
+    A1 --> TX
+    A2 --> REG
+    REG --> F1
+    TX --> F1
+    F1 --> F2
+    F2 --> F3
+    F3 --> RX
+    F4 --> REG
+    REG --> A3
+    RX --> A3
+    A4 --> REG

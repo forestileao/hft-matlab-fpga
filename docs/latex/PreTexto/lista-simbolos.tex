@@ -1,0 +1,36 @@
+%%%% LISTA DE SÍMBOLOS
+
+\listadesimbolos
+
+\begin{listadeletraslatinas}
+$D$ & Profundidade do anel ou do livro de ofertas & \\
+$H$ & Ponteiro de produção de uma fila circular & \\
+$T$ & Ponteiro de consumo de uma fila circular & \\
+$L$ & Latência observada entre entrada e resposta & \unidade{s} \\
+$Q$ & Quantidade agregada em um nível de preço & \\
+$P$ & Preço representado em ponto fixo escalado por $10^4$ & \\
+$S$ & \textit{Spread} entre melhor venda e melhor compra & \\
+$V$ & Vazão de processamento de eventos & \unidade{eventos/s} \\
+\end{listadeletraslatinas}
+
+\begin{listadeletrasgregas}
+$\Delta$ & Diferença entre duas grandezas, como preço ou tempo & \\
+$\lambda$ & Taxa média de chegada de eventos de mercado & \unidade{eventos/s} \\
+\end{listadeletrasgregas}
+
+\begin{listadesobrescritos}
+$+$ & Lado comprador do livro de ofertas & \\
+$-$ & Lado vendedor do livro de ofertas & \\
+\end{listadesobrescritos}
+
+\begin{listadesubscritos}
+$bid$ & Melhor oferta de compra & \\
+$ask$ & Melhor oferta de venda & \\
+$tx$ & Fila de transmissão ARM--FPGA & \\
+$rx$ & Fila de recepção FPGA--ARM & \\
+\end{listadesubscritos}
+
+\begin{listadenotacoes}
+$next(x)$ & Próxima posição de uma fila circular, calculada com aritmética modular & \\
+$price\_1e4$ & Preço inteiro resultante da multiplicação do preço decimal por $10^4$ & \\
+\end{listadenotacoes}
