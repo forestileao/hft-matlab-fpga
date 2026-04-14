@@ -1212,7 +1212,7 @@
 \newglossary[alg3]{\abbreviationtype}{acr3}{acn3}{\nomeabreviaturas}%% Subtipo de glossário (abreviaturas)
 \newcommand{\imprimirlistadeacronimos}{%% Definição do comando para inclusão da lista de abreviaturas, siglas e acrônimos
   \newglossarystyle{myxtab}{%% Estilo de glossário personalizado
-    \glossarystyle{long}%% Estilo de glossário base
+    \setglossarystyle{long}%% Estilo de glossário base
     \renewcommand*{\glossaryheader}{}%% Conteúdo do cabeçalho do glossário
     \renewcommand*{\glsgroupheading}[1]{}%% Conteúdo do cabeçalho de itens no glossário
     \renewcommand*{\glsgroupskip}{}%% Espaçamento entre itens
@@ -1357,21 +1357,25 @@
 }
 
 %% Sumário
-\settocpreprocessor{part}{%% Título da parte no sumário em letras maíusculas
-  \let\tempf@rtoc\f@rtoc\def\f@rtoc{\texorpdfstring{\MakeTextUppercase{\tempf@rtoc}}{\tempf@rtoc}}%%
-}
-\settocpreprocessor{chapter}{%% Título do capítulo no sumário em letras maíusculas
-  \let\tempf@rtoc\f@rtoc\def\f@rtoc{\texorpdfstring{\MakeTextUppercase{\tempf@rtoc}}{\tempf@rtoc}}%%
-}
+% O memoir recente já trata corretamente os títulos no sumário. O uso de
+% \settocpreprocessor com \MakeTextUppercase passou a gravar macros frágeis no
+% arquivo .toc em versões novas do LaTeX/hyperref.
 
 %% luiz : TODO - fazer só a primeira letra maiúscula e o resto minusculo automático - tentei mas perdeu a formatação, sugestão: https://tex.stackexchange.com/questions/380500/first-letter-upper-case-and-other-letters-in-lower-case
 
 
-\let\oldcontentsline\contentsline%% Título da seção no sumário em letras maíusculas
-\def\contentsline#1#2{%%
-  \expandafter\ifx\csname l@#1\endcsname\l@section\expandafter\@firstoftwo\else\expandafter\@secondoftwo\fi%%
-  {\oldcontentsline{#1}{#2}}{\oldcontentsline{#1}{#2}}%%
-} % ver o caixa alta no sumário e no texto... 
+% A redefinição antiga de \contentsline nesta classe consumia apenas dois
+% argumentos. Em versões atuais do hyperref, \contentsline usa quatro
+% argumentos; redefini-la aqui faz os metadados de link vazarem no sumário.
+% A versão abaixo preserva a saída impressa e usa o quarto argumento como
+% destino clicável, sem acionar a implementação frágil antiga do template.
+\def\contentsline#1#2#3#4{%
+  \ifx\relax#4\relax
+    \csname l@#1\endcsname{#2}{#3}%
+  \else
+    \csname l@#1\endcsname{\hyperlink{#4}{#2}}{\hyperlink{#4}{#3}}%
+  \fi
+}
 
 % fim
 

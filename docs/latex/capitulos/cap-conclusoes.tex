@@ -2,7 +2,7 @@
 
 \chapter{Conclusão}\label{cap:conclusoeseperspectivas}
 
-Este trabalho apresentou o desenvolvimento e a documentação de uma plataforma de HFT de baixo custo baseada em co-projeto ARM--FPGA, com foco principal na criação de estratégias de trading em MATLAB e geração de hardware por meio do MATLAB HDL Coder. A infraestrutura desenvolvida inclui gerador FAST sintético, receptor C++ com mFAST, ponte MMIO por filas circulares, livro de ofertas simplificado em VHDL, wrapper para estratégia gerada por HLS, wrapper Avalon-MM e fluxo de build/teste baseado em Make, Docker, CMake, GHDL, MATLAB e Quartus.
+Este trabalho apresentou o desenvolvimento e a documentação de uma plataforma de HFT de baixo custo baseada em co-projeto ARM--FPGA, com foco principal na criação de estratégias de trading em MATLAB e geração de hardware por meio do MATLAB HDL Coder. A infraestrutura desenvolvida cobre o caminho necessário para alimentar uma estratégia gerada por HLS: dados sintéticos de mercado, normalização no ARM, comunicação com a FPGA, livro de ofertas simplificado, decisão em hardware, validação por testes e preparação para execução na DE10-Nano.
 
 O objetivo geral foi atendido no nível funcional: o sistema permite isolar a estratégia como função MATLAB, gerar VHDL com HDL Coder, integrar o bloco gerado ao motor de decisão e executar o caminho de dados entre software e FPGA. O trabalho também consolidou o contrato entre C++ e VHDL, enfatizando registradores, ponteiros, capacidade efetiva de filas, cálculo dinâmico da base RX, largura de oito palavras por quadro e ordem de empacotamento. Esse contrato é uma contribuição de engenharia essencial, pois mantém estável a infraestrutura sobre a qual novas estratégias podem ser testadas.
 

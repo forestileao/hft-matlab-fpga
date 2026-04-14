@@ -12,114 +12,87 @@
 \setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
 \setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
-\contentsline {chapter}{\chapternumberline {1}\MakeTextUppercase []{Introdução}}{20}{chapter.1}%
-\contentsline {section}{\numberline {1.1}Considerações iniciais}{20}{section.1.1}%
-\contentsline {section}{\numberline {1.2}Problema de pesquisa}{21}{section.1.2}%
-\contentsline {section}{\numberline {1.3}Objetivos}{22}{section.1.3}%
-\contentsline {subsection}{\numberline {1.3.1}Objetivo geral}{22}{subsection.1.3.1}%
-\contentsline {subsection}{\numberline {1.3.2}Objetivos específicos}{22}{subsection.1.3.2}%
-\contentsline {section}{\numberline {1.4}Justificativa}{23}{section.1.4}%
-\contentsline {section}{\numberline {1.5}Estrutura do trabalho}{23}{section.1.5}%
+\contentsline {chapter}{\chapternumberline {1}Introdução}{19}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Considerações iniciais}{19}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Problema de pesquisa}{20}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Objetivos}{21}{section.1.3}%
+\contentsline {subsection}{\numberline {1.3.1}Objetivo geral}{21}{subsection.1.3.1}%
+\contentsline {subsection}{\numberline {1.3.2}Objetivos específicos}{21}{subsection.1.3.2}%
+\contentsline {section}{\numberline {1.4}Justificativa}{22}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Estrutura do trabalho}{22}{section.1.5}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
-\contentsline {chapter}{\chapternumberline {2}\MakeTextUppercase []{Referencial te\'orico}}{25}{chapter.2}%
-\contentsline {section}{\numberline {2.1}Negociação de alta frequência}{25}{section.2.1}%
-\contentsline {subsection}{\numberline {2.1.1}Caminho crítico em sistemas de HFT}{25}{subsection.2.1.1}%
-\contentsline {subsection}{\numberline {2.1.2}Determinismo e variabilidade}{26}{subsection.2.1.2}%
-\contentsline {section}{\numberline {2.2}Livro de ofertas e dados de mercado}{26}{section.2.2}%
-\contentsline {subsection}{\numberline {2.2.1}Eventos por nível e eventos por ordem}{27}{subsection.2.2.1}%
-\contentsline {subsection}{\numberline {2.2.2}Sinais derivados do topo do livro}{27}{subsection.2.2.2}%
-\contentsline {section}{\numberline {2.3}FPGA, SoC e plataforma DE10-Nano}{29}{section.2.3}%
-\contentsline {subsection}{\numberline {2.3.1}Comparação entre CPU e FPGA}{29}{subsection.2.3.1}%
-\contentsline {subsection}{\numberline {2.3.2}Papel do HPS}{30}{subsection.2.3.2}%
-\contentsline {section}{\numberline {2.4}Síntese de alto nível e MATLAB HDL Coder}{30}{section.2.4}%
-\contentsline {subsection}{\numberline {2.4.1}Restrições de código sintetizável}{31}{subsection.2.4.1}%
-\contentsline {subsection}{\numberline {2.4.2}Por que não gerar todo o sistema por HLS}{31}{subsection.2.4.2}%
-\contentsline {section}{\numberline {2.5}FAST, mFAST e fluxo TCP}{31}{section.2.5}%
-\contentsline {subsection}{\numberline {2.5.1}Template SimpleMD}{32}{subsection.2.5.1}%
-\contentsline {subsection}{\numberline {2.5.2}Limites do feed sintético}{32}{subsection.2.5.2}%
-\contentsline {section}{\numberline {2.6}MMIO, Avalon-MM e filas circulares}{32}{section.2.6}%
-\contentsline {subsection}{\numberline {2.6.1}Ordenação de publicação}{33}{subsection.2.6.1}%
-\contentsline {subsection}{\numberline {2.6.2}Avalon-MM como camada de integração}{33}{subsection.2.6.2}%
-\contentsline {subsection}{\numberline {2.6.3}MMIO versus DMA}{34}{subsection.2.6.3}%
-\contentsline {section}{\numberline {2.7}Latência, vazão e determinismo}{34}{section.2.7}%
+\contentsline {chapter}{\chapternumberline {2}Referencial te\'orico}{24}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Negociação de alta frequência}{24}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Caminho crítico em sistemas de HFT}{24}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}Determinismo e variabilidade}{25}{subsection.2.1.2}%
+\contentsline {section}{\numberline {2.2}Livro de ofertas e dados de mercado}{25}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Eventos por nível e eventos por ordem}{26}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Sinais derivados do topo do livro}{26}{subsection.2.2.2}%
+\contentsline {section}{\numberline {2.3}FPGA, SoC e plataforma DE10-Nano}{28}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Comparação entre CPU e FPGA}{28}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Papel do HPS}{29}{subsection.2.3.2}%
+\contentsline {section}{\numberline {2.4}Síntese de alto nível e MATLAB HDL Coder}{29}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Restrições de código sintetizável}{29}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Por que não gerar todo o sistema por HLS}{30}{subsection.2.4.2}%
+\contentsline {section}{\numberline {2.5}FAST, mFAST e fluxo TCP}{30}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}Template de mensagem}{31}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}Limites do feed sintético}{31}{subsection.2.5.2}%
+\contentsline {section}{\numberline {2.6}MMIO, Avalon-MM e filas circulares}{31}{section.2.6}%
+\contentsline {subsection}{\numberline {2.6.1}Ordenação de publicação}{31}{subsection.2.6.1}%
+\contentsline {subsection}{\numberline {2.6.2}Avalon-MM como camada de integração}{32}{subsection.2.6.2}%
+\contentsline {subsection}{\numberline {2.6.3}MMIO versus DMA}{32}{subsection.2.6.3}%
+\contentsline {section}{\numberline {2.7}Latência, vazão e determinismo}{32}{section.2.7}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
-\contentsline {chapter}{\chapternumberline {3}\MakeTextUppercase []{Trabalhos Relacionados}}{36}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Negociação algorítmica e baixa latência}{36}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Aceleração de HFT com FPGA}{36}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Livro de ofertas e modelos de atualização}{37}{section.3.3}%
-\contentsline {section}{\numberline {3.4}Síntese de alto nível e fronteiras de projeto}{38}{section.3.4}%
-\contentsline {section}{\numberline {3.5}Comparação com o protótipo desenvolvido}{38}{section.3.5}%
-\contentsline {section}{\numberline {3.6}Posicionamento do trabalho}{38}{section.3.6}%
+\contentsline {chapter}{\chapternumberline {3}Trabalhos Relacionados}{34}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Negociação algorítmica e baixa latência}{34}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Aceleração de HFT com FPGA}{34}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Livro de ofertas e modelos de atualização}{35}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Síntese de alto nível e fronteiras de projeto}{36}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Comparação com o protótipo desenvolvido}{36}{section.3.5}%
+\contentsline {section}{\numberline {3.6}Posicionamento do trabalho}{36}{section.3.6}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
-\contentsline {chapter}{\chapternumberline {4}\MakeTextUppercase []{Proposta}}{40}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Visão geral da arquitetura}{40}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Elementos da plataforma}{40}{section.4.2}%
-\contentsline {subsection}{\numberline {4.2.1}Elementos de software}{41}{subsection.4.2.1}%
-\contentsline {subsection}{\numberline {4.2.2}Elementos de hardware}{43}{subsection.4.2.2}%
-\contentsline {subsection}{\numberline {4.2.3}Elementos de infraestrutura}{43}{subsection.4.2.3}%
-\contentsline {section}{\numberline {4.3}Decisões arquiteturais}{43}{section.4.3}%
-\contentsline {section}{\numberline {4.4}Fluxo de criação de estratégias com MATLAB HDL Coder}{44}{section.4.4}%
-\contentsline {section}{\numberline {4.5}Modos de operação}{46}{section.4.5}%
-\contentsline {section}{\numberline {4.6}Tratamento de falhas e observabilidade}{46}{section.4.6}%
-\contentsline {section}{\numberline {4.7}Escopo positivo e escopo negativo}{47}{section.4.7}%
-\contentsline {section}{\numberline {4.8}Contrato de eventos ARM--FPGA}{47}{section.4.8}%
-\contentsline {section}{\numberline {4.9}Mapeamento de símbolos e geração de dados}{48}{section.4.9}%
-\contentsline {section}{\numberline {4.10}Regra de estratégia}{48}{section.4.10}%
+\contentsline {chapter}{\chapternumberline {4}Proposta}{38}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Visão geral da arquitetura}{38}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Elementos da plataforma}{38}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Decisões arquiteturais}{40}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Fluxo de criação de estratégias com MATLAB HDL Coder}{41}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Modos de operação e delimitações}{42}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Contrato de eventos ARM--FPGA}{43}{section.4.6}%
+\contentsline {section}{\numberline {4.7}Mapeamento de símbolos e geração de dados}{44}{section.4.7}%
+\contentsline {section}{\numberline {4.8}Regra de estratégia}{44}{section.4.8}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
-\contentsline {chapter}{\chapternumberline {5}\MakeTextUppercase []{Materiais e Métodos}}{49}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Materiais}{49}{section.5.1}%
-\contentsline {subsection}{\numberline {5.1.1}Plataforma de hardware}{49}{subsection.5.1.1}%
-\contentsline {subsection}{\numberline {5.1.2}Linguagens e bibliotecas}{49}{subsection.5.1.2}%
-\contentsline {subsection}{\numberline {5.1.3}Ferramentas de construção e validação}{50}{subsection.5.1.3}%
-\contentsline {subsection}{\numberline {5.1.4}Ambiente Quartus e MATLAB}{50}{subsection.5.1.4}%
-\contentsline {subsection}{\numberline {5.1.5}Viabilidade e delimitações}{50}{subsection.5.1.5}%
-\contentsline {section}{\numberline {5.2}Métodos}{51}{section.5.2}%
-\contentsline {subsection}{\numberline {5.2.1}Definição da plataforma de desenvolvimento}{51}{subsection.5.2.1}%
-\contentsline {subsection}{\numberline {5.2.2}Definição do contrato de comunicação}{51}{subsection.5.2.2}%
-\contentsline {subsection}{\numberline {5.2.3}Construção do fluxo de dados de mercado}{52}{subsection.5.2.3}%
-\contentsline {subsection}{\numberline {5.2.4}Implementação do livro de ofertas em hardware}{52}{subsection.5.2.4}%
-\contentsline {subsection}{\numberline {5.2.5}Geração e encapsulamento da estratégia}{53}{subsection.5.2.5}%
-\contentsline {subsection}{\numberline {5.2.6}Validação}{54}{subsection.5.2.6}%
-\contentsline {subsection}{\numberline {5.2.7}Método proposto para métricas experimentais}{54}{subsection.5.2.7}%
-\contentsline {subsection}{\numberline {5.2.8}Critérios de revisão técnica}{56}{subsection.5.2.8}%
+\contentsline {chapter}{\chapternumberline {5}Materiais e Métodos}{46}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Materiais}{46}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Métodos}{46}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Organização da plataforma}{46}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Contrato de comunicação}{47}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}Fluxo de dados de mercado}{47}{subsection.5.2.3}%
+\contentsline {subsection}{\numberline {5.2.4}Livro de ofertas e estratégia}{48}{subsection.5.2.4}%
+\contentsline {subsection}{\numberline {5.2.5}Validação funcional}{48}{subsection.5.2.5}%
+\contentsline {subsection}{\numberline {5.2.6}Método proposto para métricas experimentais}{49}{subsection.5.2.6}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
-\contentsline {chapter}{\chapternumberline {6}\MakeTextUppercase []{Resultados}}{58}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Escopo do sistema}{58}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Modelagem do sistema}{58}{section.6.2}%
-\contentsline {subsection}{\numberline {6.2.1}Modelo de componentes}{58}{subsection.6.2.1}%
-\contentsline {subsection}{\numberline {6.2.2}Modelo de estados das filas}{59}{subsection.6.2.2}%
-\contentsline {subsection}{\numberline {6.2.3}Modelo de dados em ponto fixo}{60}{subsection.6.2.3}%
-\contentsline {subsection}{\numberline {6.2.4}Modelo de registradores}{60}{subsection.6.2.4}%
-\contentsline {section}{\numberline {6.3}Apresentação do sistema}{61}{section.6.3}%
-\contentsline {subsection}{\numberline {6.3.1}Execução funcional na DE10-Nano}{62}{subsection.6.3.1}%
-\contentsline {section}{\numberline {6.4}Implementação do sistema}{63}{section.6.4}%
-\contentsline {subsection}{\numberline {6.4.1}Wrapper MMIO em C++}{63}{subsection.6.4.1}%
-\contentsline {subsection}{\numberline {6.4.2}Receptor FAST e empacotamento de eventos}{64}{subsection.6.4.2}%
-\contentsline {subsection}{\numberline {6.4.3}Ponte compartilhada em VHDL}{65}{subsection.6.4.3}%
-\contentsline {subsection}{\numberline {6.4.4}Livro de ofertas}{65}{subsection.6.4.4}%
-\contentsline {subsection}{\numberline {6.4.5}Estratégia MATLAB HDL Coder}{65}{subsection.6.4.5}%
-\contentsline {subsection}{\numberline {6.4.6}Projeto Quartus e componente customizado}{67}{subsection.6.4.6}%
-\contentsline {subsection}{\numberline {6.4.7}Fluxo de build e dependências}{67}{subsection.6.4.7}%
-\contentsline {subsection}{\numberline {6.4.8}Critérios de aceitação funcional}{67}{subsection.6.4.8}%
-\contentsline {section}{\numberline {6.5}Discussões}{68}{section.6.5}%
-\contentsline {subsection}{\numberline {6.5.1}Interpretação dos testes}{68}{subsection.6.5.1}%
-\contentsline {subsection}{\numberline {6.5.2}Riscos técnicos remanescentes}{69}{subsection.6.5.2}%
-\contentsline {subsection}{\numberline {6.5.3}Espaço reservado para resultados quantitativos}{69}{subsection.6.5.3}%
+\contentsline {chapter}{\chapternumberline {6}Resultados}{50}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Sistema obtido}{50}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Modelagem funcional}{51}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Execução funcional na DE10-Nano}{51}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Validação por testes}{52}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Discussão}{54}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Espaço para resultados quantitativos}{55}{section.6.6}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
-\contentsline {chapter}{\chapternumberline {7}\MakeTextUppercase []{Conclusão}}{72}{chapter.7}%
+\contentsline {chapter}{\chapternumberline {7}Conclusão}{56}{chapter.7}%
 \vspace {\cftbeforechapterskip }
 \setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
-\contentsline {chapter}{\uppercase {Refer\^encias}}{74}{section*.54}%
+\contentsline {chapter}{\uppercase {Refer\^encias}}{58}{section*.49}%
 \renewcommand *{\cftappendixname }{AP\^ENDICE \space }
-\contentsline {appendix}{\chapternumberline {A}\MakeTextUppercase []{Contrato de Comunicação ARM--FPGA}}{77}{appendix.A}%
-\contentsline {section}{\numberline {A.1}Registradores}{77}{section.A.1}%
-\contentsline {section}{\numberline {A.2}Regras de filas}{77}{section.A.2}%
-\contentsline {section}{\numberline {A.3}Formato de evento}{77}{section.A.3}%
-\contentsline {section}{\numberline {A.4}Formato de resposta}{78}{section.A.4}%
-\contentsline {section}{\numberline {A.5}Checklist de alteração do contrato}{78}{section.A.5}%
-\contentsline {appendix}{\chapternumberline {B}\MakeTextUppercase []{Comandos de Construção, Teste e Execução}}{81}{appendix.B}%
-\contentsline {section}{\numberline {B.1}Validação local}{81}{section.B.1}%
-\contentsline {section}{\numberline {B.2}Geração da estratégia}{81}{section.B.2}%
-\contentsline {section}{\numberline {B.3}Geração HDL e build para DE10-Nano}{81}{section.B.3}%
-\contentsline {section}{\numberline {B.4}Variáveis de ambiente}{82}{section.B.4}%
-\contentsline {section}{\numberline {B.5}Sequência recomendada de depuração}{82}{section.B.5}%
+\contentsline {appendix}{\chapternumberline {A}Contrato de Comunicação ARM--FPGA}{61}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Registradores}{61}{section.A.1}%
+\contentsline {section}{\numberline {A.2}Regras de filas}{61}{section.A.2}%
+\contentsline {section}{\numberline {A.3}Formato de evento}{61}{section.A.3}%
+\contentsline {section}{\numberline {A.4}Formato de resposta}{62}{section.A.4}%
+\contentsline {section}{\numberline {A.5}Checklist de alteração do contrato}{62}{section.A.5}%
+\contentsline {appendix}{\chapternumberline {B}Comandos de Construção, Teste e Execução}{65}{appendix.B}%
+\contentsline {section}{\numberline {B.1}Validação local}{65}{section.B.1}%
+\contentsline {section}{\numberline {B.2}Geração da estratégia}{65}{section.B.2}%
+\contentsline {section}{\numberline {B.3}Geração HDL e build para DE10-Nano}{65}{section.B.3}%
+\contentsline {section}{\numberline {B.4}Variáveis de ambiente}{66}{section.B.4}%
+\contentsline {section}{\numberline {B.5}Sequência recomendada de depuração}{66}{section.B.5}%

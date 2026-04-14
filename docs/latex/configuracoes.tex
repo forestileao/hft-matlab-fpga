@@ -93,6 +93,15 @@
 % Define o caminho das figuras
 \graphicspath{{figuras/}}
 
+% Compatibilidade com TeX Live recente: arquivos .toc antigos do template podem
+% conter \MakeTextUppercase com argumento opcional. Como os capítulos em caixa
+% alta foram desativados, a macro abaixo apenas preserva o texto ao reler o .toc.
+\renewcommand{\MakeTextUppercase}[2][]{#2}
+\makeatletter
+\settocpreprocessor{chapter}{}
+\settocpreprocessor{part}{}
+\makeatother
+
 % Define a fonte ara helvet que é uma fonte similar à Arial, se for usar a Arial tem que mudar o compilador para XeLaTex, mas ai tem que arrumar os erros: https://latex.org/forum/viewtopic.php?t=25998
 %\usepackage{helvet}
 %\renewcommand{\familydefault}{\sfdefault}
@@ -105,8 +114,11 @@
 % \usepackage[portuguese]{nomencl}
 % \usepackage[nogroupskip,nonumberlist,nopostdot,nohypertypes={acronym}]{glossaries}
 % \makenoidxglossaries
-\usepackage{glossaries}
-\makeglossaries
+% O pacote glossaries e \makeglossaries já são carregados pela classe utfpr e
+% pelo main.tex. Recarregar aqui causa comportamento instável na lista de siglas.
+% Como a lista de siglas é impressa manualmente, os links automáticos do
+% glossaries são desativados para evitar destinos ausentes no PDF.
+\glsdisablehyper
 
 % para siglas em português
 \newcommand{\siglaPt}[2]

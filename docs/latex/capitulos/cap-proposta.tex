@@ -5,9 +5,9 @@ Este capítulo apresenta a proposta da plataforma: uma infraestrutura de baixo c
 
 \section{Visão geral da arquitetura}\label{sec:propostaVisao}
 
-O fluxo principal inicia no programa \codigo{fast_data_feed}, que publica mensagens sintéticas de mercado por TCP. Cada mensagem contém uma sequência de uma entrada com símbolo, lado, preço, quantidade e número de sequência. O receptor \codigo{fast_receiver} conecta-se ao servidor, usa mFAST para decodificar os bytes FAST e imprime os dados. Quando a variável de ambiente \codigo{HFT_FPGA_MMIO_BASE} está definida, o receptor também ativa o caminho FPGA: converte o símbolo textual em identificador inteiro, converte preço decimal para ponto fixo escalado por $10^4$, codifica lado e tipo de evento, e escreve um quadro de oito palavras de 32 bits na fila TX.
+O fluxo principal inicia em um gerador de mercado sintético, que publica mensagens por TCP com símbolo, lado, preço, quantidade e número de sequência. Um receptor decodifica essas mensagens, imprime os dados e, quando o modo FPGA está habilitado, normaliza os campos para uma representação numérica fixa. Essa normalização inclui conversão de símbolo textual para identificador inteiro, preço decimal para ponto fixo e lado da operação para código numérico.
 
-No FPGA, \codigo{arm_fpga_shared_stream_bridge.vhd} expõe registradores e duas regiões de memória para filas circulares. O bloco \codigo{hft_trade_engine.vhd} conecta essa ponte ao \codigo{trade_decision_core.vhd}. O núcleo de decisão, por sua vez, instancia \codigo{order_book_core.vhd} e \codigo{generated_strategy_core.vhd}. O livro de ofertas atualiza o estado por símbolo e produz um instantâneo com melhor compra, melhor venda, \textit{spread} e desbalanceamento. A estratégia decide a ação e devolve um quadro de resposta para a fila RX. O software lê essa resposta e imprime os campos decodificados.
+No FPGA, a ponte de comunicação recebe os eventos por filas circulares e os entrega ao motor de decisão. Esse motor atualiza o livro de ofertas, calcula melhor compra, melhor venda, \textit{spread} e desbalanceamento, e aciona a estratégia gerada a partir de MATLAB. A resposta retorna ao software com a ação decidida e os campos derivados do livro.
 
 Essa arquitetura possui três fronteiras explícitas. A primeira fronteira é protocolo--software: bytes FAST são transformados em objetos C++ tipados. A segunda é software--hardware: objetos C++ são transformados em palavras de 32 bits e publicados por MMIO. A terceira é estado--decisão: eventos brutos são transformados em sinais derivados de livro, e esses sinais alimentam a estratégia. A separação em fronteiras facilita a validação porque cada etapa pode ser testada isoladamente.
 
@@ -48,33 +48,21 @@ O \autoref{quad:elementosPlataforma} resume os principais elementos da plataform
 \fonte{}
 \end{tabframed}
 
-\subsection{Elementos de software}\label{subsec:elementosSoftware}
+Após o resumo do \autoref{quad:elementosPlataforma}, os elementos podem ser entendidos em três grupos. O primeiro grupo é o software de apoio, responsável por produzir dados sintéticos, decodificar mensagens financeiras e transformar informações textuais em números adequados ao hardware. O segundo grupo é o hardware reconfigurável, responsável por transportar eventos, manter o livro de ofertas e executar a decisão. O terceiro grupo é a infraestrutura de reprodução, que reúne build, simulação, geração HLS, integração Quartus e documentação.
 
-O software possui dois executáveis principais. O primeiro, \codigo{fast_data_feed}, é um gerador de mercado. Ele não tenta simular todos os comportamentos de uma bolsa, mas fornece uma fonte contínua e controlada de mensagens. Sua vantagem é eliminar dependência de dados externos; sua limitação é não reproduzir bursts e assimetrias reais. O segundo, \codigo{fast_receiver}, é o ponto de integração. Ele decodifica, normaliza e envia eventos ao hardware. Também é responsável por manter o sistema operando mesmo quando o feed desconecta, pois implementa tentativa de reconexão.
+Essa separação evita que o usuário interessado em testar uma estratégia precise alterar todo o sistema. O caminho de dados, a ponte ARM--FPGA, os testes e a integração com a placa formam uma base relativamente estável. A parte que deve variar com maior frequência é a estratégia em MATLAB, que recebe sinais já preparados pelo livro de ofertas e retorna uma ação.
 
-O wrapper \codigo{FpgaSharedStream} é o componente de software mais sensível. Ele transforma uma região física em uma interface de alto nível com métodos \codigo{Send} e \codigo{Receive}. Isso reduz repetição no receptor e concentra regras de fila em um único arquivo. A classe também valida a geometria lida do FPGA, evitando que o software opere sobre um dispositivo incompatível. A existência de modo legado indica evolução do contrato; no texto final, o estado atual é o cabeçalho novo com \codigo{MAGIC} e \codigo{VERSION}.
-
-\subsection{Elementos de hardware}\label{subsec:elementosHardware}
-
-O hardware é organizado em camadas. A ponte compartilhada é a camada de transporte. O livro de ofertas é a camada de estado. A estratégia é a camada de decisão. O motor HFT integra essas camadas, e o wrapper Avalon-MM conecta o conjunto ao Platform Designer. Essa separação é uma boa prática porque permite testar cada bloco em isolamento antes de testar o fluxo completo.
-
-O arquivo \codigo{order_book_core.vhd} é o núcleo de maior conteúdo algorítmico em VHDL. Ele contém procedimentos para limpar lado, remover nível e aplicar atualização ordenada. O arquivo \codigo{generated_strategy_core.vhd}, por outro lado, tem papel de adaptação: recebe snapshot, chama o bloco \codigo{strategy} gerado e monta a resposta. A separação entre livro manual e estratégia gerada é coerente com o objetivo de usar HLS sem abrir mão do controle do contrato de hardware.
-
-\subsection{Elementos de infraestrutura}\label{subsec:elementosInfra}
-
-O \codigo{Makefile} e os Dockerfiles são parte essencial do resultado, não apenas conveniência. Em projetos de FPGA e cross-compilation, diferenças de versão de compilador, biblioteca, simulador e ferramenta podem impedir reprodução. A plataforma define imagens para build C++/GHDL, cross-build ARM e MATLAB HDL Coder. Também define alvos específicos para simulação, geração de HDL, build Quartus, deploy e limpeza.
-
-A pasta \codigo{quartus} contém o componente customizado e o projeto DE10-Nano. O arquivo \codigo{hft_trade_engine_avalon_mm_hw.tcl} declara parâmetros, arquivos HDL e interfaces do IP para o Platform Designer. Isso permite instanciar o motor HFT como escravo Avalon-MM. A vantagem é aproximar o protótipo de execução em placa; a limitação é a dependência de uma instalação Quartus e de uma configuração correta de HPS, clocks, reset e pontes.
+Detalhes de nomes de arquivos e contratos binários são mantidos no \autoref{quad:elementosPlataforma} e nos apêndices. No corpo do trabalho, o ponto central é a função de cada camada: software para entrada e normalização, FPGA para processamento determinístico, MATLAB HDL Coder para geração do bloco decisório e testes para garantir que a troca de estratégia não quebre o restante da plataforma.
 
 \section{Decisões arquiteturais}\label{sec:decisoesArquiteturais}
 
 A primeira decisão arquitetural é manter a decodificação FAST no ARM. O protocolo FAST depende de templates, campos opcionais e representação binária compacta. Implementá-lo diretamente em FPGA exigiria uma máquina de estados maior, tratamento de variabilidade de mensagem e manutenção cuidadosa de compatibilidade com o template. Ao manter essa etapa em C++, o projeto preserva flexibilidade e usa a FPGA onde o formato já está normalizado.
 
-A segunda decisão é usar anéis MMIO em vez de chamadas síncronas por registradores individuais. Uma alternativa simples seria escrever cada campo em um registrador e acionar um bit de início. Essa abordagem funciona para um único evento, mas acopla fortemente produtor e consumidor: o ARM precisa esperar o FPGA terminar antes de escrever outro evento, ou o hardware precisa criar registradores de sombra. Com anéis, o software pode publicar vários eventos até a capacidade da fila, e o FPGA pode consumir quando estiver pronto. O custo é administrar ponteiros e capacidade útil \codigo{DEPTH - 1}.
+A segunda decisão é usar filas circulares em memória mapeada em vez de um conjunto de registradores para cada campo. Essa escolha desacopla parcialmente o tempo do ARM e do FPGA: o software pode publicar eventos enquanto houver espaço, e o hardware pode consumi-los no seu próprio ritmo. O custo é manter regras claras de publicação e consumo, mas esse custo é aceitável porque o contrato fica estável e testável.
 
 A terceira decisão é separar livro de ofertas e estratégia. O livro é estado persistente; a estratégia é política de decisão. Misturar ambos em um único bloco dificultaria testar atualização de livro sem acionar regra de negociação, ou testar a regra com snapshots artificiais. A separação permite substituir a estratégia gerada por MATLAB sem reescrever o livro em VHDL. Também permite, futuramente, comparar múltiplas estratégias sobre o mesmo estado de mercado.
 
-A quarta decisão é usar profundidades fixas. Em software, estruturas dinâmicas são naturais: vetores, mapas, árvores e filas podem crescer conforme necessidade. Em FPGA, crescimento dinâmico não existe da mesma forma; a área deve ser definida na síntese. O projeto usa \codigo{G_DEPTH}, \codigo{G_SLOT_WORDS}, \codigo{G_NUM_SYMBOLS} e \codigo{G_BOOK_DEPTH} para tornar essas escolhas explícitas. Isso facilita explorar configurações, mas cada alteração relevante exige recompilação e nova validação.
+A quarta decisão é usar tamanhos fixos para filas, símbolos e profundidade do livro. Em FPGA, memória e lógica precisam ser definidas antes da síntese; portanto, estruturas dinâmicas típicas de software não são adequadas. A limitação é que mudanças de capacidade exigem nova síntese, mas a vantagem é obter um circuito previsível e compatível com validação por testbench.
 
 \section{Fluxo de criação de estratégias com MATLAB HDL Coder}\label{sec:fluxoCriacaoEstrategias}
 
@@ -101,31 +89,21 @@ Essa organização desloca o esforço do usuário para a definição algorítmic
 \fonte{Elaborado pelos autores a partir de diagrama Mermaid.}
 \end{figure}
 
-\section{Modos de operação}\label{sec:modosOperacao}
+\section{Modos de operação e delimitações}\label{sec:modosOperacao}
 
-O protótipo possui dois modos práticos. No modo software-only, \codigo{fast_receiver} decodifica e imprime mensagens sem acessar FPGA. Esse modo é ativado quando \codigo{HFT_FPGA_MMIO_BASE} não está definido. Ele é útil para validar mFAST, socket TCP, template de mercado e comportamento do feed. Também serve como referência inicial para futuras comparações de latência de decodificação.
+O protótipo possui dois modos práticos. No modo software-only, o receptor decodifica e imprime mensagens sem acessar FPGA. Esse modo é útil para validar o feed, o protocolo FAST e a normalização dos dados. Também serve como referência inicial para futuras comparações de latência.
 
-No modo FPGA, a variável \codigo{HFT_FPGA_MMIO_BASE} aponta para a base física do periférico. Opcionalmente, \codigo{HFT_FPGA_MMIO_SPAN} ajusta o tamanho mapeado e \codigo{HFT_FPGA_MMIO_DEV} altera o dispositivo usado, por padrão \codigo{/dev/mem}. Nesse modo, o receptor tenta abrir a ponte, validar \codigo{MAGIC}, ler geometria e enviar quadros. Se a ponte não estiver acessível, a falha ocorre no início, evitando que o programa opere sobre uma região incorreta.
+No modo FPGA, o receptor acessa o periférico mapeado em memória, valida se a ponte esperada está presente e passa a enviar eventos ao hardware. Se a ponte não estiver acessível, a falha ocorre no início, evitando que o programa opere sobre uma região incorreta.
 
 Essa dualidade é metodologicamente útil. O modo software-only permite testar o lado de mercado em qualquer máquina de desenvolvimento. O modo FPGA exige placa, bitstream e permissões de acesso MMIO, mas valida a contribuição central do trabalho. A existência dos dois modos reduz o tempo de depuração, pois um erro de FAST não precisa ser confundido com erro de barramento.
 
-\section{Tratamento de falhas e observabilidade}\label{sec:falhasObservabilidade}
+O sistema também possui mecanismos simples de observabilidade: identificação do periférico, versão de protocolo, geometria da fila e mensagens de erro no receptor. Esses mecanismos são suficientes para o estágio de protótipo, pois ajudam a diferenciar falhas de feed, falhas de decodificação e falhas de comunicação com a FPGA sem transformar o texto em uma descrição exaustiva de registradores.
 
-O projeto contém mecanismos simples de observabilidade. O cabeçalho \codigo{MAGIC} confirma que a base mapeada corresponde ao periférico esperado. O campo \codigo{VERSION} permite detectar mudanças de protocolo. Os registradores de profundidade e largura permitem que o software recuse uma geometria incompatível. Os ponteiros de fila podem ser lidos para diagnosticar fila cheia, fila vazia ou consumidor travado.
-
-No receptor, mensagens de erro distinguem falha de conexão, falha de decodificação, símbolo desconhecido, lado inválido e fila TX cheia. Essa distinção é importante porque cada problema tem causa provável diferente. Símbolo desconhecido aponta para divergência entre feed e tabela de normalização. Fila cheia aponta para FPGA lento, ponte indisponível ou receptor produzindo mais rápido que o consumo. Falha de \codigo{MAGIC} sugere endereço errado ou bitstream incompatível.
-
-O wrapper Avalon-MM adiciona outra camada de robustez ao impedir que o barramento fique indefinidamente preso em certos cenários de teste. O uso de uma sentinela de timeout, representada por \codigo{BAADF00D}, ajuda a identificar transações que não completaram corretamente durante simulação. Em hardware real, uma política de timeout também é desejável para evitar que software embarcado fique bloqueado indefinidamente ao acessar um periférico mal inicializado.
-
-\section{Escopo positivo e escopo negativo}\label{sec:escopoPosNeg}
-
-O escopo positivo inclui: geração sintética de dados de mercado, decodificação FAST, empacotamento em quadro fixo, transporte por MMIO, controle de fila circular, atualização de livro de ofertas por níveis, cálculo de sinais de topo de livro, decisão por limiares e preparação para síntese na DE10-Nano. Esses elementos estão materializados nos diretórios \codigo{cpp}, \codigo{vhdl}, \codigo{matlab}, \codigo{quartus} e \codigo{docs}.
-
-O escopo negativo é igualmente relevante. O sistema não implementa uma conexão real com bolsa, não recebe dados multicast reais, não executa ordens, não possui camada de gerenciamento de risco, não implementa \textit{kernel bypass}, não mede latência com relógio de hardware em produção, não gerencia múltiplos instrumentos com profundidade real de mercado e não garante conformidade regulatória. Essas ausências não são falhas do protótipo, mas delimitações necessárias para manter o projeto adequado a uma monografia de graduação.
+O escopo positivo inclui geração sintética de dados, decodificação FAST, transporte ARM--FPGA, livro de ofertas simplificado, decisão por estratégia gerada e preparação para execução na DE10-Nano. O escopo negativo inclui conexão real com bolsa, envio de ordens, controle de risco profissional, dados proprietários, multicast real, \textit{kernel bypass}, conformidade regulatória e métricas finais de latência com instrumentação dedicada. Essas delimitações mantêm o trabalho adequado a uma monografia de graduação.
 
 \section{Contrato de eventos ARM--FPGA}\label{sec:contratoEventos}
 
-O quadro ARM--FPGA possui oito palavras de 32 bits, totalizando 256 bits. O formato vigente, observado em \codigo{fast_receiver.cpp} e documentado em \codigo{docs/arm-fpga-shared-memory-stream.md}, é:
+O quadro ARM--FPGA possui oito palavras de 32 bits, totalizando 256 bits. A estrutura adotada é resumida na \autoref{tab:quadroEvento}.
 
 \begin{table}[htb]
 \caption{Quadro de evento enviado do ARM para o FPGA}
@@ -169,9 +147,9 @@ Esse contrato é o eixo de integração do trabalho. Qualquer mudança na largur
 
 \section{Mapeamento de símbolos e geração de dados}\label{sec:mapeamentoSimbolos}
 
-O receptor mantém uma tabela fixa que traduz símbolos textuais para identificadores inteiros: AAPL, MSFT, NVDA, GOOGL e TSLA são mapeados para valores de 0 a 4. Essa decisão reduz a complexidade do FPGA, que não precisa comparar strings nem manipular codificação textual. O custo é a necessidade de manter a tabela sincronizada com o conjunto de símbolos do feed.
+O receptor traduz símbolos textuais para identificadores inteiros antes de enviar o evento à FPGA. Essa decisão reduz a complexidade do hardware, que passa a operar apenas com números. O preço também é convertido para uma escala inteira, evitando ponto flutuante no circuito.
 
-O gerador de dados cria preços próximos a um preço base por símbolo e escolhe lado, quantidade e deslocamento de preço pseudoaleatoriamente. Compras são geradas abaixo do preço base e vendas acima, reduzindo a probabilidade de livro cruzado. Mesmo assim, \codigo{order_book_core.vhd} possui proteção adicional: rejeita atualizações de compra que cruzariam a melhor venda e atualizações de venda que cruzariam a melhor compra.
+O gerador de dados cria preços próximos a um valor base por símbolo e alterna lados e quantidades de forma pseudoaleatória. O objetivo não é reproduzir fielmente uma bolsa, mas fornecer estímulos suficientes para validar livro, estratégia e comunicação.
 
 \section{Regra de estratégia}\label{sec:regraEstrategia}
 

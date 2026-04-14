@@ -2,35 +2,42 @@
 
 \listadesimbolos
 
-\begin{listadeletraslatinas}
+\begin{Spacing}{1.5}
+\section*{\nomeletraslatinas}
+\begin{tabularx}{\textwidth}{@{}lXr@{}}
 $D$ & Profundidade do anel ou do livro de ofertas & \\
 $H$ & Ponteiro de produção de uma fila circular & \\
 $T$ & Ponteiro de consumo de uma fila circular & \\
-$L$ & Latência observada entre entrada e resposta & \unidade{s} \\
+$L$ & Latência observada entre entrada e resposta & s \\
 $Q$ & Quantidade agregada em um nível de preço & \\
 $P$ & Preço representado em ponto fixo escalado por $10^4$ & \\
 $S$ & \textit{Spread} entre melhor venda e melhor compra & \\
-$V$ & Vazão de processamento de eventos & \unidade{eventos/s} \\
-\end{listadeletraslatinas}
+$V$ & Vazão de processamento de eventos & eventos/s \\
+\end{tabularx}
 
-\begin{listadeletrasgregas}
+\section*{\nomeletrasgregas}
+\begin{tabularx}{\textwidth}{@{}lXr@{}}
 $\Delta$ & Diferença entre duas grandezas, como preço ou tempo & \\
-$\lambda$ & Taxa média de chegada de eventos de mercado & \unidade{eventos/s} \\
-\end{listadeletrasgregas}
+$\lambda$ & Taxa média de chegada de eventos de mercado & eventos/s \\
+\end{tabularx}
 
-\begin{listadesobrescritos}
+\section*{\nomesobrescritos}
+\begin{tabularx}{\textwidth}{@{}lXr@{}}
 $+$ & Lado comprador do livro de ofertas & \\
 $-$ & Lado vendedor do livro de ofertas & \\
-\end{listadesobrescritos}
+\end{tabularx}
 
-\begin{listadesubscritos}
+\section*{\nomesubscritos}
+\begin{tabularx}{\textwidth}{@{}lXr@{}}
 $bid$ & Melhor oferta de compra & \\
 $ask$ & Melhor oferta de venda & \\
 $tx$ & Fila de transmissão ARM--FPGA & \\
 $rx$ & Fila de recepção FPGA--ARM & \\
-\end{listadesubscritos}
+\end{tabularx}
 
-\begin{listadenotacoes}
+\section*{\nomenotacoes}
+\begin{tabularx}{\textwidth}{@{}lXr@{}}
 $next(x)$ & Próxima posição de uma fila circular, calculada com aritmética modular & \\
 $price\_1e4$ & Preço inteiro resultante da multiplicação do preço decimal por $10^4$ & \\
-\end{listadenotacoes}
+\end{tabularx}
+\end{Spacing}

@@ -23,20 +23,10 @@
 {CONT, R.; STOIKOV, S.; TALREJA, R. A stochastic model for order book dynamics.
 \textbf{Operations Research}, v.~58, n.~3, p. 549--563, 2010.}
 
-\bibitem[{Docker Inc.} 2026]{DockerDocs}
-\abntrefinfo{{Docker Inc.}}{{Docker Inc.}}{2026}
-{{Docker Inc.} \textbf{Docker Documentation}.
-[\textit{S.l.}], 2026. Dispon{\'\i}vel em: \url{https://docs.docker.com/}. Acesso em: 13 abr. 2026.}
-
 \bibitem[{FIX Trading Community} 2006]{FIXFAST}
 \abntrefinfo{{FIX Trading Community}}{{FIX Trading Community}}{2006}
 {{FIX Trading Community}. \textbf{FIX Adapted for STreaming Technical Standard}.
 [\textit{S.l.}], 2006. Dispon{\'\i}vel em: \url{https://www.fixtrading.org/standards/fast-online/}. Acesso em: 13 abr. 2026.}
-
-\bibitem[{GHDL Project} 2026]{GHDLDocs}
-\abntrefinfo{{GHDL Project}}{{GHDL Project}}{2026}
-{{GHDL Project}. \textbf{GHDL Documentation}.
-[\textit{S.l.}], 2026. Dispon{\'\i}vel em: \url{https://ghdl.github.io/ghdl/}. Acesso em: 13 abr. 2026.}
 
 \bibitem[Gould \textit{et al.} 2013]{Gould2013}
 \abntrefinfo{Gould \textit{et al.}}{GOULD \textit{et al.}}{2013}
@@ -71,11 +61,6 @@
 \abntrefinfo{{Intel Corporation}}{{Intel Corporation}}{2025}
 {{Intel Corporation}. \textbf{Cyclone V FPGA and SoC FPGA Product Brief}.
 [\textit{S.l.}], 2025. Dispon{\'\i}vel em: \url{https://cdrdv2-public.intel.com/853455/cyclone-v-fpgas-and-socs-product-brief.pdf}. Acesso em: 13 abr. 2026.}
-
-\bibitem[{Kitware, Inc.} 2026]{CMakeToolchains}
-\abntrefinfo{{Kitware, Inc.}}{{Kitware, Inc.}}{2026}
-{{Kitware, Inc.} \textbf{CMake Toolchains Documentation}.
-[\textit{S.l.}], 2026. Dispon{\'\i}vel em: \url{https://cmake.org/cmake/help/latest/manual/cmake-toolchains.7.html}. Acesso em: 13 abr. 2026.}
 
 \bibitem[Leber, Geib e Litz 2011]{Leber2011}
 \abntrefinfo{Leber, Geib e Litz}{LEBER; GEIB; LITZ}{2011}

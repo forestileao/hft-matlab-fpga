@@ -6,6 +6,7 @@ A level-1 auxiliary file: ./PreTexto/agradecimentos.aux
 A level-1 auxiliary file: ./PreTexto/epigrafe.aux
 A level-1 auxiliary file: ./PreTexto/resumo.aux
 A level-1 auxiliary file: ./PreTexto/abstract.aux
+A level-1 auxiliary file: ./PreTexto/lista-acronimos.aux
 A level-1 auxiliary file: ./PreTexto/lista-simbolos.aux
 A level-1 auxiliary file: ./capitulos/cap-introducao.aux
 A level-1 auxiliary file: ./capitulos/cap-conceitos.aux
@@ -37,44 +38,44 @@ Reallocated glb_str_end (elt_size=4) to 20 items from 10.
 | Em caso de dúvidas ou problemas com este estilo procure |
 | http://www.abntex.net.br/                               |
 +---------------------------------------------------------+
-You've used 30 entries,
+You've used 27 entries,
             6712 wiz_defined-function locations,
-            1363 strings with 13533 characters,
-and the built_in function-call counts, 32555 in all, are:
-= -- 3659
-> -- 614
-< -- 728
-+ -- 976
-- -- 189
-* -- 2028
-:= -- 4038
-add.period$ -- 97
-call.type$ -- 32
-change.case$ -- 232
-chr.to.int$ -- 57
-cite$ -- 22
-duplicate$ -- 2896
-empty$ -- 1649
-format.name$ -- 880
-if$ -- 6824
+            1346 strings with 13233 characters,
+and the built_in function-call counts, 28573 in all, are:
+= -- 3161
+> -- 569
+< -- 607
++ -- 840
+- -- 174
+* -- 1793
+:= -- 3526
+add.period$ -- 82
+call.type$ -- 29
+change.case$ -- 214
+chr.to.int$ -- 54
+cite$ -- 19
+duplicate$ -- 2461
+empty$ -- 1499
+format.name$ -- 811
+if$ -- 6056
 int.to.chr$ -- 9
 int.to.str$ -- 3
-missing$ -- 446
-newline$ -- 112
-num.names$ -- 110
-pop$ -- 470
+missing$ -- 404
+newline$ -- 97
+num.names$ -- 95
+pop$ -- 434
 preamble$ -- 1
-purify$ -- 107
+purify$ -- 98
 quote$ -- 0
-skip$ -- 3326
+skip$ -- 2885
 stack$ -- 1
-substring$ -- 1408
-swap$ -- 1078
-text.length$ -- 29
+substring$ -- 1233
+swap$ -- 927
+text.length$ -- 26
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 3
 warning$ -- 0
-while$ -- 169
+while$ -- 148
 width$ -- 0
-write$ -- 362
+write$ -- 314

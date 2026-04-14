@@ -70,7 +70,7 @@ A FPGA é otimizada para especialização. Um comparador, um somador e um regist
 
 \subsection{Papel do HPS}\label{subsec:papelHPS}
 
-O \gls{hps} da DE10-Nano é o ponto de contato entre o mundo de software e a lógica reconfigurável. Ele executa Linux, acessa arquivos, abre sockets, usa bibliotecas C++ e mapeia regiões físicas. O FPGA, por sua vez, não conhece arquivos, processos ou sockets; ele observa sinais, registradores e barramentos. A fronteira entre os dois domínios é, portanto, uma tradução de abstrações: de mensagens e structs no software para palavras de 32 bits e handshakes no hardware.
+O \gls{hps} da DE10-Nano é o ponto de contato entre o mundo de software e a lógica reconfigurável. Ele executa Linux, sockets, bibliotecas e acesso a memória mapeada. O FPGA, por sua vez, opera com sinais, registradores e barramentos. A fronteira entre os dois domínios é, portanto, uma tradução de abstrações: mensagens e estruturas de software tornam-se palavras de largura fixa e sinais de controle em hardware.
 
 Essa fronteira explica por que o projeto investe tanto no contrato MMIO. Se o software assume uma largura de quadro e o hardware sintetiza outra, o erro não aparece como exceção de alto nível; aparece como palavra trocada, ponteiro inconsistente ou resposta incorreta. A disciplina de documentação e teste é o mecanismo usado para manter o HPS e o FPGA sincronizados.
 
@@ -78,15 +78,15 @@ Essa fronteira explica por que o projeto investe tanto no contrato MMIO. Se o so
 
 \gls{hls} é o processo de transformar uma descrição algorítmica de alto nível em uma implementação de hardware em \gls{rtl}. Em vez de escrever manualmente todos os registradores, estados e sinais de controle, o projetista descreve operações em uma linguagem como C, C++ ou MATLAB, e a ferramenta gera VHDL ou Verilog. O MATLAB HDL Coder permite gerar código HDL a partir de funções MATLAB e modelos Simulink, desde que o código respeite restrições de sintetizabilidade, tipos fixos e tamanhos conhecidos \cite{MathWorksHDLCoder}.
 
-No projeto analisado, a síntese de alto nível é usada de forma conservadora. A ponte MMIO, o livro de ofertas e o empacotamento de respostas são escritos manualmente em VHDL. A função MATLAB \codigo{strategy.m} contém apenas a regra decisória baseada em melhor compra, melhor venda, \textit{spread} e desbalanceamento. O script \codigo{hdl_generator.m} invoca o HDL Coder em modo automatizado e gera um arquivo VHDL para o bloco \codigo{strategy}. Essa separação reduz o risco de depender de código gerado em toda a arquitetura e mantém as interfaces críticas sob controle explícito.
+Neste trabalho, a síntese de alto nível é usada de forma conservadora. A infraestrutura de comunicação e o livro de ofertas são mantidos em VHDL manual, enquanto a regra decisória fica em MATLAB e é convertida para hardware pelo HDL Coder. Essa separação reduz o risco de depender de código gerado em toda a arquitetura e concentra a flexibilidade no ponto que mais deve variar: a estratégia.
 
-A vantagem dessa abordagem é permitir que regras algorítmicas sejam alteradas em MATLAB, ambiente familiar para modelagem matemática. A limitação é que nem todo MATLAB é sintetizável: alocação dinâmica, strings, estruturas variáveis, bibliotecas não suportadas e tipos de precisão flutuante podem inviabilizar a geração. O projeto evita esses problemas usando \codigo{uint32}, \codigo{int32}, limiares constantes e operações condicionais simples. O uso de ponto fixo escalado por $10^4$ preserva casas decimais de preço sem recorrer a ponto flutuante em hardware \cite{MathWorksFixedPoint}.
+A vantagem dessa abordagem é permitir que regras algorítmicas sejam alteradas em MATLAB, ambiente familiar para modelagem matemática. A limitação é que nem todo MATLAB é sintetizável: alocação dinâmica, strings, estruturas variáveis, bibliotecas não suportadas e ponto flutuante irrestrito podem inviabilizar a geração. O projeto evita esses problemas com tipos inteiros, limiares constantes e ponto fixo escalado para representar preços \cite{MathWorksFixedPoint}.
 
 \subsection{Restrições de código sintetizável}\label{subsec:restricoesHLS}
 
 Uma função MATLAB convencional pode usar vetores de tamanho variável, estruturas heterogêneas, strings, objetos, arquivos e operações dependentes do ambiente de execução. Uma função sintetizável precisa ser muito mais restrita. As entradas e saídas devem ter tipos e larguras conhecidas; laços precisam ter limites definidos; a aritmética deve ser representável em hardware; e o comportamento não pode depender de recursos que só existem no interpretador ou no sistema operacional.
 
-No projeto, a função \codigo{strategy.m} recebe seis sinais já calculados: melhor compra, quantidade de compra, melhor venda, quantidade de venda, \textit{spread} e desbalanceamento. Ela não percorre o livro, não lê arquivos, não usa strings e não aloca memória. Essa escolha não é apenas uma simplificação algorítmica; é uma escolha de engenharia para manter o bloco gerado pequeno e previsível. O restante do sistema fornece à função exatamente os campos que ela precisa, reduzindo o risco de geração HDL inesperada.
+No projeto, a estratégia recebe apenas sinais já calculados do livro de ofertas: preços, quantidades, \textit{spread} e desbalanceamento. Ela não percorre o livro completo nem depende de estruturas dinâmicas. Essa escolha mantém o bloco gerado pequeno e previsível, além de facilitar a troca da regra sem alterar a infraestrutura.
 
 \subsection{Por que não gerar todo o sistema por HLS}\label{subsec:naoGerarTudo}
 
@@ -96,15 +96,13 @@ Por isso, o projeto separa infraestrutura e política. A infraestrutura de comun
 
 \section{FAST, mFAST e fluxo TCP}\label{sec:fast}
 
-FAST, sigla de \textit{FIX Adapted for STreaming}, é um padrão de codificação binária orientado a reduzir o tamanho de mensagens financeiras ao explorar templates, operadores de cópia, incremento e delta \cite{FIXFAST}. Em mercados reais, protocolos desse tipo reduzem banda e custo de transmissão de dados de mercado. Na plataforma proposta, FAST é usado como elemento de realismo controlado: o gerador \codigo{fast_data_feed.cpp} cria mensagens sintéticas com símbolo, lado, preço, quantidade e sequência; o receptor \codigo{fast_receiver.cpp} decodifica as mensagens usando a biblioteca mFAST \cite{mFAST}.
+FAST, sigla de \textit{FIX Adapted for STreaming}, é um padrão de codificação binária orientado a reduzir o tamanho de mensagens financeiras ao explorar templates, operadores de cópia, incremento e delta \cite{FIXFAST}. Em mercados reais, protocolos desse tipo reduzem banda e custo de transmissão de dados de mercado. Na plataforma proposta, FAST é usado como elemento de realismo controlado: o feed sintético produz mensagens de mercado e o receptor as decodifica com apoio da biblioteca mFAST \cite{mFAST}.
 
 A comunicação de rede do protótipo é TCP local na porta 9001. O servidor transmite cada mensagem precedida por um comprimento em ordem de rede, permitindo que o cliente leia exatamente a quantidade de bytes necessária antes de chamar o decodificador. Essa decisão simplifica o ambiente experimental, pois evita lidar com multicast, UDP, perda de pacotes e \textit{kernel bypass}. A limitação é que TCP e localhost não reproduzem a pilha de dados de mercado de uma bolsa real. Para um TCC focado na integração ARM--FPGA e na geração de estratégias por HLS, a simplificação é aceitável porque mantém o feed determinável e testável.
 
-\subsection{Template SimpleMD}\label{subsec:simpleMd}
+\subsection{Template de mensagem}\label{subsec:simpleMd}
 
-O arquivo \codigo{SimpleMD.xml} define o formato das mensagens usadas no protótipo. Ele contém uma sequência \codigo{MDEntries} com campos de símbolo, lado, preço, quantidade e número de sequência. O símbolo e o lado usam operador de cópia, o preço usa delta e a sequência usa incremento. Essa estrutura reproduz, em escala reduzida, a ideia de que mensagens sucessivas de mercado possuem redundância explorável pelo codificador.
-
-A biblioteca mFAST gera tipos C++ a partir desse template. Assim, o receptor pode acessar campos por métodos tipados em vez de manipular manualmente offsets binários. A vantagem é reduzir erros de parsing no C++. A desvantagem é introduzir uma dependência externa e um passo de geração no build. O \codigo{Makefile} trata essa dependência clonando, compilando e instalando mFAST localmente.
+O template de mensagem define os campos usados no protótipo: símbolo, lado, preço, quantidade e sequência. Ele emprega operadores típicos de FAST para explorar redundância entre mensagens sucessivas. A biblioteca mFAST gera estruturas tipadas para o receptor, reduzindo a necessidade de manipular manualmente offsets binários. A desvantagem é a dependência de uma etapa adicional de geração e build.
 
 \subsection{Limites do feed sintético}\label{subsec:limitesFeed}
 
@@ -112,23 +110,21 @@ O feed sintético escolhe símbolos e lados pseudoaleatoriamente, usa preços ba
 
 \section{MMIO, Avalon-MM e filas circulares}\label{sec:mmio}
 
-\gls{mmio} é uma técnica em que registradores de dispositivos são expostos no espaço de endereçamento do processador. Leituras e escritas em endereços específicos se transformam em transações de barramento. No Linux embarcado da DE10-Nano, o receptor pode mapear uma região física por \codigo{/dev/mem}, desde que a base da ponte HPS--FPGA esteja correta. O projeto usa a variável de ambiente \codigo{HFT_FPGA_MMIO_BASE} para habilitar o caminho FPGA e \codigo{HFT_FPGA_MMIO_SPAN} para definir o tamanho da janela.
+\gls{mmio} é uma técnica em que registradores de dispositivos são expostos no espaço de endereçamento do processador. Leituras e escritas em endereços específicos se transformam em transações de barramento. No Linux embarcado da DE10-Nano, o receptor pode mapear a região física associada à ponte HPS--FPGA e usar esse espaço para trocar eventos com o hardware.
 
-No lado FPGA, o componente de integração utiliza Avalon-MM, protocolo de memória mapeada empregado pelo Platform Designer da Intel para conectar mestres e escravos em sistemas SoC \cite{IntelAvalon,IntelPlatformDesigner}. O arquivo \codigo{hft_trade_engine_avalon_mm.vhd} adapta sinais Avalon, como endereço, leitura, escrita, dados e \codigo{waitrequest}, ao barramento simples usado internamente pelo motor HFT. A presença de \textit{timeout} evita que uma transação do HPS fique bloqueada indefinidamente durante reset ou falha interna.
+No lado FPGA, a integração utiliza Avalon-MM, protocolo de memória mapeada empregado pelo Platform Designer da Intel para conectar mestres e escravos em sistemas SoC \cite{IntelAvalon,IntelPlatformDesigner}. O wrapper Avalon-MM adapta as transações do HPS para a interface interna do motor HFT. A presença de uma política de \textit{timeout} auxilia a depuração durante reset ou integração inicial.
 
-O contrato de comunicação entre ARM e FPGA é baseado em duas filas circulares: TX para ARM--FPGA e RX para FPGA--ARM. Cada fila é de produtor único e consumidor único. No TX, o ARM escreve dados no \textit{slot} e publica o avanço de \codigo{TX_HEAD}; o FPGA consome e avança \codigo{TX_TAIL}. No RX, o FPGA escreve resposta e avança \codigo{RX_HEAD}; o ARM lê e avança \codigo{RX_TAIL}. A fila usa a convenção em que \codigo{next(head) == tail} significa cheia, de modo que a capacidade útil é $D-1$. Essa escolha desperdiça um elemento, mas simplifica a distinção entre cheia e vazia.
+O contrato de comunicação entre ARM e FPGA é baseado em duas filas circulares: uma para eventos e outra para respostas. Cada fila é de produtor único e consumidor único. A convenção adotada reserva uma posição para distinguir fila cheia de fila vazia, o que simplifica a lógica de controle e evita contador compartilhado entre os dois domínios.
 
 \subsection{Ordenação de publicação}\label{subsec:ordemPublicacao}
 
-A ordem de publicação é uma propriedade de corretude. No envio ARM--FPGA, o software deve escrever todas as palavras do slot antes de atualizar \codigo{TX_HEAD}. Se o ponteiro for publicado primeiro, o FPGA pode consumir um quadro parcialmente escrito. Na recepção FPGA--ARM, o ARM deve ler todas as palavras do slot antes de atualizar \codigo{RX_TAIL}. Se o ponteiro for avançado antes da leitura, o FPGA pode sobrescrever a resposta antes de o software copiá-la.
+A ordem de publicação é uma propriedade de corretude. No envio ARM--FPGA, o software deve escrever todo o evento antes de publicá-lo. Na recepção FPGA--ARM, o software deve ler toda a resposta antes de liberar o espaço. Caso essa ordem seja invertida, o sistema pode consumir dados incompletos ou sobrescrever respostas ainda não lidas.
 
-O wrapper C++ usa barreiras de sincronização após escrita de registradores e slots. No VHDL, os ponteiros são atualizados em borda de clock e as memórias são lidas por índice. A combinação é simples, mas exige que a documentação permaneça alinhada com a implementação. Essa é a razão para o contrato compartilhado ser tratado como superfície crítica do sistema.
+Essa combinação é simples, mas exige que documentação, software e hardware permaneçam alinhados. Por isso, o contrato compartilhado é tratado como uma superfície crítica do sistema.
 
 \subsection{Avalon-MM como camada de integração}\label{subsec:avalon}
 
-Avalon-MM é usado para conectar o motor HFT ao HPS no Platform Designer. O wrapper \codigo{hft_trade_engine_avalon_mm.vhd} recebe sinais de chipselect, endereço, leitura, escrita, byteenable, dados de escrita e retorna dados de leitura e \codigo{waitrequest}. Internamente, ele transforma essas transações em uma interface mais simples com endereço em bytes e sinais \codigo{mm_rd_i} e \codigo{mm_wr_i}.
-
-O sinal \codigo{waitrequest} é importante porque o mestre Avalon precisa saber quando a transação foi concluída. Se o escravo mantiver \codigo{waitrequest} ativo indefinidamente, o HPS pode travar ao acessar o registrador. O projeto inclui uma máquina de estados com \textit{timeout}, retornando sentinela em caso de ausência de resposta. Essa decisão aumenta robustez de depuração, especialmente durante reset ou integração inicial da placa.
+Avalon-MM é usado para conectar o motor HFT ao HPS no Platform Designer. O sinal de espera do protocolo permite que o periférico indique quando uma transação ainda não foi concluída. Se esse sinal permanecer ativo indefinidamente, o processador pode ficar bloqueado ao acessar o periférico. Por isso, a integração inclui tratamento de timeout como mecanismo de robustez durante depuração.
 
 \subsection{MMIO versus DMA}\label{subsec:mmioDma}
 

@@ -1,7 +1,5 @@
-\contentsline {sourcecode}{\numberline {1}{\ignorespaces Trecho da saída do receptor com respostas FPGA--ARM}}{63}{sourcecode.caption.42}%
-\contentsline {sourcecode}{\numberline {2}{\ignorespaces Cálculo dinâmico da base RX no wrapper C++}}{64}{sourcecode.caption.44}%
-\contentsline {sourcecode}{\numberline {3}{\ignorespaces Empacotamento do quadro ARM--FPGA}}{64}{sourcecode.caption.45}%
-\contentsline {sourcecode}{\numberline {4}{\ignorespaces Comandos de teste local}}{81}{sourcecode.caption.57}%
-\contentsline {sourcecode}{\numberline {5}{\ignorespaces Geração do bloco de estratégia por HDL Coder}}{81}{sourcecode.caption.58}%
-\contentsline {sourcecode}{\numberline {6}{\ignorespaces Fluxo previsto para DE10-Nano}}{82}{sourcecode.caption.59}%
-\contentsline {sourcecode}{\numberline {7}{\ignorespaces Execução na placa}}{82}{sourcecode.caption.60}%
+\contentsline {sourcecode}{\numberline {1}{\ignorespaces Trecho da saída do receptor com respostas FPGA--ARM}}{53}{sourcecode.caption.40}%
+\contentsline {sourcecode}{\numberline {2}{\ignorespaces Comandos de teste local}}{65}{sourcecode.caption.52}%
+\contentsline {sourcecode}{\numberline {3}{\ignorespaces Geração do bloco de estratégia por HDL Coder}}{65}{sourcecode.caption.53}%
+\contentsline {sourcecode}{\numberline {4}{\ignorespaces Fluxo previsto para DE10-Nano}}{66}{sourcecode.caption.54}%
+\contentsline {sourcecode}{\numberline {5}{\ignorespaces Execução na placa}}{66}{sourcecode.caption.55}%

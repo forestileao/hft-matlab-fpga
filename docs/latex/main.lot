@@ -1,8 +1,7 @@
 \babel@toc {brazil}{}\relax
-\contentsline {table}{\numberline {1}{\ignorespaces Quadro de evento enviado do ARM para o FPGA}}{47}{table.caption.35}%
-\contentsline {table}{\numberline {2}{\ignorespaces Quadro de resposta enviado do FPGA para o ARM}}{48}{table.caption.36}%
-\contentsline {table}{\numberline {3}{\ignorespaces Mapa de registradores principal da ponte ARM--FPGA}}{60}{table.caption.40}%
-\contentsline {table}{\numberline {4}{\ignorespaces Resumo da execução funcional na DE10-Nano}}{62}{table.caption.43}%
-\contentsline {table}{\numberline {5}{\ignorespaces Registradores da interface MMIO}}{77}{table.caption.55}%
-\contentsline {table}{\numberline {6}{\ignorespaces Formato do quadro ARM--FPGA}}{78}{table.caption.56}%
-\contentsline {table}{\numberline {7}{\ignorespaces Variáveis de ambiente do receptor}}{82}{table.caption.61}%
+\contentsline {table}{\numberline {1}{\ignorespaces Quadro de evento enviado do ARM para o FPGA}}{44}{table.caption.34}%
+\contentsline {table}{\numberline {2}{\ignorespaces Quadro de resposta enviado do FPGA para o ARM}}{44}{table.caption.35}%
+\contentsline {table}{\numberline {3}{\ignorespaces Resumo da execução funcional na DE10-Nano}}{53}{table.caption.41}%
+\contentsline {table}{\numberline {4}{\ignorespaces Registradores da interface MMIO}}{61}{table.caption.50}%
+\contentsline {table}{\numberline {5}{\ignorespaces Formato do quadro ARM--FPGA}}{62}{table.caption.51}%
+\contentsline {table}{\numberline {6}{\ignorespaces Variáveis de ambiente do receptor}}{66}{table.caption.56}%
