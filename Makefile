@@ -89,7 +89,7 @@ CROSS_SYSROOT_VOLUME := $(if $(CROSS_SYSROOT),-v "$(abspath $(CROSS_SYSROOT)):$(
 CROSS_TOOLCHAIN_VOLUME := $(if $(CROSS_TOOLCHAIN_DIR),-v "$(abspath $(CROSS_TOOLCHAIN_DIR)):$(CROSS_TOOLCHAIN_MOUNT):ro",)
 CROSS_TOOLCHAIN_ENV := $(if $(CROSS_TOOLCHAIN_DIR),PATH=$(CROSS_TOOLCHAIN_MOUNT)/bin:$$PATH,)
 
-.PHONY: help build deploy check quartus-build quartus-build-no-matlab quartus-program quartus-ip-index docker-image docker-image-cross-armhf matlab-docker-image mfast-clone mfast-patch mfast-configure mfast-build mfast-install mfast-rebuild mfast-clean mfast-cross-configure mfast-cross-build mfast-cross-install cpp-configure cpp-build cpp-test cpp-smoke cpp-test-armv7 cpp-cross-configure cpp-cross-build cpp-cross-abi cpp-clean vhdl-test vhdl-test-fast vhdl-test-order-book vhdl-test-strategy vhdl-test-engine vhdl-test-avalon vhdl-test-all vhdl-wave vhdl-clean matlab-login matlab-test matlab-hdl-generate docker-shell docker-shell-cross-armhf de10-toolchain de10-sysroot de10-sysroot-check de10-setup de10-build-offline de10-build de10-abi de10-copy de10-deploy de10-enable-bridges de10-stop de10-smoke
+.PHONY: help build deploy check quartus-build quartus-build-no-matlab quartus-program quartus-ip-index docker-image docker-image-cross-armhf matlab-docker-image mfast-clone mfast-patch mfast-configure mfast-build mfast-install mfast-rebuild mfast-clean mfast-cross-configure mfast-cross-build mfast-cross-install cpp-configure cpp-build cpp-test cpp-smoke cpp-test-armv7 cpp-cross-configure cpp-cross-build cpp-cross-abi cpp-clean vhdl-test vhdl-test-fast vhdl-test-order-book vhdl-test-strategy vhdl-test-engine vhdl-test-avalon vhdl-test-all vhdl-wave vhdl-clean matlab-login matlab-test matlab-hdl-generate docker-shell docker-shell-cross-armhf de10-toolchain de10-sysroot de10-sysroot-check de10-setup de10-build-offline de10-build de10-abi de10-copy de10-deploy de10-enable-bridges de10-stop de10-smoke de10-benchmark
 
 help:
 	@echo "Main workflow:"
@@ -99,6 +99,7 @@ help:
 	@echo "Board:"
 	@echo "  make quartus-program Program the SOF through JTAG if USB-Blaster is available"
 	@echo "  make de10-enable-bridges Enable Linux FPGA bridge sysfs switches after programming"
+	@echo "  make de10-benchmark  Run clean MMIO benchmark on the DE10-Nano"
 	@echo "  make de10-stop       Stop fast_receiver and fast_data_feed on the DE10-Nano"
 	@echo "  make de10-smoke      Brief board smoke test"
 	@echo ""
@@ -196,22 +197,27 @@ de10-abi: de10-build
 		JOBS="$(JOBS)"
 
 de10-copy: de10-build-offline
-	scp "$(DE10_CPP_BUILD_DIR)/fast_receiver" "$(DE10_CPP_BUILD_DIR)/fast_data_feed" "$(DE10_HOST):$(DE10_HOME)/"
+	scp "$(DE10_CPP_BUILD_DIR)/fast_receiver" "$(DE10_CPP_BUILD_DIR)/fast_data_feed" "$(DE10_CPP_BUILD_DIR)/fpga_benchmark" "$(DE10_HOST):$(DE10_HOME)/"
 
 de10-deploy:
 	@test -x "$(DE10_CPP_BUILD_DIR)/fast_receiver" || { echo "Missing $(DE10_CPP_BUILD_DIR)/fast_receiver. Run 'make build' first."; exit 1; }
 	@test -x "$(DE10_CPP_BUILD_DIR)/fast_data_feed" || { echo "Missing $(DE10_CPP_BUILD_DIR)/fast_data_feed. Run 'make build' first."; exit 1; }
+	@test -x "$(DE10_CPP_BUILD_DIR)/fpga_benchmark" || { echo "Missing $(DE10_CPP_BUILD_DIR)/fpga_benchmark. Run 'make build' first."; exit 1; }
 	ssh "$(DE10_HOST)" 'true'
-	scp "$(DE10_CPP_BUILD_DIR)/fast_receiver" "$(DE10_CPP_BUILD_DIR)/fast_data_feed" "$(DE10_HOST):$(DE10_HOME)/"
+	scp "$(DE10_CPP_BUILD_DIR)/fast_receiver" "$(DE10_CPP_BUILD_DIR)/fast_data_feed" "$(DE10_CPP_BUILD_DIR)/fpga_benchmark" "$(DE10_HOST):$(DE10_HOME)/"
 
 de10-enable-bridges:
-	ssh "$(DE10_HOST)" 'for b in /sys/class/fpga-bridge/*; do [ -e "$$b/enable" ] || continue; echo 1 > "$$b/enable" 2>/dev/null || true; printf "%s=" "$$(basename "$$b")"; cat "$$b/enable" 2>/dev/null || echo unknown; done'
+	ssh "$(DE10_HOST)" 'if [ -x "$(DE10_HOME)/fpga_benchmark" ]; then "$(DE10_HOME)/fpga_benchmark" --enable-bridges-only; else for b in /sys/class/fpga-bridge/*; do [ -e "$$b/enable" ] || continue; echo 1 > "$$b/enable" 2>/dev/null || true; printf "%s=" "$$(basename "$$b")"; cat "$$b/enable" 2>/dev/null || echo unknown; done; fi'
 
 de10-stop:
-	ssh "$(DE10_HOST)" 'killall fast_receiver fast_data_feed >/dev/null 2>&1 || true'
+	ssh "$(DE10_HOST)" 'killall fast_receiver fast_data_feed fpga_benchmark >/dev/null 2>&1 || true'
 
 de10-smoke: de10-copy
 	ssh "$(DE10_HOST)" 'cd "$(DE10_HOME)" && chmod +x fast_receiver fast_data_feed && ./fast_data_feed >/dev/null 2>&1 & feed_pid=$$!; ./fast_receiver >/dev/null 2>&1 & rx_pid=$$!; sleep 1; ps | grep -E "(fast_data_feed|fast_receiver)" | grep -v grep; kill $$rx_pid $$feed_pid >/dev/null 2>&1 || true; wait $$rx_pid >/dev/null 2>&1 || true; wait $$feed_pid >/dev/null 2>&1 || true'
+
+de10-benchmark:
+	@test -x "$(DE10_CPP_BUILD_DIR)/fpga_benchmark" || { echo "Missing $(DE10_CPP_BUILD_DIR)/fpga_benchmark. Run 'make build' and 'make deploy' first."; exit 1; }
+	ssh "$(DE10_HOST)" 'cd "$(DE10_HOME)" && HFT_FPGA_MMIO_BASE=0xFF200000 ./fpga_benchmark --enable-bridges --mode full --messages 1000000 --warmup 10000'
 
 mfast-clone:
 	@if [ ! -d "$(MFAST_DIR)/.git" ]; then \
@@ -315,7 +321,7 @@ cpp-test: cpp-configure
 		-v "$(CURDIR):$(CURDIR)" \
 		-w "$(CURDIR)" \
 		$(DOCKER_IMAGE) \
-		bash -lc "cmake --build $(CPP_BUILD_DIR) --parallel $(JOBS) --target fpga_shared_stream_test && ctest --test-dir $(CPP_BUILD_DIR) --output-on-failure"
+		bash -lc "cmake --build $(CPP_BUILD_DIR) --parallel $(JOBS) --target fpga_shared_stream_test fpga_benchmark && ctest --test-dir $(CPP_BUILD_DIR) --output-on-failure"
 
 cpp-smoke: cpp-build
 	$(DOCKER) run --rm \

@@ -11,6 +11,7 @@ entity hft_trade_engine_avalon_mm is
     G_BOOK_DEPTH           : natural := 8;
     G_IMBALANCE_THRESHOLD  : natural := 500;
     G_MAX_SPREAD_1E4       : natural := 25000;
+    G_CLOCK_HZ             : natural := 50000000;
     G_TIMEOUT_CYCLES       : natural := 15
   );
   port (
@@ -60,7 +61,8 @@ begin
       G_NUM_SYMBOLS         => G_NUM_SYMBOLS,
       G_BOOK_DEPTH          => G_BOOK_DEPTH,
       G_IMBALANCE_THRESHOLD => G_IMBALANCE_THRESHOLD,
-      G_MAX_SPREAD_1E4      => G_MAX_SPREAD_1E4
+      G_MAX_SPREAD_1E4      => G_MAX_SPREAD_1E4,
+      G_CLOCK_HZ            => G_CLOCK_HZ
     )
     port map (
       clk_i      => clk_i,

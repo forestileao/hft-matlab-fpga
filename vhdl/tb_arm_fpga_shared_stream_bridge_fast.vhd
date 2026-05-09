@@ -216,6 +216,8 @@ architecture tb of tb_arm_fpga_shared_stream_bridge_fast is
   signal rsp_data  : std_logic_vector(C_SLOT_WORDS * 32 - 1 downto 0) := (others => '0');
   signal rsp_ready : std_logic;
 
+  signal perf_reset : std_logic;
+
   procedure mm_write(
     signal addr_s  : out std_logic_vector(C_ADDR_WIDTH - 1 downto 0);
     signal wr_s    : out std_logic;
@@ -279,7 +281,16 @@ begin
       cmd_ready_i => cmd_ready,
       rsp_valid_i => rsp_valid,
       rsp_data_i  => rsp_data,
-      rsp_ready_o => rsp_ready
+      rsp_ready_o => rsp_ready,
+      perf_reset_o            => perf_reset,
+      perf_clock_hz_i         => x"02FAF080",
+      perf_count_i            => (others => '0'),
+      perf_last_lat_cycles_i  => (others => '0'),
+      perf_min_lat_cycles_i   => (others => '0'),
+      perf_max_lat_cycles_i   => (others => '0'),
+      perf_sum_lat_cycles_i   => (others => '0'),
+      perf_cmd_stall_cycles_i => (others => '0'),
+      perf_rsp_stall_cycles_i => (others => '0')
     );
 
   stim : process

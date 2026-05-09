@@ -54,3 +54,12 @@ target_link_libraries(fast_data_feed
 add_executable(fpga_shared_stream_test tests/fpga_shared_stream_test.cpp)
 target_include_directories(fpga_shared_stream_test PRIVATE src)
 add_test(NAME fpga_shared_stream_test COMMAND fpga_shared_stream_test)
+
+add_executable(fpga_benchmark src/fpga_benchmark.cpp)
+target_include_directories(fpga_benchmark PRIVATE src)
+find_library(RT_LIB rt)
+if(RT_LIB)
+    target_link_libraries(fpga_benchmark ${RT_LIB})
+endif()
+add_test(NAME fpga_benchmark_sw_smoke
+    COMMAND fpga_benchmark --mode sw-core --messages 128 --warmup 16)

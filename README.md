@@ -74,6 +74,12 @@ Stop both programs with:
 make de10-stop
 ```
 
+To collect the TCC benchmark metrics after the `.sof` is programmed and the binaries are deployed:
+
+```bash
+make de10-benchmark
+```
+
 ## Important Manual Step
 
 `make build` creates the FPGA bitstream, but it does not automatically program the board unless you explicitly use JTAG automation.
@@ -184,7 +190,7 @@ It does:
 - run host C++ tests
 - run the feed/receiver smoke test
 - run VHDL simulations
-- cross-build `fast_receiver` and `fast_data_feed` for the DE10-Nano ARM Linux image
+- cross-build `fast_receiver`, `fast_data_feed`, and `fpga_benchmark` for the DE10-Nano ARM Linux image
 - regenerate Platform Designer HDL
 - compile the Quartus `.sof`
 
@@ -208,9 +214,52 @@ It copies:
 ```text
 cpp/build-cross-de10/fast_receiver
 cpp/build-cross-de10/fast_data_feed
+cpp/build-cross-de10/fpga_benchmark
 ```
 
 Use `make build` first, then program the `.sof`, then use `make deploy`.
+
+## Benchmark Metrics
+
+Use `fpga_benchmark` for official measurements. It does not use TCP, FAST decode, sleeps, random generation during the timed loop, or per-message prints. It sends prebuilt 8-word events through the MMIO rings, drains FPGA responses, and prints one JSON summary at the end.
+
+Run it through Make:
+
+```bash
+make de10-benchmark
+```
+
+Or manually:
+
+```bash
+ssh root@192.168.7.1 'cd /home/root && HFT_FPGA_MMIO_BASE=0xFF200000 ./fpga_benchmark --mode full --messages 1000000 --warmup 10000'
+```
+
+The benchmark modes are:
+
+- `--mode fpga-mmio`: clean ARM -> MMIO -> FPGA -> MMIO -> ARM throughput loop.
+- `--mode sw-core`: pure C++ order-book + strategy core, with no I/O per message.
+- `--mode full`: runs both and reports comparable metrics.
+
+The important JSON fields are:
+
+- `throughput_msg_s`: clean MMIO loop throughput.
+- `fpga_latency_min_ns`, `fpga_latency_max_ns`, `fpga_latency_avg_ns`: FPGA internal processing latency from hardware counters.
+- `fpga_latency_jitter_ns`: `max - min` FPGA internal latency.
+- `sw_core_avg_ns`: average pure C++ core time per message.
+- `speedup_core`: pure C++ core average divided by FPGA internal average.
+
+The TCC pass targets are:
+
+- `fpga_latency_jitter_ns < 1000`
+- `throughput_msg_s >= 100000`
+- `speedup_core >= 5.0`
+
+The FPGA telemetry register map is documented in:
+
+```text
+docs/arm-fpga-shared-memory-stream.md
+```
 
 ## Architecture
 
@@ -363,6 +412,7 @@ make vhdl-test-engine
 make vhdl-test-avalon
 make vhdl-test-strategy
 make quartus-program
+make de10-benchmark
 make de10-stop
 ```
 

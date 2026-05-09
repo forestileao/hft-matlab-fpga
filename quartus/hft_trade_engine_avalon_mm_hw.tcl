@@ -62,6 +62,11 @@ set_parameter_property G_MAX_SPREAD_1E4 DEFAULT_VALUE 25000
 set_parameter_property G_MAX_SPREAD_1E4 HDL_PARAMETER true
 set_parameter_property G_MAX_SPREAD_1E4 DISPLAY_NAME "Maximum spread (1e4 fixed point)"
 
+add_parameter G_CLOCK_HZ INTEGER 50000000
+set_parameter_property G_CLOCK_HZ DEFAULT_VALUE 50000000
+set_parameter_property G_CLOCK_HZ HDL_PARAMETER true
+set_parameter_property G_CLOCK_HZ DISPLAY_NAME "FPGA logic clock frequency"
+
 add_interface clock clock sink
 set_interface_property clock ENABLED true
 add_interface_port clock clk_i clk Input 1

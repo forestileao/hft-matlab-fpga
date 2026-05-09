@@ -651,11 +651,6 @@
  <connection
    kind="reset"
    version="25.1"
-   start="clk_0.clk_reset"
-   end="hft_trade_engine_avalon_mm_0.reset" />
- <connection
-   kind="reset"
-   version="25.1"
    start="hps_0.h2f_reset"
    end="hft_trade_engine_avalon_mm_0.reset" />
  <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />

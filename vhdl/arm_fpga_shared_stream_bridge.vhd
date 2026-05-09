@@ -28,7 +28,18 @@ entity arm_fpga_shared_stream_bridge is
     -- FPGA -> ARM stream input
     rsp_valid_i : in  std_logic;
     rsp_data_i  : in  std_logic_vector(G_SLOT_WORDS * 32 - 1 downto 0);
-    rsp_ready_o : out std_logic
+    rsp_ready_o : out std_logic;
+
+    -- Performance counters from the FPGA pipeline
+    perf_reset_o            : out std_logic;
+    perf_clock_hz_i         : in  std_logic_vector(31 downto 0);
+    perf_count_i            : in  std_logic_vector(31 downto 0);
+    perf_last_lat_cycles_i  : in  std_logic_vector(31 downto 0);
+    perf_min_lat_cycles_i   : in  std_logic_vector(31 downto 0);
+    perf_max_lat_cycles_i   : in  std_logic_vector(31 downto 0);
+    perf_sum_lat_cycles_i   : in  std_logic_vector(63 downto 0);
+    perf_cmd_stall_cycles_i : in  std_logic_vector(31 downto 0);
+    perf_rsp_stall_cycles_i : in  std_logic_vector(31 downto 0)
   );
 end entity;
 
@@ -48,6 +59,16 @@ architecture rtl of arm_fpga_shared_stream_bridge is
   constant C_REG_TX_DEPTH_W   : natural := 16#020# / 4;
   constant C_REG_RX_DEPTH_W   : natural := 16#024# / 4;
   constant C_REG_SLOT_WORDS_W : natural := 16#028# / 4;
+  constant C_REG_PERF_CTRL_W             : natural := 16#030# / 4;
+  constant C_REG_PERF_CLOCK_HZ_W         : natural := 16#034# / 4;
+  constant C_REG_PERF_COUNT_W            : natural := 16#038# / 4;
+  constant C_REG_PERF_LAST_LAT_CYCLES_W  : natural := 16#03C# / 4;
+  constant C_REG_PERF_MIN_LAT_CYCLES_W   : natural := 16#040# / 4;
+  constant C_REG_PERF_MAX_LAT_CYCLES_W   : natural := 16#044# / 4;
+  constant C_REG_PERF_SUM_LAT_CYCLES_LO_W : natural := 16#048# / 4;
+  constant C_REG_PERF_SUM_LAT_CYCLES_HI_W : natural := 16#04C# / 4;
+  constant C_REG_PERF_CMD_STALL_CYCLES_W : natural := 16#050# / 4;
+  constant C_REG_PERF_RSP_STALL_CYCLES_W : natural := 16#054# / 4;
 
   constant C_TX_BASE_W : natural := 16#100# / 4;
   constant C_RX_BASE_W : natural := C_TX_BASE_W + (G_DEPTH * G_SLOT_WORDS);
@@ -72,6 +93,7 @@ architecture rtl of arm_fpga_shared_stream_bridge is
   signal rx_full_s  : std_logic;
   signal cmd_valid_s : std_logic;
   signal rsp_ready_s : std_logic;
+  signal perf_reset_q : std_logic := '0';
 
   function f_inc_wrap(v : unsigned) return unsigned is
     variable r : unsigned(v'range);
@@ -116,6 +138,7 @@ begin
   cmd_valid_o <= cmd_valid_s;
   cmd_data_o  <= tx_ram_q(to_integer(tx_tail_q));
   rsp_ready_o <= rsp_ready_s;
+  perf_reset_o <= perf_reset_q;
 
   mm_rdata_o <= mm_rdata_q;
   mm_ready_o <= mm_ready_q;
@@ -138,6 +161,7 @@ begin
       else
         mm_ready_q <= '0';
         mm_rdata_q <= (others => '0');
+        perf_reset_q <= '0';
 
         -- Consume ARM->FPGA queue into stream.
         if cmd_valid_s = '1' and cmd_ready_i = '1' then
@@ -162,6 +186,9 @@ begin
               rx_head_q <= (others => '0');
               rx_tail_q <= (others => '0');
             end if;
+          elsif waddr = C_REG_PERF_CTRL_W then
+            -- bit0: one-cycle reset pulse for performance counters
+            perf_reset_q <= mm_wdata_i(0);
           elsif waddr = C_REG_TX_HEAD_W then
             tx_head_q <= to_unsigned(
               to_integer(unsigned(mm_wdata_i(15 downto 0))) mod G_DEPTH,
@@ -215,6 +242,26 @@ begin
             mm_rdata_q <= std_logic_vector(to_unsigned(G_DEPTH, 32));
           elsif waddr = C_REG_SLOT_WORDS_W then
             mm_rdata_q <= std_logic_vector(to_unsigned(G_SLOT_WORDS, 32));
+          elsif waddr = C_REG_PERF_CTRL_W then
+            mm_rdata_q <= (others => '0');
+          elsif waddr = C_REG_PERF_CLOCK_HZ_W then
+            mm_rdata_q <= perf_clock_hz_i;
+          elsif waddr = C_REG_PERF_COUNT_W then
+            mm_rdata_q <= perf_count_i;
+          elsif waddr = C_REG_PERF_LAST_LAT_CYCLES_W then
+            mm_rdata_q <= perf_last_lat_cycles_i;
+          elsif waddr = C_REG_PERF_MIN_LAT_CYCLES_W then
+            mm_rdata_q <= perf_min_lat_cycles_i;
+          elsif waddr = C_REG_PERF_MAX_LAT_CYCLES_W then
+            mm_rdata_q <= perf_max_lat_cycles_i;
+          elsif waddr = C_REG_PERF_SUM_LAT_CYCLES_LO_W then
+            mm_rdata_q <= perf_sum_lat_cycles_i(31 downto 0);
+          elsif waddr = C_REG_PERF_SUM_LAT_CYCLES_HI_W then
+            mm_rdata_q <= perf_sum_lat_cycles_i(63 downto 32);
+          elsif waddr = C_REG_PERF_CMD_STALL_CYCLES_W then
+            mm_rdata_q <= perf_cmd_stall_cycles_i;
+          elsif waddr = C_REG_PERF_RSP_STALL_CYCLES_W then
+            mm_rdata_q <= perf_rsp_stall_cycles_i;
           elsif waddr >= C_TX_BASE_W and waddr < (C_TX_BASE_W + (G_DEPTH * G_SLOT_WORDS)) then
             rel := waddr - C_TX_BASE_W;
             slot_idx := rel / G_SLOT_WORDS;

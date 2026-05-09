@@ -29,6 +29,17 @@ class FpgaSharedStream {
     uint32_t slot_words;
   };
 
+  struct PerfCounters {
+    uint32_t clock_hz;
+    uint32_t count;
+    uint32_t last_latency_cycles;
+    uint32_t min_latency_cycles;
+    uint32_t max_latency_cycles;
+    uint64_t sum_latency_cycles;
+    uint32_t cmd_stall_cycles;
+    uint32_t rsp_stall_cycles;
+  };
+
   static const uint32_t kMagic = 0x48465431;  // "HFT1"
   static const std::size_t kDefaultSpan = 0x2000;
   static const uint32_t kFrameWords = 8;
@@ -150,7 +161,6 @@ class FpgaSharedStream {
     slot_words_ = kDefaultSlotWords;
     legacy_mode_ = false;
     observed_header_ = {};
-    last_error_.clear();
   }
 
   bool IsOpen() const { return mmio_ != nullptr; }
@@ -171,6 +181,40 @@ class FpgaSharedStream {
   }
 
   bool IsTxFull() const { return !CanSend(); }
+
+  bool ResetQueues() {
+    if (!IsOpen() || legacy_mode_) {
+      return false;
+    }
+    WriteReg(kRegCtrl, 1);
+    return true;
+  }
+
+  bool ResetPerfCounters() {
+    if (!IsOpen() || legacy_mode_) {
+      return false;
+    }
+    WriteReg(kRegPerfCtrl, 1);
+    return true;
+  }
+
+  bool ReadPerfCounters(PerfCounters* counters) const {
+    if (!IsOpen() || legacy_mode_ || counters == nullptr) {
+      return false;
+    }
+    counters->clock_hz = ReadReg(kRegPerfClockHz);
+    counters->count = ReadReg(kRegPerfCount);
+    counters->last_latency_cycles = ReadReg(kRegPerfLastLatencyCycles);
+    counters->min_latency_cycles = ReadReg(kRegPerfMinLatencyCycles);
+    counters->max_latency_cycles = ReadReg(kRegPerfMaxLatencyCycles);
+    const uint32_t sum_lo = ReadReg(kRegPerfSumLatencyCyclesLo);
+    const uint32_t sum_hi = ReadReg(kRegPerfSumLatencyCyclesHi);
+    counters->sum_latency_cycles =
+        (static_cast<uint64_t>(sum_hi) << 32) | static_cast<uint64_t>(sum_lo);
+    counters->cmd_stall_cycles = ReadReg(kRegPerfCmdStallCycles);
+    counters->rsp_stall_cycles = ReadReg(kRegPerfRspStallCycles);
+    return true;
+  }
 
   bool Send(const Frame& frame) {
     if (!IsOpen()) {
@@ -248,6 +292,7 @@ class FpgaSharedStream {
   // New header layout
   static const uint32_t kRegMagic = 0x000;
   static const uint32_t kRegVersion = 0x004;
+  static const uint32_t kRegCtrl = 0x008;
   static const uint32_t kRegTxHead = 0x010;
   static const uint32_t kRegTxTail = 0x014;
   static const uint32_t kRegRxHead = 0x018;
@@ -255,6 +300,16 @@ class FpgaSharedStream {
   static const uint32_t kRegTxDepth = 0x020;
   static const uint32_t kRegRxDepth = 0x024;
   static const uint32_t kRegSlotWords = 0x028;
+  static const uint32_t kRegPerfCtrl = 0x030;
+  static const uint32_t kRegPerfClockHz = 0x034;
+  static const uint32_t kRegPerfCount = 0x038;
+  static const uint32_t kRegPerfLastLatencyCycles = 0x03C;
+  static const uint32_t kRegPerfMinLatencyCycles = 0x040;
+  static const uint32_t kRegPerfMaxLatencyCycles = 0x044;
+  static const uint32_t kRegPerfSumLatencyCyclesLo = 0x048;
+  static const uint32_t kRegPerfSumLatencyCyclesHi = 0x04C;
+  static const uint32_t kRegPerfCmdStallCycles = 0x050;
+  static const uint32_t kRegPerfRspStallCycles = 0x054;
 
   // Legacy layout
   static const uint32_t kLegacyRegTxDepth = 0x000;

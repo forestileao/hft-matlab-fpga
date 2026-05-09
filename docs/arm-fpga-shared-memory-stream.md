@@ -91,6 +91,16 @@ Offsets are byte offsets from MMIO base.
 | `0x020` | `TX_DEPTH` | RO | queue depth |
 | `0x024` | `RX_DEPTH` | RO | queue depth |
 | `0x028` | `SLOT_WORDS` | RO | words per slot (`8`) |
+| `0x030` | `PERF_CTRL` | WO | write bit0 = `1` to reset telemetry counters |
+| `0x034` | `PERF_CLOCK_HZ` | RO | FPGA telemetry clock, normally `50000000` |
+| `0x038` | `PERF_COUNT` | RO | number of measured responses |
+| `0x03C` | `PERF_LAST_LAT_CYCLES` | RO | most recent measured latency in FPGA clock cycles |
+| `0x040` | `PERF_MIN_LAT_CYCLES` | RO | minimum measured latency in FPGA clock cycles |
+| `0x044` | `PERF_MAX_LAT_CYCLES` | RO | maximum measured latency in FPGA clock cycles |
+| `0x048` | `PERF_SUM_LAT_CYCLES_LO` | RO | low 32 bits of latency-cycle sum |
+| `0x04C` | `PERF_SUM_LAT_CYCLES_HI` | RO | high 32 bits of latency-cycle sum |
+| `0x050` | `PERF_CMD_STALL_CYCLES` | RO | cycles with command waiting for FPGA pipeline ready |
+| `0x054` | `PERF_RSP_STALL_CYCLES` | RO | cycles with response blocked by RX-ring backpressure |
 | `0x100` | `TX_SLOTS` | RW | TX slot memory base |
 | dynamic | `RX_SLOTS` | RW | `RX_BASE = 0x100 + DEPTH * SLOT_WORDS * 4` |
 
@@ -201,22 +211,69 @@ This is the frame shape consumed by `fast_receiver.cpp` when it prints:
 [FPGA->ARM] seq=... action=BUY|SELL|NOOP best_bid_px_1e4=... best_bid_qty=... best_ask_px_1e4=... best_ask_qty=... spread_1e4=... imbalance=...
 ```
 
-## 9. How To Validate On Hardware
+## 9. Performance Telemetry
+
+The hardware benchmark reads the `PERF_*` registers to measure the FPGA-side processing path without TCP, FAST decode, sleeps, or per-message prints.
+
+The latency counter starts when a command is accepted by the FPGA pipeline:
+
+```text
+cmd_valid = 1 and cmd_ready = 1
+```
+
+It stops when the matching response is accepted by the RX side of the MMIO bridge:
+
+```text
+rsp_valid = 1 and rsp_ready = 1
+```
+
+In the clean benchmark loop, the ARM drains RX continuously, so this is the internal FPGA processing latency. If RX fills up, `PERF_RSP_STALL_CYCLES` shows that backpressure separately.
+
+Convert cycles to nanoseconds with:
+
+```text
+latency_ns = latency_cycles * 1_000_000_000 / PERF_CLOCK_HZ
+```
+
+For the DE10-Nano design, `PERF_CLOCK_HZ` is expected to be:
+
+```text
+50000000
+```
+
+The benchmark command is:
+
+```bash
+ssh root@192.168.7.1 'cd /home/root && HFT_FPGA_MMIO_BASE=0xFF200000 ./fpga_benchmark --mode full --messages 1000000 --warmup 10000'
+```
+
+The intended TCC pass checks are:
+
+- `fpga_latency_jitter_ns < 1000`
+- `throughput_msg_s >= 100000`
+- `speedup_core >= 5.0`
+
+## 10. How To Validate On Hardware
 
 Minimal runtime checks:
 1. Read `MAGIC` and `VERSION`.
 2. Confirm `TX_DEPTH`, `RX_DEPTH`, `SLOT_WORDS`.
-3. Push one frame:
+3. Reset queues with `CTRL.bit0`.
+4. Reset telemetry with `PERF_CTRL.bit0`.
+5. Push one frame:
    - write TX slot words
    - update `TX_HEAD`
-4. Confirm FPGA consumption:
+6. Confirm FPGA consumption:
    - `TX_TAIL` advances.
-5. Confirm FPGA response:
+7. Confirm FPGA response:
    - `STATUS.bit2` (`rx_has_data`) becomes `1`
    - `RX_HEAD` advances.
-6. Read RX slot words from `RX_BASE + RX_TAIL*32`.
-7. Write updated `RX_TAIL`.
-8. Confirm queue drained:
+8. Confirm telemetry:
+   - `PERF_COUNT` advances
+   - `PERF_LAST_LAT_CYCLES`, `PERF_MIN_LAT_CYCLES`, `PERF_MAX_LAT_CYCLES`, and `PERF_SUM_LAT_CYCLES_*` are non-zero after a response.
+9. Read RX slot words from `RX_BASE + RX_TAIL*32`.
+10. Write updated `RX_TAIL`.
+11. Confirm queue drained:
    - `STATUS.bit2` returns to `0`.
 
 Quick interpretation of `STATUS`:
@@ -225,7 +282,7 @@ Quick interpretation of `STATUS`:
 - bit2 `1`: RX has unread data
 - bit3 `1`: RX ring full (FPGA backpressured)
 
-## 10. Testbenches Available
+## 11. Testbenches Available
 
 Basic functional TB:
 - `vhdl/tb_arm_fpga_shared_stream_bridge.vhd`
@@ -243,7 +300,7 @@ End-to-end bridge + strategy TB:
 
 Avalon-MM wrapper TB:
 - `vhdl/tb_hft_trade_engine_avalon_mm.vhd`
-- validates the board-facing bus wrapper used for HPS integration
+- validates the board-facing bus wrapper used for HPS integration, including telemetry reset/readback
 - command: `make vhdl-test-avalon`
 
 Wave files:
@@ -252,13 +309,14 @@ Wave files:
 - `vhdl/build/tb_hft_trade_engine.vcd`
 - `vhdl/build/tb_hft_trade_engine_avalon_mm.vcd`
 
-## 11. Common Failure Patterns
+## 12. Common Failure Patterns
 
 If results look wrong, check:
 1. Using fixed `0x500` RX base with non-default `DEPTH`.
-2. Publishing `TX_HEAD` before writing all 4 slot words.
-3. Updating `RX_TAIL` before reading all 4 RX words.
+2. Publishing `TX_HEAD` before writing all 8 slot words.
+3. Updating `RX_TAIL` before reading all 8 RX words.
 4. Writing more than ring capacity without draining (`DEPTH-1` effective usable entries).
 5. Using `HFT_FPGA_MMIO_SPAN=0x1000` with the new 8-word default layout. The default span is now `0x2000`.
 6. Mismatch between event type or `symbol_id` mapping on ARM and FPGA expectations.
 7. Mismatch between strategy response frame format and what `fast_receiver.cpp` expects.
+8. Running `fpga_benchmark` against an old `.sof` that does not include the `PERF_*` registers.

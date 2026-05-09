@@ -23,6 +23,17 @@ const uint32_t kRegRxTail = 0x01C;
 const uint32_t kRegTxDepth = 0x020;
 const uint32_t kRegRxDepth = 0x024;
 const uint32_t kRegSlotWords = 0x028;
+const uint32_t kRegCtrl = 0x008;
+const uint32_t kRegPerfCtrl = 0x030;
+const uint32_t kRegPerfClockHz = 0x034;
+const uint32_t kRegPerfCount = 0x038;
+const uint32_t kRegPerfLastLatencyCycles = 0x03C;
+const uint32_t kRegPerfMinLatencyCycles = 0x040;
+const uint32_t kRegPerfMaxLatencyCycles = 0x044;
+const uint32_t kRegPerfSumLatencyCyclesLo = 0x048;
+const uint32_t kRegPerfSumLatencyCyclesHi = 0x04C;
+const uint32_t kRegPerfCmdStallCycles = 0x050;
+const uint32_t kRegPerfRspStallCycles = 0x054;
 const uint32_t kTxBase = 0x100;
 
 bool check(bool cond, const char* msg) {
@@ -89,7 +100,16 @@ bool init_registers(const BackingFile& bf) {
          write32(bf, kRegRxTail, 0) &&
          write32(bf, kRegTxDepth, 4) &&
          write32(bf, kRegRxDepth, 4) &&
-         write32(bf, kRegSlotWords, FpgaSharedStream::kFrameWords);
+         write32(bf, kRegSlotWords, FpgaSharedStream::kFrameWords) &&
+         write32(bf, kRegPerfClockHz, 50000000u) &&
+         write32(bf, kRegPerfCount, 3u) &&
+         write32(bf, kRegPerfLastLatencyCycles, 7u) &&
+         write32(bf, kRegPerfMinLatencyCycles, 5u) &&
+         write32(bf, kRegPerfMaxLatencyCycles, 9u) &&
+         write32(bf, kRegPerfSumLatencyCyclesLo, 21u) &&
+         write32(bf, kRegPerfSumLatencyCyclesHi, 1u) &&
+         write32(bf, kRegPerfCmdStallCycles, 11u) &&
+         write32(bf, kRegPerfRspStallCycles, 13u);
 }
 
 bool test_send_and_full(const BackingFile& bf, FpgaSharedStream* stream) {
@@ -166,6 +186,31 @@ bool test_receive_and_ack(const BackingFile& bf, FpgaSharedStream* stream) {
   return true;
 }
 
+bool test_control_and_perf(const BackingFile& bf, FpgaSharedStream* stream) {
+  if (!check(stream->ResetQueues(), "ResetQueues should succeed")) return false;
+  uint32_t ctrl = 0;
+  if (!check(read32(bf, kRegCtrl, &ctrl), "read CTRL")) return false;
+  if (!check(ctrl == 1, "CTRL reset bit should be written")) return false;
+
+  if (!check(stream->ResetPerfCounters(), "ResetPerfCounters should succeed")) return false;
+  uint32_t perf_ctrl = 0;
+  if (!check(read32(bf, kRegPerfCtrl, &perf_ctrl), "read PERF_CTRL")) return false;
+  if (!check(perf_ctrl == 1, "PERF_CTRL reset bit should be written")) return false;
+
+  FpgaSharedStream::PerfCounters perf{};
+  if (!check(stream->ReadPerfCounters(&perf), "ReadPerfCounters should succeed")) return false;
+  if (!check(perf.clock_hz == 50000000u, "perf clock mismatch")) return false;
+  if (!check(perf.count == 3u, "perf count mismatch")) return false;
+  if (!check(perf.last_latency_cycles == 7u, "perf last latency mismatch")) return false;
+  if (!check(perf.min_latency_cycles == 5u, "perf min latency mismatch")) return false;
+  if (!check(perf.max_latency_cycles == 9u, "perf max latency mismatch")) return false;
+  if (!check(perf.sum_latency_cycles == ((1ull << 32) | 21ull), "perf sum mismatch")) return false;
+  if (!check(perf.cmd_stall_cycles == 11u, "perf cmd stall mismatch")) return false;
+  if (!check(perf.rsp_stall_cycles == 13u, "perf rsp stall mismatch")) return false;
+
+  return true;
+}
+
 }  // namespace
 
 int main() {
@@ -195,6 +240,9 @@ int main() {
   }
   if (ok) {
     ok = test_receive_and_ack(bf, &stream);
+  }
+  if (ok) {
+    ok = test_control_and_perf(bf, &stream);
   }
 
   stream.Close();
