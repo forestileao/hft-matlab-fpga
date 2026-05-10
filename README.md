@@ -244,10 +244,11 @@ The benchmark modes are:
 The important JSON fields are:
 
 - `throughput_msg_s`: clean MMIO loop throughput.
-- `fpga_latency_min_ns`, `fpga_latency_max_ns`, `fpga_latency_avg_ns`: FPGA internal processing latency from hardware counters.
-- `fpga_latency_jitter_ns`: `max - min` FPGA internal latency.
+- `fpga_latency_min_ns`, `fpga_latency_max_ns`, `fpga_latency_avg_ns`: FPGA core latency from command accepted to response produced.
+- `fpga_latency_jitter_ns`: `max - min` FPGA core latency.
 - `sw_core_avg_ns`: average pure C++ core time per message.
 - `speedup_core`: pure C++ core average divided by FPGA internal average.
+- `cmd_stall_cycles`, `rsp_stall_cycles`: backpressure counters; high values mean the benchmark is waiting on queues/MMIO, not on the strategy core.
 
 The TCC pass targets are:
 

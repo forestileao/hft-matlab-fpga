@@ -439,6 +439,11 @@ bool run_fpga_messages(FpgaSharedStream* bridge,
                        const std::vector<FpgaSharedStream::Frame>& events,
                        uint64_t start_index, uint64_t messages,
                        BenchmarkResult* result) {
+  const FpgaSharedStream::Header header = bridge->ObservedHeader();
+  const uint64_t tx_capacity = header.tx_depth > 1 ? header.tx_depth - 1 : 1;
+  const uint64_t rx_capacity = header.rx_depth > 1 ? header.rx_depth - 1 : 1;
+  const uint64_t max_outstanding =
+      std::max<uint64_t>(1, std::min(tx_capacity, std::max<uint64_t>(1, rx_capacity / 2)));
   uint64_t sent = 0;
   uint64_t received = 0;
   uint64_t checksum = 0;
@@ -448,15 +453,6 @@ bool run_fpga_messages(FpgaSharedStream* bridge,
 
   while (received < messages) {
     bool made_progress = false;
-
-    while (sent < messages && bridge->Send(events[static_cast<std::size_t>(start_index + sent)])) {
-      ++sent;
-      made_progress = true;
-    }
-
-    if (sent < messages) {
-      ++tx_full_spins;
-    }
 
     FpgaSharedStream::Frame response{};
     bool received_any = false;
@@ -468,6 +464,16 @@ bool run_fpga_messages(FpgaSharedStream* bridge,
       if (received == messages) {
         break;
       }
+    }
+
+    while (sent < messages && (sent - received) < max_outstanding &&
+           bridge->Send(events[static_cast<std::size_t>(start_index + sent)])) {
+      ++sent;
+      made_progress = true;
+    }
+
+    if (sent < messages && (sent - received) < max_outstanding) {
+      ++tx_full_spins;
     }
 
     if (!received_any && sent > received) {

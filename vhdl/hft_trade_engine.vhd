@@ -44,6 +44,7 @@ architecture rtl of hft_trade_engine is
   signal ts_head_q    : unsigned(15 downto 0) := (others => '0');
   signal ts_tail_q    : unsigned(15 downto 0) := (others => '0');
   signal ts_count_q   : unsigned(15 downto 0) := (others => '0');
+  signal rsp_tracked_q : std_logic := '0';
 
   signal perf_count_q    : unsigned(31 downto 0) := (others => '0');
   signal perf_last_lat_q : unsigned(31 downto 0) := (others => '0');
@@ -126,12 +127,14 @@ begin
 
   p_perf : process(clk_i)
     variable cmd_accept_v : boolean;
-    variable rsp_accept_v : boolean;
+    variable rsp_produced_v : boolean;
+    variable rsp_consumed_v : boolean;
     variable latency_v    : t_u64;
     variable latency32_v  : unsigned(31 downto 0);
     variable next_head_v  : unsigned(15 downto 0);
     variable next_tail_v  : unsigned(15 downto 0);
     variable next_count_v : unsigned(15 downto 0);
+    variable next_rsp_tracked_v : std_logic;
   begin
     if rising_edge(clk_i) then
       if rst_ni = '0' or perf_reset_s = '1' then
@@ -140,6 +143,7 @@ begin
         ts_head_q <= (others => '0');
         ts_tail_q <= (others => '0');
         ts_count_q <= (others => '0');
+        rsp_tracked_q <= '0';
         perf_count_q <= (others => '0');
         perf_last_lat_q <= (others => '0');
         perf_min_lat_q <= (others => '0');
@@ -151,10 +155,12 @@ begin
         cycle_q <= cycle_q + 1;
 
         cmd_accept_v := cmd_valid_s = '1' and cmd_ready_s = '1';
-        rsp_accept_v := rsp_valid_s = '1' and rsp_ready_s = '1';
+        rsp_produced_v := rsp_valid_s = '1' and rsp_tracked_q = '0';
+        rsp_consumed_v := rsp_valid_s = '1' and rsp_ready_s = '1';
         next_head_v := ts_head_q;
         next_tail_v := ts_tail_q;
         next_count_v := ts_count_q;
+        next_rsp_tracked_v := rsp_tracked_q;
 
         if cmd_valid_s = '1' and cmd_ready_s = '0' then
           perf_cmd_stall_q <= f_sat_inc(perf_cmd_stall_q);
@@ -170,7 +176,9 @@ begin
           next_count_v := next_count_v + 1;
         end if;
 
-        if rsp_accept_v and ts_count_q /= 0 then
+        -- Measure pure FPGA pipeline latency when the response first becomes
+        -- visible, not when the ARM side finally drains the RX ring.
+        if rsp_produced_v and ts_count_q /= 0 then
           latency_v := (cycle_q - ts_fifo_q(to_integer(ts_tail_q))) + 1;
           latency32_v := latency_v(31 downto 0);
 
@@ -186,11 +194,17 @@ begin
             perf_max_lat_q <= latency32_v;
           end if;
           perf_sum_lat_q <= perf_sum_lat_q + resize(latency32_v, perf_sum_lat_q'length);
+          next_rsp_tracked_v := '1';
+        end if;
+
+        if rsp_consumed_v then
+          next_rsp_tracked_v := '0';
         end if;
 
         ts_head_q <= next_head_v;
         ts_tail_q <= next_tail_v;
         ts_count_q <= next_count_v;
+        rsp_tracked_q <= next_rsp_tracked_v;
       end if;
     end if;
   end process;

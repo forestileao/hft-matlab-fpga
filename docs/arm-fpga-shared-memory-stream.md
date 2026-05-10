@@ -221,19 +221,27 @@ The latency counter starts when a command is accepted by the FPGA pipeline:
 cmd_valid = 1 and cmd_ready = 1
 ```
 
-It stops when the matching response is accepted by the RX side of the MMIO bridge:
+It stops when the matching response first becomes valid inside the FPGA:
 
 ```text
-rsp_valid = 1 and rsp_ready = 1
+rsp_valid = 1
 ```
 
-In the clean benchmark loop, the ARM drains RX continuously, so this is the internal FPGA processing latency. If RX fills up, `PERF_RSP_STALL_CYCLES` shows that backpressure separately.
+This intentionally measures the internal FPGA pipeline, not time spent waiting for the ARM side to drain the RX ring. If RX fills up, `PERF_RSP_STALL_CYCLES` shows that backpressure separately.
 
 Convert cycles to nanoseconds with:
 
 ```text
 latency_ns = latency_cycles * 1_000_000_000 / PERF_CLOCK_HZ
 ```
+
+The benchmark reports jitter as:
+
+```text
+fpga_latency_jitter_ns = fpga_latency_max_ns - fpga_latency_min_ns
+```
+
+So a large jitter value means at least one response took much longer than the fastest response. If `PERF_RSP_STALL_CYCLES` is also large, the issue is usually MMIO/ring backpressure, not the strategy logic itself.
 
 For the DE10-Nano design, `PERF_CLOCK_HZ` is expected to be:
 
