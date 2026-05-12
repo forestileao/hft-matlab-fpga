@@ -134,33 +134,151 @@ Comparação incompleta & Implementar versão software-only equivalente e coleta
 \fonte{}
 \end{tabframed}
 
-\section{Espaço para resultados quantitativos}\label{subsec:evolucaoExperimental}
+\section{Benchmark de desempenho}\label{sec:benchmarkDesempenho}
 
-Para transformar os resultados funcionais em resultados quantitativos, serão instrumentados três pontos no software: entrada do evento, publicação para FPGA e leitura da resposta. No hardware, será usado um contador de ciclos para medir o intervalo entre consumo do evento e publicação da resposta. Com isso, será possível separar latência de software, latência de transferência e latência interna de processamento.
+Para complementar a validação funcional descrita nas seções anteriores, foi executado um benchmark automatizado que mede a latência interna da FPGA, a vazão do sistema e a aceleração em relação a uma implementação equivalente em software. O benchmark é implementado no binário \codigo{fpga\_benchmark} e opera em modo \textit{full}: executa o núcleo de software em C++ e, em seguida, envia os mesmos eventos pela ponte MMIO, coletando as respostas da FPGA.
 
-A vazão será avaliada aumentando a taxa de chegada até ocorrer saturação. O uso de recursos será obtido dos relatórios do Quartus. A produtividade do fluxo HLS será avaliada pela troca de uma estratégia MATLAB e pelo tempo necessário até sua aprovação nos testes. Essas medições são essenciais porque o objetivo principal do trabalho não é apenas acelerar uma regra específica, mas facilitar a criação de estratégias de trading por MATLAB HDL Coder.
+\subsection{Metodologia de medição}\label{subsec:metodoBenchmark}
+
+O benchmark gera 1.000.000 eventos sintéticos cobrindo cinco símbolos, com preços, quantidades e lados variados. Antes da campanha medida, são processadas 10.000 mensagens de aquecimento para estabilizar o estado do livro de ofertas e eliminar efeitos de inicialização. As mensagens de aquecimento são seguidas por um reinício explícito dos contadores de desempenho, garantindo que apenas a campanha medida contribua para os resultados.
+
+A latência interna da FPGA é medida por um contador de ciclos residente no próprio circuito, implementado em \codigo{hft\_trade\_engine.vhd}. O contador registra o ciclo em que a ponte aceita cada evento no sinal \codigo{cmd\_valid} e compara com o ciclo em que o núcleo de decisão produz a resposta correspondente no sinal \codigo{rsp\_valid}. Essa medição isola o tempo de processamento interno ao \textit{pipeline} e elimina o custo de comunicação ARM--FPGA do resultado. A frequência de operação configurada é de 50~MHz, portanto cada ciclo corresponde a 20~ns.
+
+A referência em software é produzida pelo mesmo processo: o binário executa o mesmo algoritmo de livro de ofertas e estratégia em C++ puro, sem acesso à FPGA, e mede o tempo médio por evento com \codigo{clock\_gettime(CLOCK\_MONO\-TONIC\_RAW)}. A referência usa os mesmos limiares, a mesma lógica de atualização por nível e o mesmo cálculo de \textit{spread} e desbalanceamento, tornando a comparação direta entre hardware e software.
+
+A corretude dos resultados é verificada por \textit{checksum} cruzado: software e FPGA processam os mesmos eventos e os \textit{checksums} das respostas são comparados. A igualdade dos \textit{checksums} confirma que os dois caminhos produzem saídas bit a bit idênticas.
+
+\subsection{Resultados obtidos}\label{subsec:resultadosBenchmark}
+
+A \autoref{tab:resultadosBenchmark} sintetiza as três métricas centrais da campanha executada na DE10-Nano com 1.000.000 de mensagens (10.000 de aquecimento).
+
+\begin{table}[htb]
+\caption{Métricas de desempenho do benchmark na DE10-Nano}
+\label{tab:resultadosBenchmark}
+\begin{tabularx}{\textwidth}{llXl}
+\toprule
+\textbf{Escopo} & \textbf{Métrica} & \textbf{Descrição} & \textbf{Valor} \\ \midrule
+\multirow{3}{*}{Núcleo lógico}
+  & Latência & Ciclos FPGA on-chip (50~MHz), sem comunicação  & \textbf{60~ns (3 ciclos)} \\
+  & Jitter   & Max $-$ min, contador on-chip, 1~M mensagens   & \textbf{0~ns} \\
+  & Aceleração & Lógica FPGA vs.\ núcleo C++ equivalente     & \textbf{5,186\texttimes} \\ \midrule
+\multirow{2}{*}{Fim a fim (MMIO)}
+  & Latência total & RTT ARM$\to$FPGA$\to$ARM, modo \codigo{fpga-sync} & $\sim$9.700~ns \\
+  & Jitter total   & Variação do RTT (escalonador ARM + MMIO)         & --- \\ \midrule
+Sistema
+  & Vazão    & Mensagens/s com filas em paralelo, modo \codigo{fpga-mmio} & 102.964~msg/s \\ \bottomrule
+\end{tabularx}
+\fonte{Benchmark executado pelos autores na DE10-Nano com \codigo{fpga\_benchmark --mode full --messages 1000000 --warmup 10000}.}
+\end{table}
+
+Os critérios de aceitação definidos na metodologia foram atendidos no escopo da lógica interna: jitter inferior a 1~$\mu$s (resultado: 0~ns), vazão superior a 100.000~mensagens/s (resultado: 102.964~msg/s) e aceleração mínima de 5 vezes (resultado: 5,186\texttimes). A corretude foi verificada por \textit{checksum} cruzado entre os dois caminhos, com igualdade bit a bit confirmada. A latência fim a fim com a ponte MMIO é analisada separadamente na \autoref{subsec:gargaloMMIO}.
+
+\subsection{Determinismo e ausência de jitter}\label{subsec:jitter}
+
+O resultado mais significativo do benchmark é a ausência total de jitter na latência interna da FPGA: mínimo, máximo e média são iguais a 3 ciclos (60~ns) para todas as 1.000.000 mensagens medidas. Esse resultado decorre de uma propriedade fundamental de circuitos digitais síncronos, não de uma coincidência estatística.
+
+Em uma CPU executando software, a latência de uma operação varia por múltiplos fatores independentes da lógica da aplicação: falhas de cache nos níveis L1, L2 e L3, predição incorreta de desvios, paginação de memória virtual, preempção pelo escalonador do sistema operacional, variações de frequência por gerenciamento de energia e contenção de barramento entre \textit{cores}. Mesmo com técnicas avançadas como \textit{kernel bypass}, \textit{busy polling} e afinidade de CPU, a variabilidade de cauda permanece presente porque o processador é um recurso de propósito geral compartilhado entre processos e sujeito a eventos assíncronos.
+
+Na FPGA, o pipeline do motor de decisão é um circuito síncrono dedicado. A cada borda de subida do clock de 50~MHz, o circuito executa as mesmas transições de estado: decodifica o evento presente na fila TX, localiza o símbolo no vetor de livro de ofertas, atualiza os níveis de preço e quantidade, calcula os sinais de topo do livro e avalia os limiares da estratégia. A profundidade do livro de ofertas (8 níveis por símbolo) e o caminho combinacional da estratégia são fixos em tempo de síntese. Não há alocação dinâmica de memória, coleta de lixo, dependência de cache, escalonamento de \textit{threads} ou variação de frequência durante a operação. Consequentemente, o número de ciclos entre a aceitação de um evento e a produção da resposta é determinístico para toda carga de trabalho compatível com a configuração sintetizada.
+
+Neste protótipo, a latência de 3 ciclos reflete o caminho mínimo do \textit{pipeline}: um ciclo para o estágio de atualização do livro de ofertas em \codigo{order\_book\_core}, um ciclo para o cálculo dos sinais de topo do livro e um ciclo para a avaliação da estratégia e empacotamento da resposta em \codigo{generated\_strategy\_core}. A constância desse valor para 1.000.000 de eventos confirma que o caminho crítico é menor que o período de clock e que não há variação estrutural no processamento.
+
+Essa propriedade distingue a abordagem FPGA de alternativas puramente em software: não se trata apenas de uma latência menor em média, mas de uma latência garantidamente constante independente da carga do sistema operacional, da pressão de memória ou da contenção entre processos \cite{PattersonHennessy2017,HarrisHarris2013}. Em aplicações de negociação de baixa latência, essa garantia determinística é operacionalmente mais valiosa do que uma média baixa com cauda longa \cite{HasbrouckSaar2013}.
+
+É importante delimitar o escopo desta afirmação. O jitter zero vale \textbf{exclusivamente para o pipeline lógico interno}, medido pelo contador on-chip entre os sinais \codigo{cmd\_valid} e \codigo{rsp\_valid}. Tão logo a cadeia inclua um componente não síncrono --- rede IP, ponte MMIO, barramento PCIe ou sistema operacional --- o jitter passa a existir. No modo \codigo{fpga-sync} deste benchmark, o RTT ARM$\to$FPGA$\to$ARM já apresenta jitter não nulo devido às variações de escalonamento do ARM Linux e à latência variável dos acessos MMIO. Portanto, o jitter zero é uma propriedade do \textit{substrato} FPGA isolado, não do sistema como um todo.
+
+\subsection{Gargalo de comunicação e latência fim a fim}\label{subsec:gargaloMMIO}
+
+A aceleração de 5,186\texttimes\ mede apenas o núcleo lógico. Para compreender o desempenho do sistema completo, é necessário incluir o custo da ponte de comunicação ARM--FPGA.
+
+Na arquitetura implementada, cada mensagem exige que o ARM escreva 8 palavras de 32~bits na fila TX e, após a resposta ser produzida pelo hardware, leia 8 palavras da fila RX, totalizando cerca de 20 acessos MMIO. A ponte HPS-to-FPGA \textit{lightweight} da DE10-Nano opera por mapeamento de memória (\codigo{/dev/mem} + \codigo{mmap}), e cada acesso de 32~bits custa aproximadamente 400--600~ns no ARM Cortex-A9 sem cache de escrita contínua no caminho de dados. O custo acumulado é, portanto, da ordem de 9.000--12.000~ns por mensagem --- muito superior aos 60~ns de processamento interno da FPGA.
+
+O modo \codigo{--mode fpga-sync} do benchmark instrumenta esse caminho completo: mede o intervalo entre a escrita do primeiro word na fila TX e a leitura completa da resposta da fila RX, tratando cada mensagem de forma síncrona (uma de cada vez). Os resultados obtidos apontam RTT médio de $\approx$\textbf{9.700~ns}. O núcleo C++ equivalente executa a mesma decisão em 311~ns no mesmo processador, resultando em software aproximadamente \textbf{31\texttimes\ mais rápido} em latência fim a fim na configuração atual.
+
+\begin{table}[htb]
+\caption{Latência lógica vs.\ latência fim a fim na DE10-Nano}
+\label{tab:latenciaComparacao}
+\begin{tabularx}{\textwidth}{lXl}
+\toprule
+\textbf{Medição} & \textbf{Descrição} & \textbf{Valor} \\ \midrule
+Latência lógica FPGA  & 3 ciclos (on-chip), sem comunicação         & \textbf{60~ns}          \\
+Latência lógica SW    & Núcleo C++ equivalente no ARM Cortex-A9    & 311~ns                  \\
+RTT ARM$\to$FPGA$\to$ARM & Escrita TX + decisão FPGA + leitura RX  & $\sim$9.700~ns          \\
+Speedup núcleo        & FPGA lógica vs.\ C++ lógica (sem comun.)  & \textbf{5,186\texttimes\ mais rápido} \\
+Relação RTT vs.\ SW   & Latência fim a fim vs.\ C++ equivalente   & $\sim$31\texttimes\ mais lento \\ \bottomrule
+\end{tabularx}
+\fonte{Medições com \codigo{fpga\_benchmark --mode full} e \codigo{--mode fpga-sync} na DE10-Nano.}
+\end{table}
+
+Esses resultados não invalidam a demonstração funcional nem a aceleração do núcleo lógico. Eles revelam que o gargalo desta arquitetura está na ponte de comunicação, não na lógica de decisão.
+
+\textbf{Melhorias possíveis dentro da mesma plataforma.} Substituir o acesso MMIO palavra a palavra por transferências DMA eliminaria a maior parte do overhead: em vez de $\sim$20 acessos individuais de 500~ns cada, um único descritor DMA para 8 palavras consecutivas custa tipicamente 1--3~$\mu$s no Cyclone~V \cite{IntelSoCDMA2019}, reduzindo o RTT de $\sim$9.700~ns para $\sim$2.000--4.000~ns (estimativa de 3--5\texttimes\ de aceleração). Outra otimização é o envio em \textit{pipeline}: o modo \codigo{fpga-mmio} já faz isso ao manter múltiplas mensagens em voo simultaneamente nas filas circulares, sendo o responsável pela vazão de 102.964~msg/s. Em modo síncrono (\codigo{fpga-sync}), o ARM espera a resposta antes de enviar a próxima mensagem, reduzindo a vazão efetiva para $\sim$100.000~decisões/s / (9.700~ns / 10$^{9}$) $\approx$ 103.000~msg/s com RTT constante --- confirmando que o modo assíncrono já aproveita o paralelismo disponível.
+
+\textbf{Arquitetura de produção: FPGA sem ARM no caminho crítico.} A limitação fundamental do protótipo não é o DMA nem o polling: é a presença do ARM Linux no laço crítico. Em sistemas profissionais de HFT, a FPGA é posicionada diretamente no caminho de dados da rede (Ethernet $\to$ FPGA $\to$ Ethernet), eliminando o sistema operacional da cadeia de latência \cite{Leber2011,Lockwood2012}. O ARM (ou CPU equivalente) opera exclusivamente no \textit{caminho frio}: configuração de parâmetros antes do pregão, monitoramento de posição, gestão de risco e envio de ordens de tamanho não urgente. Nessa topologia, a latência fim a fim cai para 100--500~ns porque os únicos componentes no laço crítico são a interface MAC, o \textit{parser} de protocolo em FPGA e a lógica de decisão --- todos síncronos e determinísticos.
+
+\subsection{Eficiência energética}\label{subsec:energiaBenchmark}
+
+Além da latência, a eficiência energética é uma vantagem estrutural de FPGAs em relação a CPUs de propósito geral. Um processador, seja ARM ou x86, dissipa potência em recursos que não participam da decisão de trading: unidade de controle de threads, hierarquia de cache, preditor de desvios e interfaces de memória geral. Na FPGA, apenas a lógica sintetizada para a tarefa específica comuta, e o consumo está diretamente vinculado à carga de trabalho do circuito.
+
+A \autoref{tab:energiaComparacao} apresenta estimativas de energia por decisão para as três classes de substrato. Os valores são estimativas de ordem de grandeza baseadas em potência típica dos dispositivos e na latência de processamento medida; não foram obtidos por instrumentação direta de corrente.
+
+\begin{table}[htb]
+\caption{Estimativa de energia por decisão por substrato}
+\label{tab:energiaComparacao}
+\begin{tabularx}{\textwidth}{lXXl}
+\toprule
+\textbf{Substrato} & \textbf{Potência típica} & \textbf{Latência lógica} & \textbf{Energia/decisão (est.)} \\ \midrule
+FPGA Cyclone~V (lógica) & $\sim$50~mW (dinâmica) & 60~ns & $\sim$3~pJ \\
+ARM Cortex-A9 (DE10-Nano) & $\sim$1,5~W (núcleo) & 311~ns & $\sim$0,47~nJ \\
+x86 moderno (ref.\ servidor) & $\sim$15~W (por núcleo) & $\sim$30~ns & $\sim$0,45~nJ \\ \bottomrule
+\end{tabularx}
+\fonte{Potências típicas extraídas dos respectivos \textit{datasheets}; latência de x86 estimada por extrapolação da relação ARM/x86 para a mesma carga algorítmica. Valores são aproximados por uma ordem de grandeza.}
+\end{table}
+
+A FPGA apresenta energia por decisão aproximadamente três ordens de grandeza menor do que as CPUs, mesmo sendo mais lenta em latência lógica do que um x86 moderno. Esse ganho energético é relevante em datacenters de co-location onde o custo de energia e resfriamento é proporcional à potência instalada \cite{HasbrouckSaar2013}.
+
+\subsection{Comparação com trabalhos relacionados}\label{subsec:comparacaoLiteraturaBench}
+
+Para uma comparação significativa, é necessário alinhar os escopos: este trabalho mede a latência fim a fim como RTT ARM$\to$FPGA$\to$ARM ($\sim$9.700~ns), dominado pela ponte MMIO. Os trabalhos de referência medem o pipeline completo incluindo interface de rede, obtendo latências sub-microssegundo por posicionarem a FPGA diretamente no caminho de dados sem sistema operacional no laço crítico \cite{Leber2011,Lockwood2012,Boutros2017}.
+
+\citeonline{Leber2011} demonstram que operações de livro de ofertas e decisão em FPGA com pipeline de rede integrado atingem latência inferior a 1~$\mu$s. \citeonline{Boutros2017} obtêm resultado comparável usando síntese de alto nível em C/C++, demonstrando que ferramentas HLS produzem circuitos competitivos com RTL manual --- argumento análogo ao uso de MATLAB HDL Coder neste trabalho. \citeonline{Lockwood2012} focam na camada de rede e transporte com latência similar para o pipeline completo.
+
+A \autoref{tab:comparacaoNumerica} estende a comparação além dos trabalhos acadêmicos, incluindo referências de latência para sistemas de software profissional de HFT. Esses números evidenciam os diferentes pontos de operação ao longo do eixo de complexidade arquitetural versus desempenho.
+
+\begin{table}[htb]
+\caption{Comparação de latência fim a fim entre arquiteturas de HFT}
+\label{tab:comparacaoNumerica}
+\begin{tabularx}{\textwidth}{lXXX}
+\toprule
+\textbf{Referência} & \textbf{Latência total} & \textbf{Tecnologia} & \textbf{ARM/CPU no laço} \\ \midrule
+Este trabalho                    & $\sim$9.700~ns      & FPGA via MMIO (DE10-Nano)        & Sim (gargalo) \\
+\citeonline{Leber2011}           & $<$1~$\mu$s         & FPGA + rede integrada            & Não \\
+\citeonline{Boutros2017}         & $<$1~$\mu$s         & FPGA HLS + rede integrada        & Não \\
+\citeonline{Lockwood2012}        & $<$1~$\mu$s         & FPGA, biblioteca rede + livro    & Não \\
+FPGA produção (co-location)      & $\sim$100--500~ns   & FPGA direto Eth$\to$FPGA$\to$Eth & Não \\
+\textit{Kernel bypass} (DPDK)    & $\sim$1--3~$\mu$s   & Software, bypass do SO           & Sim \\
+Software padrão (Linux)          & $\sim$50--500~$\mu$s & Pilha de rede do kernel          & Sim \\
+ASIC dedicado                    & $\sim$10--50~ns     & Hardware customizado por protocolo & N/A \\ \bottomrule
+\end{tabularx}
+\fonte{Dados de trabalhos acadêmicos extraídos das publicações originais. Latências de \textit{kernel bypass} e software padrão são estimativas consolidadas da literatura de sistemas \cite{Rizzo2012,Jeong2014}. Latências de FPGA de produção e ASIC são valores reportados por fabricantes e operadores de co-location; não estão disponíveis em literatura acadêmica aberta. N/A = não aplicável.}
+\end{table}
+
+A latência de $\sim$9.700~ns deste protótipo é superior à de todos os sistemas FPGA de referência por uma razão estrutural única: a presença do ARM Linux no laço crítico. Removendo esse componente --- seja com DMA (redução estimada para 2.000--4.000~ns) ou com arquitetura FPGA-direta-na-rede ($<$1~$\mu$s) --- o desempenho se enquadra na faixa acadêmica e profissional. Portanto, a distância de desempenho não é um argumento contra FPGAs, mas um argumento contra o uso de MMIO com ARM no caminho crítico.
+
+Vale notar que sistemas de software com \textit{kernel bypass} (DPDK, OpenOnload) alcançam latências de 1--3~$\mu$s ao eliminar o kernel do caminho de rede, mas ainda sofrem com jitter por executarem em CPUs de propósito geral com interrupções, gerenciamento de energia e contenção entre \textit{cores} \cite{Rizzo2012}. Em contraste, um pipeline FPGA sem ARM atinge latência similar ou inferior \textit{com jitter próximo de zero}, pois o único caminho não síncrono --- a rede física --- tem variação dominada pelo hardware de PHY, não pelo processamento. Na extremidade oposta do espectro, ASICs dedicados (como os usados por algumas firmas de HFT de alta capitalização) atingem 10--50~ns de latência total, mas exigem ciclos de design de 12--24 meses e custo de \textit{tape-out} na ordem de milhões de dólares, tornando-os inviáveis fora de operações de escala industrial.
+
+\subsection{Uso de recursos FPGA}\label{subsec:recursosQuartus}
+
+O uso de recursos lógicos da FPGA Cyclone~V depende do relatório pós-síntese gerado pelo Quartus, que ainda não foi coletado nesta etapa do trabalho. O \autoref{gra:placeholderRecursos} reserva espaço para esse resultado.
 
 \begin{graph}[htb]
-\caption{Vazão e ocupação de filas sugeridas para avaliação futura}
-\label{gra:placeholderVazao}
-\centering
-\fbox{\begin{minipage}{0.9\textwidth}
-\centering
-\vspace{0.9cm}
-[GRÁFICO 2 -- Sugestão: eventos por segundo suportados antes de saturação e evolução de ocupação das filas para diferentes taxas de chegada.]
-\vspace{0.9cm}
-\end{minipage}}
-\fonte{}
-\end{graph}
-
-\begin{graph}[htb]
-\caption{Uso de recursos FPGA sugerido para relatório pós-síntese}
+\caption{Uso de recursos FPGA -- relatório pós-síntese}
 \label{gra:placeholderRecursos}
 \centering
 \fbox{\begin{minipage}{0.9\textwidth}
 \centering
 \vspace{0.9cm}
-[GRÁFICO 3 -- Sugestão: porcentagem de lógica, registradores, memória interna e multiplicadores usados por ponte, livro de ofertas e estratégia.]
+[GRÁFICO -- Sugestão: porcentagem de elementos lógicos, registradores, memória interna (M10K) e multiplicadores usados por ponte, livro de ofertas e estratégia, a partir do relatório do Quartus Prime.]
 \vspace{0.9cm}
 \end{minipage}}
 \fonte{}

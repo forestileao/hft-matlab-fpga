@@ -1,0 +1,31 @@
+%%{init: {"theme": "base", "flowchart": {"htmlLabels": false}, "themeVariables": {"fontFamily": "Arial", "primaryColor": "#ffffff", "primaryTextColor": "#111111", "lineColor": "#333333", "clusterBkg": "#f8f8f8", "clusterBorder": "#666666"}}}%%
+flowchart LR
+    feed["Gerador de<br/>dados sintéticos"]
+    
+    subgraph SW["Software — ARM Linux"]
+        direction TB
+        recv["Receptor e<br/>normalização"]
+        mmio["Interface MMIO"]
+        recv --> mmio
+    end
+
+    subgraph FPGA["FPGA Cyclone V"]
+        direction TB
+        filas["Filas de<br/>comunicação"]
+        livro["Livro de<br/>ofertas"]
+        estrategia["Estratégia"]
+        filas --> livro --> estrategia
+    end
+
+    subgraph DEV["Desenvolvimento (offline)"]
+        direction TB
+        matlab["Estratégia<br/>(MATLAB)"]
+        hdlcoder["MATLAB HDL Coder"]
+        vhdl["Bloco VHDL"]
+        matlab --> hdlcoder --> vhdl
+    end
+
+    feed --> recv
+    mmio --> filas
+    estrategia --> mmio
+    vhdl -.-> estrategia

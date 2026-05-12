@@ -19,6 +19,16 @@ Essa arquitetura possui três fronteiras explícitas. A primeira fronteira é pr
 \fonte{Elaborado pelos autores a partir do diagrama Mermaid de arquitetura do projeto.}
 \end{figure}
 
+A \autoref{fig:diagramaBlocosSistema} mostra os blocos principais do sistema organizados em três camadas. No fluxo de desenvolvimento (offline), a estratégia de trading é escrita em MATLAB, convertida pelo HDL Coder e integrada à FPGA em tempo de síntese (seta tracejada). Na camada de software, um gerador produz dados sintéticos de mercado, que são decodificados e normalizados antes de chegarem à interface MMIO. Na FPGA, os eventos percorrem um pipeline de três estágios: as filas de comunicação recebem os eventos do ARM e devolvem as respostas, o livro de ofertas atualiza o estado por símbolo e calcula os sinais de topo, e a estratégia gerada por HLS produz a ação de trading.
+
+\begin{figure}[htb]
+\caption{Diagrama de blocos do sistema}
+\label{fig:diagramaBlocosSistema}
+\centering
+\includegraphics[width=0.72\textwidth]{diagrama-blocos-sistema}
+\fonte{Elaborado pelos autores.}
+\end{figure}
+
 \section{Elementos da plataforma}\label{sec:elementosPlataforma}
 
 O \autoref{quad:elementosPlataforma} resume os principais elementos da plataforma, sua função e sua integração com o sistema. Essa visão é importante para deixar claro quais partes formam a infraestrutura fixa e qual parte representa o ponto de variação do usuário: a estratégia escrita em MATLAB.

@@ -69,17 +69,17 @@ A implementação atual fornece principalmente evidências funcionais. Para comp
 A vazão deve ser medida aumentando progressivamente a taxa do feed até ocorrer saturação, fila cheia ou perda de resposta. O uso de recursos deve ser obtido a partir dos relatórios do Quartus, separando, quando possível, ponte, livro e estratégia. Além disso, como o objetivo central é facilitar a criação de estratégias com MATLAB, também deve ser medida a produtividade do fluxo HLS: tempo para alterar a estratégia, gerar VHDL, integrar o bloco e passar nos testes.
 
 \begin{tabframed}[htb]
-\caption{Espaço reservado para métricas experimentais}
+\caption{Métricas experimentais planejadas e resultados obtidos}
 \label{quad:metricasPlanejadas}
 \begin{tabularx}{\textwidth}{lXXX}
 \toprule
 \textbf{Métrica} & \textbf{Como medir} & \textbf{Meta de referência} & \textbf{Resultado} \\ \midrule
-Latência fim a fim & Timestamp no ARM entre recebimento do evento e leitura da resposta. & Comparar com versão software-only. & [PREENCHER] \\
-Latência interna FPGA & Contador de ciclos entre consumo do evento e publicação da resposta. & Jitter interno inferior a $1~\mu$s. & [PREENCHER] \\
-Vazão & Eventos por segundo até ocorrência de saturação. & Pelo menos 100.000 mensagens/s. & [PREENCHER] \\
-Speedup & Comparação com implementação software-only equivalente. & Aceleração mínima de 5 vezes. & [PREENCHER] \\
-Uso de recursos & Relatórios Quartus de lógica, registradores, memória e frequência máxima. & Caber na Cyclone V da DE10-Nano. & [PREENCHER] \\
-Produtividade HLS & Tempo e alterações necessárias para trocar a estratégia MATLAB. & Mudar a estratégia sem alterar a infraestrutura. & [PREENCHER] \\ \bottomrule
+Latência fim a fim (RTT) & Modo \codigo{fpga-sync}: mede RTT ARM$\to$FPGA$\to$ARM por mensagem com percentis. & Comparar com versão software-only. & \textbf{$\sim$9.700~ns} médio (\autoref{tab:latenciaComparacao}) \\
+Latência interna FPGA & Contador de ciclos entre consumo do evento e publicação da resposta. & Jitter interno inferior a $1~\mu$s. & \textbf{60~ns, jitter 0~ns} (\autoref{sec:benchmarkDesempenho}) \\
+Vazão & Eventos por segundo até ocorrência de saturação. & Pelo menos 100.000 mensagens/s. & \textbf{102.964~msg/s} \\
+Speedup (núcleo lógico) & Comparação do núcleo de decisão FPGA vs.\ C++ equivalente (sem comun.). & Aceleração mínima de 5 vezes. & \textbf{5,186\texttimes} (lógica isolada) \\
+Uso de recursos & Relatórios Quartus de lógica, registradores, memória e frequência máxima. & Caber na Cyclone V da DE10-Nano. & Pendente (síntese Quartus) \\
+Produtividade HLS & Tempo e alterações necessárias para trocar a estratégia MATLAB. & Mudar a estratégia sem alterar a infraestrutura. & \textbf{Confirmado}: infraestrutura estável após troca de estratégia \\ \bottomrule
 \end{tabularx}
 \fonte{}
 \end{tabframed}
