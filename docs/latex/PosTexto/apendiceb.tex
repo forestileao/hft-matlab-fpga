@@ -92,4 +92,4 @@ Uma sequência prática de depuração é:
   \item iniciar o feed e observar respostas \codigo{[FPGA->ARM]}.
 \end{enumerate}
 
-Se a leitura de \codigo{MAGIC} falhar, o problema provavelmente está em endereço, bitstream ou ponte HPS--FPGA. Se \codigo{MAGIC} estiver correto, mas \codigo{Send} falhar por fila cheia, deve-se investigar consumo TX no FPGA, reset e handshakes internos. Se respostas não aparecem, mas TX é consumida, o foco passa a ser livro de ofertas, estratégia e fila RX.
+Se a leitura de \codigo{MAGIC} falhar, o problema provavelmente está em endereço, bitstream ou ponte HPS--FPGA. Se \codigo{MAGIC} estiver correto, mas \codigo{Send} falhar por fila cheia, deve-se investigar consumo TX no FPGA, reset e handshakes internos. Se respostas não aparecem, mas TX é consumida, o foco passa a ser \textit{Order Book}, estratégia e fila RX.

@@ -1,33 +1,21 @@
-%%{init: {"theme": "base", "flowchart": {"htmlLabels": false}, "themeVariables": {"fontFamily": "Arial", "primaryColor": "#ffffff", "primaryTextColor": "#111111", "lineColor": "#333333", "clusterBkg": "#f8f8f8", "clusterBorder": "#666666"}}}%%
-flowchart LR
-    subgraph ARM["ARM / HPS"]
-        A1["Escreve slot TX"]
-        A2["Publica TX_HEAD"]
-        A3["Le slot RX"]
-        A4["Publica RX_TAIL"]
+%%{init: {"theme": "base", "flowchart": {"htmlLabels": false, "curve": "linear"}, "themeVariables": {"fontFamily": "Arial", "primaryColor": "#ffffff", "primaryTextColor": "#111111", "lineColor": "#333333", "clusterBkg": "#f8f8f8", "clusterBorder": "#666666"}}}%%
+flowchart TB
+    subgraph DATA["Fluxo de dados"]
+        direction LR
+        A1["ARM escreve<br/>evento"]
+        TX["Fila TX"]
+        F2["FPGA processa<br/>evento"]
+        RX["Fila RX"]
+        A3["ARM le<br/>resposta"]
+        A1 --> TX --> F2 --> RX --> A3
     end
 
-    subgraph MMIO["Regiao MMIO compartilhada"]
-        TX["TX ring<br/>ARM -> FPGA"]
-        RX["RX ring<br/>FPGA -> ARM"]
-        REG["Registradores<br/>MAGIC, VERSION,<br/>HEAD/TAIL, STATUS"]
+    subgraph CTRL["Fluxo de controle"]
+        direction LR
+        A2["ARM publica<br/>TX_HEAD"]
+        REG["Registradores<br/>HEAD/TAIL"]
+        F4["FPGA publica<br/>RX_HEAD"]
+        A4["ARM publica<br/>RX_TAIL"]
+        A2 --> REG --> F4
+        F4 --> REG --> A4
     end
-
-    subgraph FPGA["FPGA"]
-        F1["Consome TX"]
-        F2["Atualiza livro<br/>e executa estrategia"]
-        F3["Escreve slot RX"]
-        F4["Publica RX_HEAD"]
-    end
-
-    A1 --> TX
-    A2 --> REG
-    REG --> F1
-    TX --> F1
-    F1 --> F2
-    F2 --> F3
-    F3 --> RX
-    F4 --> REG
-    REG --> A3
-    RX --> A3
-    A4 --> REG

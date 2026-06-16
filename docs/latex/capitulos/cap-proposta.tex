@@ -1,13 +1,13 @@
 \chapter{Proposta}
 \label{cap:proposta}
 
-Este capítulo apresenta a proposta da plataforma: uma infraestrutura de baixo custo para experimentar estratégias de trading escritas em MATLAB e geradas para FPGA por meio do MATLAB HDL Coder. A arquitetura não busca implementar um sistema completo de HFT em produção; ela prepara o caminho de dados, o livro de ofertas, a comunicação ARM--FPGA e a validação para que o bloco de estratégia possa ser substituído com menor esforço.
+Este capítulo apresenta a proposta da plataforma: uma infraestrutura de baixo custo para experimentar estratégias de trading escritas em MATLAB e geradas para FPGA por meio do MATLAB HDL Coder. A arquitetura não busca implementar um sistema completo de HFT em produção; ela prepara o caminho de dados, o \gls{orderbook}, a comunicação ARM--FPGA e a validação para que o bloco de estratégia possa ser substituído com menor esforço.
 
 \section{Visão geral da arquitetura}\label{sec:propostaVisao}
 
 O fluxo principal inicia em um gerador de mercado sintético, que publica mensagens por TCP com símbolo, lado, preço, quantidade e número de sequência. Um receptor decodifica essas mensagens, imprime os dados e, quando o modo FPGA está habilitado, normaliza os campos para uma representação numérica fixa. Essa normalização inclui conversão de símbolo textual para identificador inteiro, preço decimal para ponto fixo e lado da operação para código numérico.
 
-No FPGA, a ponte de comunicação recebe os eventos por filas circulares e os entrega ao motor de decisão. Esse motor atualiza o livro de ofertas, calcula melhor compra, melhor venda, \textit{spread} e desbalanceamento, e aciona a estratégia gerada a partir de MATLAB. A resposta retorna ao software com a ação decidida e os campos derivados do livro.
+No FPGA, a ponte de comunicação recebe os eventos por filas circulares e os entrega ao motor de decisão. Esse motor atualiza o \gls{orderbook}, calcula melhor compra, melhor venda, \textit{spread} e desbalanceamento, e aciona a estratégia gerada a partir de MATLAB. A resposta retorna ao software com a ação decidida e os campos derivados do livro.
 
 Essa arquitetura possui três fronteiras explícitas. A primeira fronteira é protocolo--software: bytes FAST são transformados em objetos C++ tipados. A segunda é software--hardware: objetos C++ são transformados em palavras de 32 bits e publicados por MMIO. A terceira é estado--decisão: eventos brutos são transformados em sinais derivados de livro, e esses sinais alimentam a estratégia. A separação em fronteiras facilita a validação porque cada etapa pode ser testada isoladamente.
 
@@ -15,54 +15,23 @@ Essa arquitetura possui três fronteiras explícitas. A primeira fronteira é pr
 \caption{Arquitetura geral da plataforma proposta}
 \label{fig:placeholderArquiteturaGeral}
 \centering
-\includegraphics[height=0.72\textheight]{arquitetura-geral}
+\includegraphics[width=0.7\textwidth]{arquitetura-geral}
 \fonte{Elaborado pelos autores a partir do diagrama Mermaid de arquitetura do projeto.}
 \end{figure}
 
-A \autoref{fig:diagramaBlocosSistema} mostra os blocos principais do sistema organizados em três camadas. No fluxo de desenvolvimento (offline), a estratégia de trading é escrita em MATLAB, convertida pelo HDL Coder e integrada à FPGA em tempo de síntese (seta tracejada). Na camada de software, um gerador produz dados sintéticos de mercado, que são decodificados e normalizados antes de chegarem à interface MMIO. Na FPGA, os eventos percorrem um pipeline de três estágios: as filas de comunicação recebem os eventos do ARM e devolvem as respostas, o livro de ofertas atualiza o estado por símbolo e calcula os sinais de topo, e a estratégia gerada por HLS produz a ação de trading.
+A \autoref{fig:diagramaBlocosSistema} mostra os blocos principais do sistema organizados em três camadas. No fluxo de desenvolvimento (offline), a estratégia de trading é escrita em MATLAB, convertida pelo HDL Coder e integrada à FPGA em tempo de síntese (seta tracejada). Na camada de software, um gerador produz dados sintéticos de mercado, que são decodificados e normalizados antes de chegarem à interface MMIO. Na FPGA, os eventos percorrem um pipeline de três estágios: as filas de comunicação recebem os eventos do ARM e devolvem as respostas, o \gls{orderbook} atualiza o estado por símbolo e calcula os sinais de topo, e a estratégia gerada por HLS produz a ação de trading.
 
 \begin{figure}[htb]
 \caption{Diagrama de blocos do sistema}
 \label{fig:diagramaBlocosSistema}
 \centering
-\includegraphics[width=0.72\textwidth]{diagrama-blocos-sistema}
+\includegraphics[width=1\textwidth]{diagrama-blocos-sistema}
 \fonte{Elaborado pelos autores.}
 \end{figure}
 
-\section{Elementos da plataforma}\label{sec:elementosPlataforma}
+Essa organização pode ser entendida em três grupos. O primeiro grupo é o software de apoio, responsável por produzir dados sintéticos, decodificar mensagens financeiras e transformar informações textuais em números adequados ao hardware. O segundo grupo é o hardware reconfigurável, responsável por transportar eventos, manter o \gls{orderbook} e executar a decisão. O terceiro grupo é a infraestrutura de desenvolvimento, que reúne build, simulação, geração HLS, integração Quartus e documentação.
 
-O \autoref{quad:elementosPlataforma} resume os principais elementos da plataforma, sua função e sua integração com o sistema. Essa visão é importante para deixar claro quais partes formam a infraestrutura fixa e qual parte representa o ponto de variação do usuário: a estratégia escrita em MATLAB.
-
-\begin{tabframed}[htb]
-\caption{Principais elementos da plataforma}
-\label{quad:elementosPlataforma}
-\begin{tabularx}{\textwidth}{lX}
-\toprule
-\textbf{Elemento} & \textbf{Função no protótipo} \\ \midrule
-\codigo{README.md} & Descreve o fluxo geral, comandos de construção, execução na DE10-Nano, arquitetura e formato dos quadros. \\
-\codigo{Makefile} & Orquestra build, testes, geração HDL, cross-build ARM, Quartus e deploy. \\
-\codigo{cpp/src/fast_data_feed.cpp} & Servidor TCP que gera mensagens FAST sintéticas de mercado. \\
-\codigo{cpp/src/fast_receiver.cpp} & Cliente TCP que decodifica FAST, imprime eventos e, opcionalmente, envia quadros ao FPGA. \\
-\codigo{cpp/src/fpga_shared_stream.h} & Wrapper C++ para abrir MMIO, validar cabeçalho, enviar e receber quadros por filas circulares. \\
-\codigo{cpp/src/templates/SimpleMD.xml} & Template FAST usado para gerar tipos C++ da mensagem de mercado. \\
-\codigo{vhdl/arm_fpga_shared_stream_bridge.vhd} & Ponte RTL com registradores e anéis TX/RX. \\
-\codigo{vhdl/order_book_core.vhd} & Núcleo de livro de ofertas por nível de preço. \\
-\codigo{vhdl/generated_strategy_core.vhd} & Wrapper que encapsula a estratégia gerada por MATLAB HDL Coder e adapta sua saída ao protocolo do motor. \\
-\codigo{vhdl/hft_trade_engine.vhd} & Integra ponte, livro e estratégia em um motor único. \\
-\codigo{vhdl/hft_trade_engine_avalon_mm.vhd} & Adapta o motor para um escravo Avalon-MM no Platform Designer. \\
-\codigo{matlab/strategy.m} & Ponto principal de edição da estratégia de trading em MATLAB sintetizável. \\
-\codigo{matlab/hdl_generator.m} & Script que automatiza a geração VHDL da estratégia via HDL Coder. \\
-\codigo{quartus/de10_nano_hft} & Projeto Quartus/Platform Designer para integração na DE10-Nano. \\
-\codigo{docs/arm-fpga-shared-memory-stream.md} & Documento de contrato entre ARM, FPGA, testes e interpretação de registradores. \\ \bottomrule
-\end{tabularx}
-\fonte{}
-\end{tabframed}
-
-Após o resumo do \autoref{quad:elementosPlataforma}, os elementos podem ser entendidos em três grupos. O primeiro grupo é o software de apoio, responsável por produzir dados sintéticos, decodificar mensagens financeiras e transformar informações textuais em números adequados ao hardware. O segundo grupo é o hardware reconfigurável, responsável por transportar eventos, manter o livro de ofertas e executar a decisão. O terceiro grupo é a infraestrutura de reprodução, que reúne build, simulação, geração HLS, integração Quartus e documentação.
-
-Essa separação evita que o usuário interessado em testar uma estratégia precise alterar todo o sistema. O caminho de dados, a ponte ARM--FPGA, os testes e a integração com a placa formam uma base relativamente estável. A parte que deve variar com maior frequência é a estratégia em MATLAB, que recebe sinais já preparados pelo livro de ofertas e retorna uma ação.
-
-Detalhes de nomes de arquivos e contratos binários são mantidos no \autoref{quad:elementosPlataforma} e nos apêndices. No corpo do trabalho, o ponto central é a função de cada camada: software para entrada e normalização, FPGA para processamento determinístico, MATLAB HDL Coder para geração do bloco decisório e testes para garantir que a troca de estratégia não quebre o restante da plataforma.
+Essa separação evita que o usuário interessado em testar uma estratégia precise alterar todo o sistema. O caminho de dados, a ponte ARM--FPGA, os testes e a integração com a placa formam uma base relativamente estável. A parte que deve variar com maior frequência é a estratégia em MATLAB, que recebe sinais já preparados pelo \gls{orderbook} e retorna uma ação.
 
 \section{Decisões arquiteturais}\label{sec:decisoesArquiteturais}
 
@@ -70,21 +39,21 @@ A primeira decisão arquitetural é manter a decodificação FAST no ARM. O prot
 
 A segunda decisão é usar filas circulares em memória mapeada em vez de um conjunto de registradores para cada campo. Essa escolha desacopla parcialmente o tempo do ARM e do FPGA: o software pode publicar eventos enquanto houver espaço, e o hardware pode consumi-los no seu próprio ritmo. O custo é manter regras claras de publicação e consumo, mas esse custo é aceitável porque o contrato fica estável e testável.
 
-A terceira decisão é separar livro de ofertas e estratégia. O livro é estado persistente; a estratégia é política de decisão. Misturar ambos em um único bloco dificultaria testar atualização de livro sem acionar regra de negociação, ou testar a regra com snapshots artificiais. A separação permite substituir a estratégia gerada por MATLAB sem reescrever o livro em VHDL. Também permite, futuramente, comparar múltiplas estratégias sobre o mesmo estado de mercado.
+A terceira decisão é separar \gls{orderbook} e estratégia. O livro é estado persistente; a estratégia é política de decisão. Misturar ambos em um único bloco dificultaria testar atualização de livro sem acionar regra de negociação, ou testar a regra com snapshots artificiais. A separação permite substituir a estratégia gerada por MATLAB sem reescrever o \gls{orderbook} em VHDL. Também permite, futuramente, comparar múltiplas estratégias sobre o mesmo estado de mercado.
 
 A quarta decisão é usar tamanhos fixos para filas, símbolos e profundidade do livro. Em FPGA, memória e lógica precisam ser definidas antes da síntese; portanto, estruturas dinâmicas típicas de software não são adequadas. A limitação é que mudanças de capacidade exigem nova síntese, mas a vantagem é obter um circuito previsível e compatível com validação por testbench.
 
 \section{Fluxo de criação de estratégias com MATLAB HDL Coder}\label{sec:fluxoCriacaoEstrategias}
 
-O objetivo principal da plataforma é reduzir o esforço necessário para implementar uma nova estratégia de trading em FPGA. Para isso, o ambiente separa a infraestrutura fixa da política de decisão. A infraestrutura fixa inclui recepção de mensagens, normalização, transporte MMIO, filas circulares, livro de ofertas simplificado, wrapper Avalon-MM e testbenches. A política de decisão é concentrada em uma função MATLAB, representada por \codigo{strategy.m}.
+O objetivo principal da plataforma é reduzir o esforço necessário para implementar uma nova estratégia de trading em FPGA. Para isso, o ambiente separa a infraestrutura fixa da política de decisão. A infraestrutura fixa inclui recepção de mensagens, normalização, transporte MMIO, filas circulares, \gls{orderbook} simplificado, wrapper Avalon-MM e testbenches. A política de decisão é concentrada em uma função MATLAB, representada por \codigo{strategy.m}.
 
 O fluxo esperado para o usuário é:
 
 \begin{enumerate}
-  \item escrever ou alterar a função \codigo{strategy.m}, recebendo sinais numéricos do livro de ofertas, como melhor compra, melhor venda, quantidades, \textit{spread} e desbalanceamento;
+  \item escrever ou alterar a função \codigo{strategy.m}, recebendo sinais numéricos do \gls{orderbook}, como melhor compra, melhor venda, quantidades, \textit{spread} e desbalanceamento;
   \item respeitar restrições de código sintetizável, como uso de tipos inteiros ou ponto fixo, ausência de alocação dinâmica, ausência de strings e controle de fluxo com limites conhecidos;
-  \item executar o script \codigo{hdl_generator.m} para gerar VHDL por meio do MATLAB HDL Coder;
-  \item integrar o bloco gerado ao wrapper \codigo{generated_strategy_core.vhd}, que mantém a interface de resposta para o restante do motor;
+  \item executar o fluxo de geração para obter o bloco VHDL por meio do MATLAB HDL Coder;
+  \item integrar o bloco gerado ao motor de decisão, mantendo a mesma interface de entrada e saída da plataforma;
   \item executar os testbenches da estratégia e do motor completo para verificar se BUY, SELL e NOOP ocorrem nos cenários esperados;
   \item somente após validação funcional, seguir para síntese Quartus e coleta de métricas.
 \end{enumerate}
@@ -109,7 +78,7 @@ Essa dualidade é metodologicamente útil. O modo software-only permite testar o
 
 O sistema também possui mecanismos simples de observabilidade: identificação do periférico, versão de protocolo, geometria da fila e mensagens de erro no receptor. Esses mecanismos são suficientes para o estágio de protótipo, pois ajudam a diferenciar falhas de feed, falhas de decodificação e falhas de comunicação com a FPGA sem transformar o texto em uma descrição exaustiva de registradores.
 
-O escopo positivo inclui geração sintética de dados, decodificação FAST, transporte ARM--FPGA, livro de ofertas simplificado, decisão por estratégia gerada e preparação para execução na DE10-Nano. O escopo negativo inclui conexão real com bolsa, envio de ordens, controle de risco profissional, dados proprietários, multicast real, \textit{kernel bypass}, conformidade regulatória e métricas finais de latência com instrumentação dedicada. Essas delimitações mantêm o trabalho adequado a uma monografia de graduação.
+O escopo positivo inclui geração sintética de dados, decodificação FAST, transporte ARM--FPGA, \gls{orderbook} simplificado, decisão por estratégia gerada e preparação para execução na DE10-Nano. O escopo negativo inclui conexão real com bolsa, envio de ordens, controle de risco profissional, dados proprietários, multicast real, \textit{kernel bypass}, conformidade regulatória e métricas finais de latência com instrumentação dedicada. Essas delimitações mantêm o trabalho adequado a uma monografia de graduação.
 
 \section{Contrato de eventos ARM--FPGA}\label{sec:contratoEventos}
 
@@ -165,4 +134,4 @@ O gerador de dados cria preços próximos a um valor base por símbolo e alterna
 
 A estratégia atual é intencionalmente simples. Se um dos lados do livro está vazio, se o livro está cruzado ou se o \textit{spread} supera 2,5000 unidades monetárias em escala $10^4$, a ação é NOOP. Se o desbalanceamento é maior ou igual a 500, a ação é BUY. Se o desbalanceamento é menor ou igual a -500, a ação é SELL. Caso contrário, a ação permanece NOOP.
 
-Essa regra não deve ser avaliada como estratégia financeira lucrativa. Sua finalidade é produzir uma decisão verificável e dependente do estado do livro de ofertas, permitindo testar se o pipeline de dados preserva campos, ordem de palavras, sinais e semântica. A vantagem é a simplicidade para validação; a limitação é a baixa representatividade de estratégias reais, que exigiriam controle de risco, previsão, custos, posição, \textit{slippage} e conformidade.
+Essa regra não deve ser avaliada como estratégia financeira lucrativa. Sua finalidade é produzir uma decisão verificável e dependente do estado do \gls{orderbook}, permitindo testar se o pipeline de dados preserva campos, ordem de palavras, sinais e semântica. A vantagem é a simplicidade para validação; a limitação é a baixa representatividade de estratégias reais, que exigiriam controle de risco, previsão, custos, posição, \textit{slippage} e conformidade.

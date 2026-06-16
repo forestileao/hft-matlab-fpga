@@ -2,7 +2,7 @@
 
 \chapter{Materiais e Métodos}\label{cap:materialemetodos}
 
-Este capítulo descreve os materiais e os métodos utilizados para construir e validar a plataforma proposta. A ênfase metodológica está no uso de MATLAB HDL Coder para gerar a lógica de estratégia, enquanto a infraestrutura de comunicação, livro de ofertas e testes permanece como base de execução.
+Este capítulo descreve os materiais e os métodos utilizados para construir e validar a plataforma proposta. A ênfase metodológica está no uso de MATLAB HDL Coder para gerar a lógica de estratégia, enquanto a infraestrutura de comunicação, \gls{orderbook} e testes permanece como base de execução.
 
 \section{Materiais}\label{sec:materiais}
 
@@ -10,17 +10,33 @@ A plataforma alvo é a DE10-Nano, baseada em Intel Cyclone V SoC. A escolha dess
 
 O software de apoio foi desenvolvido em C++ e utiliza a biblioteca mFAST para codificação e decodificação de mensagens FAST. Essa camada é responsável por gerar dados sintéticos, receber mensagens, normalizar símbolos, converter preços para ponto fixo e interagir com a região de memória mapeada da FPGA. Essa escolha mantém no software as partes mais variáveis do protocolo de mercado e envia ao hardware apenas dados numéricos.
 
-O hardware foi descrito em VHDL, com simulações também em VHDL. A infraestrutura manual inclui a ponte ARM--FPGA, o livro de ofertas, o empacotamento de respostas e a adaptação ao barramento Avalon-MM. A estratégia de trading, por sua vez, é escrita em MATLAB e convertida para VHDL por meio do HDL Coder. Essa divisão foi adotada para preservar controle explícito das interfaces críticas e, ao mesmo tempo, facilitar a criação de novas regras de decisão.
+O hardware foi descrito em VHDL, com simulações também em VHDL. A infraestrutura manual inclui a ponte ARM--FPGA, o \gls{orderbook}, o empacotamento de respostas e a adaptação ao barramento Avalon-MM. A estratégia de trading, por sua vez, é escrita em MATLAB e convertida para VHDL por meio do HDL Coder. Essa divisão foi adotada para preservar controle explícito das interfaces críticas e, ao mesmo tempo, facilitar a criação de novas regras de decisão.
 
-O fluxo de construção e validação utiliza Make, Docker, CMake, GHDL, MATLAB HDL Coder e Quartus. Essas ferramentas são empregadas para reduzir diferenças de ambiente, executar testes C++ e VHDL, gerar o bloco HDL da estratégia, compilar o projeto FPGA e preparar binários para a DE10-Nano. Como o trabalho depende de ferramentas acadêmicas e dados sintéticos, não há necessidade de acesso a uma bolsa real, contrato de dados proprietário ou infraestrutura profissional de negociação.
+O fluxo de construção e validação utiliza Make, Docker, CMake, GHDL, MATLAB HDL Coder e Quartus Prime Lite com Platform Designer. Essas ferramentas são empregadas para reduzir diferenças de ambiente, executar testes C++ e VHDL, gerar o bloco HDL da estratégia, compilar o projeto FPGA e preparar binários para a DE10-Nano. Como o trabalho depende de ferramentas acadêmicas e dados sintéticos, não há necessidade de acesso a uma bolsa real, contrato de dados proprietário ou infraestrutura profissional de negociação.
 
 \section{Métodos}\label{sec:metodo}
 
 \subsection{Organização da plataforma}\label{subsec:definicaoPlataforma}
 
-O método de desenvolvimento foi orientado pela separação entre infraestrutura e estratégia. A infraestrutura compreende recepção de dados, normalização, transporte por MMIO, livro de ofertas, integração Avalon-MM e testes. A estratégia é mantida em uma função MATLAB sintetizável, com entradas numéricas já derivadas do livro de ofertas. Assim, a troca de estratégia deve exigir alteração prioritariamente no código MATLAB, não na ponte de comunicação nem no livro de ofertas.
+O método de desenvolvimento foi orientado pela separação entre infraestrutura e estratégia. A infraestrutura compreende recepção de dados, normalização, transporte por MMIO, \gls{orderbook}, integração Avalon-MM e testes. A estratégia é mantida em uma função MATLAB sintetizável, com entradas numéricas já derivadas do \gls{orderbook}. Assim, a troca de estratégia deve exigir alteração prioritariamente no código MATLAB, não na ponte de comunicação nem no \gls{orderbook}.
 
 Essa organização também define a responsabilidade de cada domínio. O software lida com mensagens textuais ou binárias de formato flexível. O hardware lida com palavras de largura fixa, estado do livro e decisão. O MATLAB HDL Coder atua no ponto de maior interesse do usuário: a regra de trading. A consequência é um fluxo de trabalho mais simples para experimentar variações de estratégia, desde que sejam respeitadas as restrições de código sintetizável.
+
+\subsection{Integração no Quartus e Platform Designer}\label{subsec:metodoQuartus}
+
+Além da descrição RTL e da geração automática da estratégia, o trabalho exige uma etapa explícita de integração no Quartus Prime Lite, em especial no Platform Designer da Intel \cite{IntelPlatformDesigner}. É nessa ferramenta que o \gls{hps}, a ponte HPS--FPGA e o periférico customizado \codigo{hft\_trade\_engine\_avalon\_mm} são ligados em um sistema SoC coerente para a DE10-Nano.
+
+A \autoref{fig:platformDesigner} mostra a integração utilizada no projeto. Nela, o HPS atua como bloco iniciador da comunicação e o motor HFT aparece como periférico Avalon-MM do tipo \textit{slave}. Essa ligação é importante porque materializa, em nível de ferramenta, o contrato discutido ao longo do texto: o software ARM publica eventos pela ponte, o periférico no FPGA consome esses eventos, atualiza o \gls{orderbook} e devolve respostas pela fila RX. Em outras palavras, a figura serve como evidência visual de como a arquitetura proposta foi efetivamente montada no ambiente Quartus.
+
+\begin{figure}[htb]
+\caption{Ligação entre HPS e o bloco \textit{HFT Trade Engine Avalon-MM} no Platform Designer}
+\label{fig:platformDesigner}
+\centering
+\includegraphics[width=0.95\textwidth]{platform-designer}
+\fonte{Captura de tela elaborada pelos autores no Quartus Prime Lite Platform Designer.}
+\end{figure}
+
+Essa etapa de integração complementa os artefatos em VHDL e os scripts de build. Embora a lógica de decisão, a ponte ARM--FPGA e o \gls{orderbook} estejam descritos nos arquivos-fonte, é o Platform Designer que define a conexão final com o HPS, o mapeamento Avalon-MM e a forma como o sistema sintetizado passa a existir como periférico acessível pelo software embarcado.
 
 \subsection{Contrato de comunicação}\label{subsec:metodoContrato}
 
@@ -34,15 +50,15 @@ O fluxo de dados usa mensagens sintéticas codificadas em FAST e transmitidas po
 
 Essa abordagem não pretende medir a latência de uma rede de bolsa real. O objetivo é exercitar o caminho de dados até a estratégia: mensagem de mercado, normalização, transporte ARM--FPGA, atualização do livro e retorno da decisão. Assim, a metodologia separa validação funcional do pipeline de qualquer afirmação quantitativa sobre redes financeiras reais.
 
-\subsection{Livro de ofertas e estratégia}\label{subsec:metodoLivroEstrategia}
+\subsection{Order Book e estratégia}\label{subsec:metodoLivroEstrategia}
 
-O livro de ofertas foi implementado em hardware com profundidade limitada. Ele mantém níveis de compra e venda por símbolo, atualiza preços e quantidades, rejeita estados cruzados e calcula os sinais necessários à estratégia. A profundidade limitada é coerente com o objetivo do protótipo: validar a integração e fornecer sinais de topo de livro, não reproduzir integralmente a complexidade de um livro de bolsa.
+O \gls{orderbook} foi implementado em hardware com profundidade limitada. Ele mantém níveis de compra e venda por símbolo, atualiza preços e quantidades, rejeita estados cruzados e calcula os sinais necessários à estratégia. A profundidade limitada é coerente com o objetivo do protótipo: validar a integração e fornecer sinais de topo de livro, não reproduzir integralmente a complexidade de um livro de bolsa.
 
-A estratégia foi escrita em MATLAB com operações compatíveis com HDL Coder. Ela recebe os sinais do livro e retorna uma ação discreta: NOOP, BUY ou SELL. O papel do HDL Coder é transformar essa regra em lógica sintetizável, permitindo que o usuário trabalhe em um nível mais próximo da formulação algorítmica. Estratégias futuras podem alterar limiares ou combinar os sinais de outra forma, desde que mantenham tipos e operações adequados à síntese.
+A estratégia foi escrita em MATLAB com operações compatíveis com HDL Coder. Ela recebe os sinais do \gls{orderbook} e retorna uma ação discreta: NOOP, BUY ou SELL. O papel do HDL Coder é transformar essa regra em lógica sintetizável, permitindo que o usuário trabalhe em um nível mais próximo da formulação algorítmica. Estratégias futuras podem alterar limiares ou combinar os sinais de outra forma, desde que mantenham tipos e operações adequados à síntese.
 
 \subsection{Validação funcional}\label{subsec:metodoValidacao}
 
-A validação foi dividida por camadas. O software é validado por testes de comunicação e empacotamento. A ponte ARM--FPGA é validada por simulações de fila, rajadas e contrapressão. O livro de ofertas é validado por casos de inserção, remoção, ordenação e rejeição de estados inválidos. A estratégia é validada por cenários que devem produzir NOOP, BUY e SELL. Por fim, o motor completo é validado pela passagem de eventos por todas as etapas.
+A validação foi dividida por camadas. O software é validado por testes de comunicação e empacotamento. A ponte ARM--FPGA é validada por simulações de fila, rajadas e contrapressão. O \gls{orderbook} é validado por casos de inserção, remoção, ordenação e rejeição de estados inválidos. A estratégia é validada por cenários que devem produzir NOOP, BUY e SELL. Por fim, o motor completo é validado pela passagem de eventos por todas as etapas.
 
 O \autoref{quad:matrizValidacao} resume os principais riscos cobertos por essa validação. A matriz evita que o trabalho dependa apenas de uma demonstração manual em placa, pois cada parte essencial da arquitetura possui uma evidência funcional própria.
 
@@ -53,7 +69,7 @@ O \autoref{quad:matrizValidacao} resume os principais riscos cobertos por essa v
 \toprule
 \textbf{Artefato} & \textbf{Risco técnico mitigado} & \textbf{Evidência de validação} \\ \midrule
 Interface ARM--FPGA & Divergência de contrato, fila cheia mal detectada ou avanço de ponteiro fora de ordem. & Teste C++ e testbenches VHDL da ponte. \\
-Livro de ofertas & Livro fora de ordem, remoção incorreta ou aceitação de livro cruzado. & Testbench específico com casos de inserção, atualização e remoção. \\
+Order Book & Livro fora de ordem, remoção incorreta ou aceitação de livro cruzado. & Testbench específico com casos de inserção, atualização e remoção. \\
 Estratégia gerada & Ação incompatível com os sinais de mercado ou resposta perdida. & Testbench da estratégia e verificação de NOOP em estados inválidos. \\
 Motor integrado & Falha de integração entre comunicação, livro e decisão. & Testbench de motor completo com escrita de eventos e leitura de respostas. \\
 Integração Avalon-MM & Barramento travado ou transação sem retorno durante acesso do HPS. & Testbench do wrapper Avalon-MM. \\
@@ -66,7 +82,7 @@ Feed e receptor & Falha de codificação, decodificação ou normalização dos 
 
 A implementação atual fornece principalmente evidências funcionais. Para completar a avaliação quantitativa, o método prevê instrumentar o software e a FPGA. No software, devem ser registrados os instantes de recebimento do evento, publicação do quadro e leitura da resposta. No hardware, recomenda-se usar um contador de ciclos para medir o intervalo entre consumo do evento e publicação da resposta.
 
-A vazão deve ser medida aumentando progressivamente a taxa do feed até ocorrer saturação, fila cheia ou perda de resposta. O uso de recursos deve ser obtido a partir dos relatórios do Quartus, separando, quando possível, ponte, livro e estratégia. Além disso, como o objetivo central é facilitar a criação de estratégias com MATLAB, também deve ser medida a produtividade do fluxo HLS: tempo para alterar a estratégia, gerar VHDL, integrar o bloco e passar nos testes.
+A vazão deve ser medida aumentando progressivamente a taxa do feed até ocorrer saturação, fila cheia ou perda de resposta.
 
 \begin{tabframed}[htb]
 \caption{Métricas experimentais planejadas e resultados obtidos}
@@ -74,14 +90,12 @@ A vazão deve ser medida aumentando progressivamente a taxa do feed até ocorrer
 \begin{tabularx}{\textwidth}{lXXX}
 \toprule
 \textbf{Métrica} & \textbf{Como medir} & \textbf{Meta de referência} & \textbf{Resultado} \\ \midrule
-Latência fim a fim (RTT) & Modo \codigo{fpga-sync}: mede RTT ARM$\to$FPGA$\to$ARM por mensagem com percentis. & Comparar com versão software-only. & \textbf{$\sim$9.700~ns} médio (\autoref{tab:latenciaComparacao}) \\
-Latência interna FPGA & Contador de ciclos entre consumo do evento e publicação da resposta. & Jitter interno inferior a $1~\mu$s. & \textbf{60~ns, jitter 0~ns} (\autoref{sec:benchmarkDesempenho}) \\
-Vazão & Eventos por segundo até ocorrência de saturação. & Pelo menos 100.000 mensagens/s. & \textbf{102.964~msg/s} \\
-Speedup (núcleo lógico) & Comparação do núcleo de decisão FPGA vs.\ C++ equivalente (sem comun.). & Aceleração mínima de 5 vezes. & \textbf{5,186\texttimes} (lógica isolada) \\
-Uso de recursos & Relatórios Quartus de lógica, registradores, memória e frequência máxima. & Caber na Cyclone V da DE10-Nano. & Pendente (síntese Quartus) \\
-Produtividade HLS & Tempo e alterações necessárias para trocar a estratégia MATLAB. & Mudar a estratégia sem alterar a infraestrutura. & \textbf{Confirmado}: infraestrutura estável após troca de estratégia \\ \bottomrule
+Latência fim a fim (RTT) & Modo \codigo{fpga-sync}: mede RTT ARM$\to$FPGA$\to$ARM por mensagem com percentis. & Comparar com versão software-only. & \textbf{10.228~ns} médio; \textbf{10.310~ns} p99 (\autoref{tab:latenciaComparacao}) \\
+Latência interna FPGA & Contador de ciclos do núcleo lógico. & Jitter interno inferior a $1~\mu$s. & \textbf{60~ns, jitter 0~ns} (\autoref{sec:benchmarkDesempenho}) \\
+Vazão & Eventos por segundo até ocorrência de saturação. & Pelo menos 100.000 mensagens/s. & \textbf{102.381~msg/s} \\
+Speedup (núcleo lógico) & Comparação do núcleo de decisão FPGA vs.\ C++ equivalente (sem comun.). & Aceleração mínima de 5 vezes. & \textbf{5,253\texttimes} (lógica isolada) \\ \bottomrule
 \end{tabularx}
 \fonte{}
 \end{tabframed}
 
-As metas apresentadas são critérios de avaliação para a campanha experimental, não resultados já obtidos. Essa distinção é importante para não confundir integração funcional com comprovação quantitativa de ganho de desempenho.
+As metas apresentadas funcionaram como critérios de avaliação para a campanha experimental e, na versão atual do trabalho, já podem ser confrontadas com resultados efetivamente obtidos. Essa distinção continua importante para não confundir integração funcional com desempenho: o benchmark já comprova aceleração do núcleo lógico e vazão da ponte MMIO.

@@ -1,7 +1,11 @@
 \babel@toc {brazil}{}\relax
-\contentsline {table}{\numberline {1}{\ignorespaces Quadro de evento enviado do ARM para o FPGA}}{44}{table.caption.34}%
-\contentsline {table}{\numberline {2}{\ignorespaces Quadro de resposta enviado do FPGA para o ARM}}{44}{table.caption.35}%
-\contentsline {table}{\numberline {3}{\ignorespaces Resumo da execução funcional na DE10-Nano}}{53}{table.caption.41}%
-\contentsline {table}{\numberline {4}{\ignorespaces Registradores da interface MMIO}}{61}{table.caption.50}%
-\contentsline {table}{\numberline {5}{\ignorespaces Formato do quadro ARM--FPGA}}{62}{table.caption.51}%
-\contentsline {table}{\numberline {6}{\ignorespaces Variáveis de ambiente do receptor}}{66}{table.caption.56}%
+\contentsline {table}{\numberline {1}{\ignorespaces Quadro de evento enviado do ARM para o FPGA}}{41}{table.caption.35}%
+\contentsline {table}{\numberline {2}{\ignorespaces Quadro de resposta enviado do FPGA para o ARM}}{42}{table.caption.36}%
+\contentsline {table}{\numberline {3}{\ignorespaces Resumo da execução funcional na DE10-Nano}}{54}{table.caption.43}%
+\contentsline {table}{\numberline {4}{\ignorespaces Métricas de desempenho do benchmark na DE10-Nano}}{57}{table.caption.46}%
+\contentsline {table}{\numberline {5}{\ignorespaces Latência lógica vs.\ latência fim a fim na DE10-Nano}}{59}{table.caption.47}%
+\contentsline {table}{\numberline {6}{\ignorespaces Estimativa de energia por decisão por substrato}}{60}{table.caption.48}%
+\contentsline {table}{\numberline {7}{\ignorespaces Comparação de latência fim a fim entre arquiteturas de HFT}}{62}{table.caption.49}%
+\contentsline {table}{\numberline {8}{\ignorespaces Registradores da interface MMIO}}{69}{table.caption.54}%
+\contentsline {table}{\numberline {9}{\ignorespaces Formato do quadro ARM--FPGA}}{70}{table.caption.55}%
+\contentsline {table}{\numberline {10}{\ignorespaces Variáveis de ambiente do receptor}}{74}{table.caption.60}%
