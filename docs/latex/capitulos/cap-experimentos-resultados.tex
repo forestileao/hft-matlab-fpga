@@ -14,7 +14,9 @@ Para responder à segunda pergunta, a validação foi organizada por testes em c
 
 Para responder à terceira pergunta, foi executado um benchmark quantitativo alinhado às métricas definidas na metodologia (\autoref{quad:metricasPlanejadas}). Esse benchmark foi dividido em duas visões complementares. A primeira mede apenas o núcleo lógico da FPGA, porque é essa medição que permite avaliar determinismo interno e aceleração do hardware em relação a uma implementação equivalente em software. A segunda mede o caminho completo ARM$\to$FPGA$\to$ARM, porque é essa medição que revela o custo prático da comunicação e explica a diferença entre o desempenho do núcleo lógico e o comportamento do sistema completo.
 
-Essa divisão evita uma interpretação incorreta dos resultados. Quando o texto afirma que a FPGA apresenta jitter nulo, a afirmação refere-se ao núcleo lógico interno. Quando o texto discute RTT médio, p99 e cauda longa, a análise já inclui o custo da ponte MMIO e do ARM Linux. Em outras palavras, cada experimento foi desenhado para responder uma pergunta específica, e as conclusões do capítulo devem ser lidas dentro desse escopo.
+Há ainda uma quarta frente de análise neste capítulo: a eficiência energética. Diferentemente de latência, jitter, vazão e aceleração, essa parte não foi obtida por benchmark executado com instrumentação elétrica na placa. O que se apresenta é um experimento de cálculo, baseado em potência típica dos dispositivos e no tempo de processamento observado, com a finalidade de estimar a ordem de grandeza da energia por decisão. Essa distinção é importante para não atribuir o mesmo nível de evidência experimental a métricas medidas diretamente e a métricas inferidas por estimativa.
+
+Essa divisão evita uma interpretação incorreta dos resultados. Quando o texto afirma que a FPGA apresenta jitter nulo, a afirmação refere-se ao núcleo lógico interno e foi obtida por benchmark executado na placa. Quando o texto discute RTT médio, p99 e cauda longa, a análise já inclui o custo da ponte MMIO e do ARM Linux e também foi obtida por benchmark. Já a discussão de energia deve ser lida como estimativa analítica, e não como medição elétrica direta. Em outras palavras, cada experimento foi desenhado para responder uma pergunta específica, e as conclusões do capítulo devem ser lidas dentro desse escopo.
 
 \section{Sistema obtido}\label{sec:escopoSistema}
 
@@ -233,6 +235,8 @@ Esses resultados não invalidam a demonstração funcional nem a aceleração do
 \subsection{Eficiência energética}\label{subsec:energiaBenchmark}
 
 Além da latência, a eficiência energética é uma vantagem estrutural de FPGAs em relação a CPUs de propósito geral. Um processador, seja ARM ou x86, dissipa potência em recursos que não participam da decisão de trading: unidade de controle de threads, hierarquia de cache, preditor de desvios e interfaces de memória geral. Na FPGA, apenas a lógica sintetizada para a tarefa específica comuta, e o consumo está diretamente vinculado à carga de trabalho do circuito.
+
+Esta subseção não descreve um benchmark medido diretamente na DE10-Nano com amperímetro ou instrumento equivalente. Trata-se de um cálculo de energia por decisão a partir de potência típica e latência de processamento, usado para fornecer uma comparação de ordem de grandeza entre substratos computacionais.
 
 A \autoref{tab:energiaComparacao} apresenta estimativas de energia por decisão para as três classes de substrato. Os valores são estimativas de ordem de grandeza baseadas em potência típica dos dispositivos e na latência de processamento medida; não foram obtidos por instrumentação direta de corrente.
 

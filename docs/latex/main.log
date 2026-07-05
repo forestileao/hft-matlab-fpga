@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.4.12)  15 JUN 2026 23:42
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.4.12)  15 JUN 2026 23:53
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -935,4 +935,4138 @@ File: datatool-l3fp.def 2025/12/04 v3.4.3 (NLCT)
 )
 \@dtl@toks=\toks42
 \@dtl@tmpcount=\count401
-\dtl@tmplength
+\dtl@tmplength=\skip266
+\l__datatool_measure_box=\box61
+\dtl@sortresult=\count402
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/datatool/datatool-utf8.ldf
+File: datatool-utf8.ldf 2025/12/04 v3.4.3 (NLCT)
+)
+\@dtl@datatype=\count403
+\c_datatool_unknown_int=\count404
+\l__datatool_year_int=\count405
+\l__datatool_month_int=\count406
+\l__datatool_day_int=\count407
+\l__datatool_hour_int=\count408
+\l__datatool_minute_int=\count409
+\l__datatool_second_int=\count410
+\l__datatool_tzhour_int=\count411
+\l__datatool_tzminute_int=\count412
+\l__datatool_julian_int=\count413
+\l__datatool_local_julian_int=\count414
+\l__datatool_prefix_int=\count415
+\l__datatool_suffix_int=\count416
+\@dtl@foreach@level=\count417
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/datatool-english/datatool-english.ldf
+File: datatool-english.ldf 2025/03/12 v1.1 (NLCT)
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/datatool-english/datatool-english-utf8.ldf
+File: datatool-english-utf8.ldf 2025/03/12 v1.1 (NLCT)
+))
+
+Package tracklang Warning: No `datatool' support for dialect `french'  on input line 9924.
+
+
+Package tracklang Warning: No `datatool' support for dialect `spanish'  on input line 9924.
+
+
+Package tracklang Warning: No `datatool' support for dialect `brazil'  on input line 9924.
+
+
+Package tracklang Warning: No `datatool' support for dialect `brazil'  on input line 9924.
+
+\dtl@codeA=\count418
+\dtl@codeB=\count419
+)
+\gls@level=\count420
+\@gls@tmpb=\toks43
+\gls@tmplen=\skip267
+\l__glossaries_tmpa_dim=\dimen289
+\l__glossaries_tmpb_dim=\dimen290
+\glskeylisttok=\toks44
+\glslabeltok=\toks45
+\glsshorttok=\toks46
+\glslongtok=\toks47
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/glossaries/styles/glossary-hypernav.sty
+Package: glossary-hypernav 2026/03/06 v5.0 (NLCT)
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/glossaries/styles/glossary-list.sty
+Package: glossary-list 2026/03/06 v5.0 (NLCT)
+\glslistdottedwidth=\skip268
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/glossaries/styles/glossary-long.sty
+Package: glossary-long 2026/03/06 v5.0 (NLCT)
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/tools/longtable.sty
+Package: longtable 2025-10-13 v4.24 Multi-page Table package (DPC)
+\LTleft=\skip269
+\LTright=\skip270
+\LTpre=\skip271
+\LTpost=\skip272
+\LTchunksize=\count421
+\LTcapwidth=\dimen291
+\LT@head=\box62
+\LT@firsthead=\box63
+\LT@foot=\box64
+\LT@lastfoot=\box65
+\LT@gbox=\box66
+\LT@cols=\count422
+\LT@rows=\count423
+\c@LT@tables=\count424
+\c@LT@chunks=\count425
+\LT@p@ftn=\toks48
+)
+\glsdescwidth=\skip273
+\glspagelistwidth=\skip274
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/glossaries/styles/glossary-tree.sty
+Package: glossary-tree 2026/03/06 v5.0 (NLCT)
+\l__glossaries_tree_max_known_level_int=\count426
+\l__glossaries_tree_offset_dim=\dimen292
+\l__glossaries_tree_namewidth_dim=\dimen293
+\l__glossaries_tree_symbolwidth_dim=\dimen294
+\l__glossaries_tree_prenamesym_width_dim=\dimen295
+\l__glossaries_tree_presubnamesym_width_dim=\dimen296
+\l__glossaries_tree_namewidth_padding_dim=\dimen297
+\l__glossaries_tree_symbolwidth_padding_dim=\dimen298
+\l__glossaries_tree_namesymbolwidth_dim=\dimen299
+\l__glossaries_tree_namesymbolwidth_padding_dim=\dimen300
+\l__glossaries_tree_level_int=\count427
+\glstreeindent=\skip275
+)) (/usr/local/texlive/2026/texmf-dist/tex/latex/nomencl/nomencl.sty
+Package: nomencl 2021/11/10 v5.6 Nomenclature package
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/koma-script/tocbasic.sty
+Package: tocbasic 2026/02/02 v3.49.2 KOMA-Script package (handling toc-files)
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/koma-script/scrbase.sty
+Package: scrbase 2026/02/02 v3.49.2 KOMA-Script package (KOMA-Script-independent basics and keyval usage)
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/koma-script/scrlfile.sty
+Package: scrlfile 2026/02/02 v3.49.2 KOMA-Script package (file load hooks)
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/koma-script/scrlfile-hook.sty
+Package: scrlfile-hook 2026/02/02 v3.49.2 KOMA-Script package (using LaTeX hooks)
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/koma-script/scrlogo.sty
+Package: scrlogo 2026/02/02 v3.49.2 KOMA-Script package (logo)
+)))
+Applying: [2021/05/01] Usage of raw or classic option list on input line 254.
+Already applied: [0000/00/00] Usage of raw or classic option list on input line 370.
+)
+\scr@dte@tocline@numberwidth=\skip276
+\scr@dte@tocline@numbox=\box67
+)
+Package tocbasic Info: setting babel extension for `nlo' on input line 187.
+Package tocbasic Info: setting babel extension for `nls' on input line 188.
+\nomlabelwidth=\dimen301
+\nom@tempdim=\dimen302
+\nomitemsep=\skip277
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/sistyle/sistyle.sty
+Package: sistyle 2008/07/16 v2.3a SI units and numbers (DNJ Els)
+\ttoks@A=\toks49
+\ttoks@B=\toks50
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/caption/caption.sty
+Package: caption 2023/08/05 v3.6o Customizing captions (AR)
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/caption/caption3.sty
+Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
+\caption@tempdima=\dimen303
+\captionmargin=\dimen304
+\caption@leftmargin=\dimen305
+\caption@rightmargin=\dimen306
+\caption@width=\dimen307
+\caption@indent=\dimen308
+\caption@parindent=\dimen309
+\caption@hangindent=\dimen310
+Package caption Info: memoir document class detected.
+Package caption Info: french babel package is loaded.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/caption/caption-memoir.sto
+File: caption-memoir.sto 2023/09/08 v2.2c Adaption of the caption package to the memoir document class (AR)
+))
+\c@caption@flags=\count428
+\c@continuedfloat=\count429
+Package caption Info: changepage package is loaded.
+\caption@adjustwidth@hsize=\dimen311
+\caption@adjustwidth@linewidth=\dimen312
+Package caption Info: hyperref package is loaded.
+Package caption Info: longtable package is loaded.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/caption/ltcaption.sty
+Package: ltcaption 2021/01/08 v1.4c longtable captions (AR)
+)) (/usr/local/texlive/2026/texmf-dist/tex/latex/xtab/xtab.sty
+Package: xtab 2011/07/31 v2.3f Extended supertabular package
+\c@tracingst=\count430
+\PWSTcapht=\dimen313
+\ST@wd=\dimen314
+\ST@rightskip=\skip278
+\ST@leftskip=\skip279
+\ST@parfillskip=\skip280
+\c@PWSTtable=\count431
+\PWSTlastpage=\count432
+\PWSTpenultimate=\count433
+\PWSTcurpage=\count434
+\PWSTtempc=\count435
+\PWSTlines=\count436
+\PWST@lastht=\dimen315
+\PWST@generalht=\dimen316
+\PWST@ht=\dimen317
+\ST@pageleft=\dimen318
+\ST@headht=\dimen319
+\ST@tailht=\dimen320
+\ST@pagesofar=\dimen321
+\ST@pboxht=\dimen322
+\ST@lineht=\dimen323
+\ST@stretchht=\dimen324
+\ST@prevht=\dimen325
+\ST@toadd=\dimen326
+\ST@dimen=\dimen327
+\ST@pbox=\box68
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/tools/indentfirst.sty
+Package: indentfirst 2023/07/02 v1.03 Indent first paragraph (DPC)
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/morewrites/morewrites.sty (/usr/local/texlive/2026/texmf-dist/tex/latex/morewrites/primargs.sty
+Package: primargs 2024/02/02 Parsing arguments of primitives
+)
+Package: morewrites 2024/02/02 Always room for a new write
+\g__morewrites_later_int=\count437
+\l__morewrites_user_int=\count438
+\g__morewrites_iow=\write4
+\g__morewrites_ior=\read4
+\g__morewrites_group_level_int=\count439
+\g__morewrites_shipout_box=\box69
+\l__morewrites_collect_next_int=\count440
+\g__morewrites_alloc_write_int=\count441
+)
+Package hyperref Info: Option `breaklinks' set `true' on input line 159.
+Package hyperref Info: Option `colorlinks' set `true' on input line 159.
+Package hyperref Info: Option `bookmarksopen' set `true' on input line 159.
+Package hyperref Info: Option `bookmarksnumbered' set `true' on input line 159.
+Package hyperref Info: Option `pdfdisplaydoctitle' set `true' on input line 159.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/psnfss/times.sty
+Package: times 2020/03/25 PSNFSS-v9.3 (SPQR) 
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/psnfss/helvet.sty
+Package: helvet 2020/03/25 PSNFSS-v9.3 (WaS) 
+)
+*geometry* verbose mode - [ newgeometry ] result:
+* driver: 
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(85.35826pt, 455.24411pt, 56.9055pt)
+* v-part:(T,H,B)=(85.35826pt, 702.78308pt, 56.9055pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=455.24411pt
+* \textheight=702.78308pt
+* \oddsidemargin=13.08827pt
+* \evensidemargin=13.08827pt
+* \topmargin=-43.81721pt
+* \headheight=28.45274pt
+* \headsep=28.45274pt
+* \topskip=12.0pt
+* \footskip=14.22636pt
+* \marginparwidth=42.9055pt
+* \marginparsep=7.0pt
+* \columnsep=10.0pt
+* \skip\footins=12.0pt plus 4.0pt minus 4.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+\linha=\skip281
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/pdfpages/pdfpages.sty
+Package: pdfpages 2026/03/30 v0.6h Insert pages of external PDF documents (AM)
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/eso-pic/eso-pic.sty
+Package: eso-pic 2025/12/10 v3.0d eso-pic (RN)
+\ESO@tempdima=\dimen328
+\ESO@tempdimb=\dimen329
+)
+\AM@pagewidth=\dimen330
+\AM@pageheight=\dimen331
+\AM@fboxrule=\dimen332
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/pdfpages/pppdftex.def
+File: pppdftex.def 2026/03/30 v0.6h Pdfpages driver for pdfTeX (AM)
+)
+\pdfpages@includegraphics@status=\count442
+\AM@pagebox=\box70
+\AM@global@opts=\toks51
+\AM@pagecnt=\count443
+\AM@toc@title=\toks52
+\AM@lof@heading=\toks53
+\c@AM@survey=\count444
+\AM@templatesizebox=\box71
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/ccicons/ccicons.sty
+Package: ccicons 2017/10/30 v1.6 LaTeX support for Creative Commons icons
+)
+\c@loadepth=\count445
+\c@algorithm=\count446
+\cftbeforealgorithmskip=\skip282
+\cftalgorithmindent=\skip283
+\cftalgorithmnumwidth=\skip284
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/listings/listings.sty
+\lst@mode=\count447
+\lst@gtempboxa=\box72
+\lst@token=\toks54
+\lst@length=\count448
+\lst@currlwidth=\dimen333
+\lst@column=\count449
+\lst@pos=\count450
+\lst@lostspace=\dimen334
+\lst@width=\dimen335
+\lst@newlines=\count451
+\lst@lineno=\count452
+\lst@maxwidth=\dimen336
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/listings/lstpatch.sty
+File: lstpatch.sty 2025/11/14 1.11b (Carsten Heinz)
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/listings/lstmisc.sty
+File: lstmisc.sty 2025/11/14 1.11b (Carsten Heinz)
+\c@lstnumber=\count453
+\lst@skipnumbers=\count454
+\lst@framebox=\box73
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/listings/listings.cfg
+File: listings.cfg 2025/11/14 1.11b listings configuration
+))
+Package: listings 2025/11/14 1.11b (Carsten Heinz)
+
+==> First Aid for listings.sty no longer applied!
+    Expected:
+        2024/09/23 1.10c (Carsten Heinz)
+    but found:
+        2025/11/14 1.11b (Carsten Heinz)
+    so I'm assuming it got fixed.
+\c@sourcecode=\count455
+\c@locdepth=\count456
+\cftbeforesourcecodeskip=\skip285
+\cftsourcecodeindent=\skip286
+\cftsourcecodenumwidth=\skip287
+\c@lopdepth=\count457
+\c@photograph=\count458
+\cftbeforephotographskip=\skip288
+\cftphotographindent=\skip289
+\cftphotographnumwidth=\skip290
+\c@lohdepth=\count459
+\c@graph=\count460
+\cftbeforegraphskip=\skip291
+\cftgraphindent=\skip292
+\cftgraphnumwidth=\skip293
+\c@loddepth=\count461
+\c@tabframed=\count462
+\cftbeforetabframedskip=\skip294
+\cfttabframedindent=\skip295
+\cfttabframednumwidth=\skip296
+\rmnomlabel=\skip297
+runsystem(makeindex main.idx)...executed safely (allowed).
+
+runsystem(makeindex -s main.ist -t main.glg -o main.gls main.glo)...executed safely (allowed).
+
+runsystem(makeindex -s main.ist -t main.alg -o main.acr main.acn)...executed safely (allowed).
+
+runsystem(makeindex -s main.ist -t main.alg2 -o main.acr2 main.acn2)...executed safely (allowed).
+
+runsystem(makeindex -s main.ist -t main.alg3 -o main.acr3 main.acn3)...executed safely (allowed).
+
+runsystem(makeindex main.nlo -s nomencl.ist -o main.nls)...executed safely (allowed).
+
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/pdfx/pdfx.sty
+Package: pdfx 2024/06/24 v1.6.5f PDF/X and PDF/A support (CVR/HTH/RRM/PS)
+\pdfx@minorversion=\count463
+\pdfx@majorversion=\count464
+ (/usr/local/texlive/2026/texmf-dist/tex/generic/iftex/ifluatex.sty
+Package: ifluatex 2019/10/25 v1.5 ifluatex legacy package. Use iftex instead.
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/everyshi/everyshi.sty
+Package: everyshi 2020/11/18 v4.00 EveryShipout Package
+){/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map} (/usr/local/texlive/2026/texmf-dist/tex/latex/pdfx/l8u-penc.def
+File: l8u-penc.def 2017/06/23 v0.8 Custom LaTeX file, for UTF8 encoded letters and symbols
+LaTeX Encoding Info:    Redeclaring text command \textdoubletilde (encoding L8U) on input line 210.
+LaTeX Encoding Info:    Redeclaring text command \texttipaG (encoding L8U) on input line 256.
+LaTeX Encoding Info:    Redeclaring text command \texttipam (encoding L8U) on input line 257.
+LaTeX Encoding Info:    Redeclaring text command \texttipaM (encoding L8U) on input line 258.
+LaTeX Encoding Info:    Redeclaring text command \b (encoding L8U) on input line 278.
+LaTeX Encoding Info:    Text composite with undeclared \b in encoding L8U on input line 278.
+LaTeX Encoding Info:    Redeclaring text command \textacutemacron (encoding L8U) on input line 323.
+LaTeX Encoding Info:    Redeclaring text command \textgravemacron (encoding L8U) on input line 334.
+LaTeX Encoding Info:    Redeclaring text command \textacutemacron (encoding L8U) on input line 336.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/pdfx/l8ugrk-penc.def
+File: l8ugrk-penc.def 2018/11/28 v0.6 Greek support for UTF8 in XMP metadata
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/pdfx/l8umath-penc.def
+File: l8umath-penc.def 2017/06/23 v0.6 Custom LaTeX file, for UTF8 encoded math symbols
+LaTeX Encoding Info:    Redeclaring text command \textmathnormal (encoding L8U) on input line 1340.
+)
+LaTeX Encoding Info:    Redeclaring text command \textellipsis (encoding L8U) on input line 2514.
+LaTeX Encoding Info:    Redeclaring text command \textfractionsolidus (encoding L8U) on input line 2529.
+LaTeX Encoding Info:    Redeclaring text command \texthinferior (encoding L8U) on input line 2618.
+LaTeX Encoding Info:    Redeclaring text command \texthslash (encoding L8U) on input line 2678.
+LaTeX Encoding Info:    Redeclaring text command \texttrademark (encoding L8U) on input line 2687.
+LaTeX Encoding Info:    Redeclaring text command \textleftarrow (encoding L8U) on input line 2780.
+LaTeX Encoding Info:    Redeclaring text command \textuparrow (encoding L8U) on input line 2781.
+LaTeX Encoding Info:    Redeclaring text command \textrightarrow (encoding L8U) on input line 2782.
+LaTeX Encoding Info:    Redeclaring text command \textdownarrow (encoding L8U) on input line 2783.
+LaTeX Encoding Info:    Redeclaring text command \textleftrightarrow (encoding L8U) on input line 2784.
+LaTeX Encoding Info:    Redeclaring text command \textupdownarrow (encoding L8U) on input line 2785.
+LaTeX Encoding Info:    Redeclaring text command \textnwarrow (encoding L8U) on input line 2786.
+LaTeX Encoding Info:    Redeclaring text command \textnearrow (encoding L8U) on input line 2787.
+LaTeX Encoding Info:    Redeclaring text command \textsearrow (encoding L8U) on input line 2788.
+LaTeX Encoding Info:    Redeclaring text command \textswarrow (encoding L8U) on input line 2789.
+LaTeX Encoding Info:    Redeclaring text command \textnleftarrow (encoding L8U) on input line 2790.
+LaTeX Encoding Info:    Redeclaring text command \textnrightarrow (encoding L8U) on input line 2791.
+LaTeX Encoding Info:    Redeclaring text command \texttwoheadleftarrow (encoding L8U) on input line 2792.
+LaTeX Encoding Info:    Redeclaring text command \textntwoheadleftarrow (encoding L8U) on input line 2793.
+LaTeX Encoding Info:    Redeclaring text command \texttwoheaduparrow (encoding L8U) on input line 2794.
+LaTeX Encoding Info:    Redeclaring text command \texttwoheadrightarrow (encoding L8U) on input line 2795.
+LaTeX Encoding Info:    Redeclaring text command \textntwoheadrightarrow (encoding L8U) on input line 2796.
+LaTeX Encoding Info:    Redeclaring text command \texttwoheaddownarrow (encoding L8U) on input line 2797.
+LaTeX Encoding Info:    Redeclaring text command \textleftarrowtail (encoding L8U) on input line 2798.
+LaTeX Encoding Info:    Redeclaring text command \textrightarrowtail (encoding L8U) on input line 2799.
+LaTeX Encoding Info:    Redeclaring text command \textmapsto (encoding L8U) on input line 2800.
+LaTeX Encoding Info:    Redeclaring text command \texthookleftarrow (encoding L8U) on input line 2801.
+LaTeX Encoding Info:    Redeclaring text command \texthookrightarrow (encoding L8U) on input line 2802.
+LaTeX Encoding Info:    Redeclaring text command \textlooparrowleft (encoding L8U) on input line 2803.
+LaTeX Encoding Info:    Redeclaring text command \textlooparrowright (encoding L8U) on input line 2804.
+LaTeX Encoding Info:    Redeclaring text command \textnleftrightarrow (encoding L8U) on input line 2805.
+LaTeX Encoding Info:    Redeclaring text command \textlightning (encoding L8U) on input line 2806.
+LaTeX Encoding Info:    Redeclaring text command \textdlsh (encoding L8U) on input line 2807.
+LaTeX Encoding Info:    Redeclaring text command \textcurvearrowleft (encoding L8U) on input line 2808.
+LaTeX Encoding Info:    Redeclaring text command \textcurvearrowright (encoding L8U) on input line 2809.
+LaTeX Encoding Info:    Redeclaring text command \textleftharpoonup (encoding L8U) on input line 2810.
+LaTeX Encoding Info:    Redeclaring text command \textleftharpoondown (encoding L8U) on input line 2811.
+LaTeX Encoding Info:    Redeclaring text command \textupharpoonright (encoding L8U) on input line 2812.
+LaTeX Encoding Info:    Redeclaring text command \textupharpoonleft (encoding L8U) on input line 2813.
+LaTeX Encoding Info:    Redeclaring text command \textrightharpoonup (encoding L8U) on input line 2814.
+LaTeX Encoding Info:    Redeclaring text command \textrightharpoondown (encoding L8U) on input line 2815.
+LaTeX Encoding Info:    Redeclaring text command \textdownharpoonright (encoding L8U) on input line 2816.
+LaTeX Encoding Info:    Redeclaring text command \textdownharpoonleft (encoding L8U) on input line 2817.
+LaTeX Encoding Info:    Redeclaring text command \textrightleftarrows (encoding L8U) on input line 2818.
+LaTeX Encoding Info:    Redeclaring text command \textupdownarrows (encoding L8U) on input line 2819.
+LaTeX Encoding Info:    Redeclaring text command \textleftrightarrows (encoding L8U) on input line 2820.
+LaTeX Encoding Info:    Redeclaring text command \textleftleftarrows (encoding L8U) on input line 2821.
+LaTeX Encoding Info:    Redeclaring text command \textupuparrows (encoding L8U) on input line 2822.
+LaTeX Encoding Info:    Redeclaring text command \textrightrightarrows (encoding L8U) on input line 2823.
+LaTeX Encoding Info:    Redeclaring text command \textdowndownarrows (encoding L8U) on input line 2824.
+LaTeX Encoding Info:    Redeclaring text command \textleftrightharpoons (encoding L8U) on input line 2825.
+LaTeX Encoding Info:    Redeclaring text command \textrightleftharpoons (encoding L8U) on input line 2826.
+LaTeX Encoding Info:    Redeclaring text command \textnLeftarrow (encoding L8U) on input line 2827.
+LaTeX Encoding Info:    Redeclaring text command \textnLeftrightarrow (encoding L8U) on input line 2828.
+LaTeX Encoding Info:    Redeclaring text command \textnRightarrow (encoding L8U) on input line 2829.
+LaTeX Encoding Info:    Redeclaring text command \textLeftarrow (encoding L8U) on input line 2830.
+LaTeX Encoding Info:    Redeclaring text command \textUparrow (encoding L8U) on input line 2831.
+LaTeX Encoding Info:    Redeclaring text command \textRightarrow (encoding L8U) on input line 2832.
+LaTeX Encoding Info:    Redeclaring text command \textDownarrow (encoding L8U) on input line 2833.
+LaTeX Encoding Info:    Redeclaring text command \textLeftrightarrow (encoding L8U) on input line 2834.
+LaTeX Encoding Info:    Redeclaring text command \textUpdownarrow (encoding L8U) on input line 2835.
+LaTeX Encoding Info:    Redeclaring text command \textNwarrow (encoding L8U) on input line 2836.
+LaTeX Encoding Info:    Redeclaring text command \textNearrow (encoding L8U) on input line 2837.
+LaTeX Encoding Info:    Redeclaring text command \textSearrow (encoding L8U) on input line 2838.
+LaTeX Encoding Info:    Redeclaring text command \textSwarrow (encoding L8U) on input line 2839.
+LaTeX Encoding Info:    Redeclaring text command \textLleftarrow (encoding L8U) on input line 2840.
+LaTeX Encoding Info:    Redeclaring text command \textRrightarrow (encoding L8U) on input line 2841.
+LaTeX Encoding Info:    Redeclaring text command \textleftsquigarrow (encoding L8U) on input line 2842.
+LaTeX Encoding Info:    Redeclaring text command \textrightsquigarrow (encoding L8U) on input line 2843.
+LaTeX Encoding Info:    Redeclaring text command \textdashleftarrow (encoding L8U) on input line 2844.
+LaTeX Encoding Info:    Redeclaring text command \textdasheduparrow (encoding L8U) on input line 2845.
+LaTeX Encoding Info:    Redeclaring text command \textdashrightarrow (encoding L8U) on input line 2846.
+LaTeX Encoding Info:    Redeclaring text command \textdasheddownarrow (encoding L8U) on input line 2847.
+LaTeX Encoding Info:    Redeclaring text command \textpointer (encoding L8U) on input line 2848.
+LaTeX Encoding Info:    Redeclaring text command \textdownuparrows (encoding L8U) on input line 2849.
+LaTeX Encoding Info:    Redeclaring text command \textleftarrowtriangle (encoding L8U) on input line 2850.
+LaTeX Encoding Info:    Redeclaring text command \textrightarrowtriangle (encoding L8U) on input line 2851.
+LaTeX Encoding Info:    Redeclaring text command \textleftrightarrowtriangle (encoding L8U) on input line 2852.
+LaTeX Encoding Info:    Redeclaring text command \textforall (encoding L8U) on input line 2859.
+LaTeX Encoding Info:    Redeclaring text command \textcomplement (encoding L8U) on input line 2860.
+LaTeX Encoding Info:    Redeclaring text command \textpartial (encoding L8U) on input line 2861.
+LaTeX Encoding Info:    Redeclaring text command \textexists (encoding L8U) on input line 2862.
+LaTeX Encoding Info:    Redeclaring text command \textnexists (encoding L8U) on input line 2863.
+LaTeX Encoding Info:    Redeclaring text command \textemptyset (encoding L8U) on input line 2864.
+LaTeX Encoding Info:    Redeclaring text command \texttriangle (encoding L8U) on input line 2865.
+LaTeX Encoding Info:    Redeclaring text command \textnabla (encoding L8U) on input line 2866.
+LaTeX Encoding Info:    Redeclaring text command \textin (encoding L8U) on input line 2867.
+LaTeX Encoding Info:    Redeclaring text command \textnotin (encoding L8U) on input line 2868.
+LaTeX Encoding Info:    Redeclaring text command \textsmallin (encoding L8U) on input line 2869.
+LaTeX Encoding Info:    Redeclaring text command \textni (encoding L8U) on input line 2870.
+LaTeX Encoding Info:    Redeclaring text command \textnotowner (encoding L8U) on input line 2871.
+LaTeX Encoding Info:    Redeclaring text command \textsmallowns (encoding L8U) on input line 2872.
+LaTeX Encoding Info:    Redeclaring text command \textprod (encoding L8U) on input line 2874.
+LaTeX Encoding Info:    Redeclaring text command \textamalg (encoding L8U) on input line 2875.
+LaTeX Encoding Info:    Redeclaring text command \textsum (encoding L8U) on input line 2876.
+LaTeX Encoding Info:    Redeclaring text command \textminus (encoding L8U) on input line 2877.
+LaTeX Encoding Info:    Redeclaring text command \textmp (encoding L8U) on input line 2878.
+LaTeX Encoding Info:    Redeclaring text command \textdotplus (encoding L8U) on input line 2879.
+LaTeX Encoding Info:    Redeclaring text command \textDivides (encoding L8U) on input line 2880.
+LaTeX Encoding Info:    Redeclaring text command \textDividesNot (encoding L8U) on input line 2881.
+LaTeX Encoding Info:    Redeclaring text command \textsetminus (encoding L8U) on input line 2882.
+LaTeX Encoding Info:    Redeclaring text command \textast (encoding L8U) on input line 2883.
+LaTeX Encoding Info:    Redeclaring text command \textcirc (encoding L8U) on input line 2884.
+LaTeX Encoding Info:    Redeclaring text command \textbulletoperator (encoding L8U) on input line 2885.
+LaTeX Encoding Info:    Redeclaring text command \textsurd (encoding L8U) on input line 2886.
+LaTeX Encoding Info:    Redeclaring text command \textpropto (encoding L8U) on input line 2888.
+LaTeX Encoding Info:    Redeclaring text command \textinfty (encoding L8U) on input line 2889.
+LaTeX Encoding Info:    Redeclaring text command \textangle (encoding L8U) on input line 2891.
+LaTeX Encoding Info:    Redeclaring text command \textmeasuredangle (encoding L8U) on input line 2892.
+LaTeX Encoding Info:    Redeclaring text command \textsphericalangle (encoding L8U) on input line 2893.
+LaTeX Encoding Info:    Redeclaring text command \textmid (encoding L8U) on input line 2894.
+LaTeX Encoding Info:    Redeclaring text command \textnmid (encoding L8U) on input line 2895.
+LaTeX Encoding Info:    Redeclaring text command \textparallel (encoding L8U) on input line 2896.
+LaTeX Encoding Info:    Redeclaring text command \textnparallel (encoding L8U) on input line 2897.
+LaTeX Encoding Info:    Redeclaring text command \textwedge (encoding L8U) on input line 2898.
+LaTeX Encoding Info:    Redeclaring text command \textowedge (encoding L8U) on input line 2899.
+LaTeX Encoding Info:    Redeclaring text command \textvee (encoding L8U) on input line 2900.
+LaTeX Encoding Info:    Redeclaring text command \textovee (encoding L8U) on input line 2901.
+LaTeX Encoding Info:    Redeclaring text command \textcap (encoding L8U) on input line 2902.
+LaTeX Encoding Info:    Redeclaring text command \textcup (encoding L8U) on input line 2903.
+LaTeX Encoding Info:    Redeclaring text command \textint (encoding L8U) on input line 2904.
+LaTeX Encoding Info:    Redeclaring text command \textiint (encoding L8U) on input line 2905.
+LaTeX Encoding Info:    Redeclaring text command \textiiint (encoding L8U) on input line 2906.
+LaTeX Encoding Info:    Redeclaring text command \textoint (encoding L8U) on input line 2907.
+LaTeX Encoding Info:    Redeclaring text command \textoiint (encoding L8U) on input line 2908.
+LaTeX Encoding Info:    Redeclaring text command \textointclockwise (encoding L8U) on input line 2910.
+LaTeX Encoding Info:    Redeclaring text command \textointctrclockwise (encoding L8U) on input line 2911.
+LaTeX Encoding Info:    Redeclaring text command \texttherefore (encoding L8U) on input line 2912.
+LaTeX Encoding Info:    Redeclaring text command \textbecause (encoding L8U) on input line 2913.
+LaTeX Encoding Info:    Redeclaring text command \textvdotdot (encoding L8U) on input line 2914.
+LaTeX Encoding Info:    Redeclaring text command \textsquaredots (encoding L8U) on input line 2915.
+LaTeX Encoding Info:    Redeclaring text command \textdotminus (encoding L8U) on input line 2916.
+LaTeX Encoding Info:    Redeclaring text command \texteqcolon (encoding L8U) on input line 2917.
+LaTeX Encoding Info:    Redeclaring text command \textsim (encoding L8U) on input line 2919.
+LaTeX Encoding Info:    Redeclaring text command \textbacksim (encoding L8U) on input line 2920.
+LaTeX Encoding Info:    Redeclaring text command \textnbacksim (encoding L8U) on input line 2921.
+LaTeX Encoding Info:    Redeclaring text command \textwr (encoding L8U) on input line 2922.
+LaTeX Encoding Info:    Redeclaring text command \textnsim (encoding L8U) on input line 2923.
+LaTeX Encoding Info:    Redeclaring text command \texteqsim (encoding L8U) on input line 2924.
+LaTeX Encoding Info:    Redeclaring text command \textneqsim (encoding L8U) on input line 2925.
+LaTeX Encoding Info:    Redeclaring text command \textsimeq (encoding L8U) on input line 2926.
+LaTeX Encoding Info:    Redeclaring text command \textnsimeq (encoding L8U) on input line 2927.
+LaTeX Encoding Info:    Redeclaring text command \textcong (encoding L8U) on input line 2928.
+LaTeX Encoding Info:    Redeclaring text command \textncong (encoding L8U) on input line 2930.
+LaTeX Encoding Info:    Redeclaring text command \textapprox (encoding L8U) on input line 2931.
+LaTeX Encoding Info:    Redeclaring text command \textnapprox (encoding L8U) on input line 2932.
+LaTeX Encoding Info:    Redeclaring text command \textapproxeq (encoding L8U) on input line 2933.
+LaTeX Encoding Info:    Redeclaring text command \textnapproxeq (encoding L8U) on input line 2934.
+LaTeX Encoding Info:    Redeclaring text command \texttriplesim (encoding L8U) on input line 2935.
+LaTeX Encoding Info:    Redeclaring text command \textntriplesim (encoding L8U) on input line 2936.
+LaTeX Encoding Info:    Redeclaring text command \textbackcong (encoding L8U) on input line 2937.
+LaTeX Encoding Info:    Redeclaring text command \textnbackcong (encoding L8U) on input line 2938.
+LaTeX Encoding Info:    Redeclaring text command \textasymp (encoding L8U) on input line 2939.
+LaTeX Encoding Info:    Redeclaring text command \textnasymp (encoding L8U) on input line 2940.
+LaTeX Encoding Info:    Redeclaring text command \textBumpeq (encoding L8U) on input line 2941.
+LaTeX Encoding Info:    Redeclaring text command \textnBumpeq (encoding L8U) on input line 2942.
+LaTeX Encoding Info:    Redeclaring text command \textbumpeq (encoding L8U) on input line 2943.
+LaTeX Encoding Info:    Redeclaring text command \textnbumpeq (encoding L8U) on input line 2944.
+LaTeX Encoding Info:    Redeclaring text command \textdoteq (encoding L8U) on input line 2945.
+LaTeX Encoding Info:    Redeclaring text command \textndoteq (encoding L8U) on input line 2946.
+LaTeX Encoding Info:    Redeclaring text command \textdoteqdot (encoding L8U) on input line 2947.
+LaTeX Encoding Info:    Redeclaring text command \textnDoteq (encoding L8U) on input line 2948.
+LaTeX Encoding Info:    Redeclaring text command \textfallingdoteq (encoding L8U) on input line 2949.
+LaTeX Encoding Info:    Redeclaring text command \textnfallingdoteq (encoding L8U) on input line 2950.
+LaTeX Encoding Info:    Redeclaring text command \textrisingdoteq (encoding L8U) on input line 2951.
+LaTeX Encoding Info:    Redeclaring text command \textnrisingdoteq (encoding L8U) on input line 2952.
+LaTeX Encoding Info:    Redeclaring text command \textcolonequals (encoding L8U) on input line 2953.
+LaTeX Encoding Info:    Redeclaring text command \textequalscolon (encoding L8U) on input line 2954.
+LaTeX Encoding Info:    Redeclaring text command \texteqcirc (encoding L8U) on input line 2955.
+LaTeX Encoding Info:    Redeclaring text command \textneqcirc (encoding L8U) on input line 2956.
+LaTeX Encoding Info:    Redeclaring text command \textcirceq (encoding L8U) on input line 2957.
+LaTeX Encoding Info:    Redeclaring text command \textncirceq (encoding L8U) on input line 2958.
+LaTeX Encoding Info:    Redeclaring text command \texthateq (encoding L8U) on input line 2960.
+LaTeX Encoding Info:    Redeclaring text command \textnhateq (encoding L8U) on input line 2961.
+LaTeX Encoding Info:    Redeclaring text command \texttriangleeq (encoding L8U) on input line 2963.
+LaTeX Encoding Info:    Redeclaring text command \textneq (encoding L8U) on input line 2965.
+LaTeX Encoding Info:    Redeclaring text command \textne (encoding L8U) on input line 2966.
+LaTeX Encoding Info:    Redeclaring text command \textequiv (encoding L8U) on input line 2967.
+LaTeX Encoding Info:    Redeclaring text command \textnequiv (encoding L8U) on input line 2968.
+LaTeX Encoding Info:    Redeclaring text command \textleq (encoding L8U) on input line 2970.
+LaTeX Encoding Info:    Redeclaring text command \textle (encoding L8U) on input line 2971.
+LaTeX Encoding Info:    Redeclaring text command \textgeq (encoding L8U) on input line 2972.
+LaTeX Encoding Info:    Redeclaring text command \textge (encoding L8U) on input line 2973.
+LaTeX Encoding Info:    Redeclaring text command \textleqq (encoding L8U) on input line 2974.
+LaTeX Encoding Info:    Redeclaring text command \textnleqq (encoding L8U) on input line 2975.
+LaTeX Encoding Info:    Redeclaring text command \textgeqq (encoding L8U) on input line 2976.
+LaTeX Encoding Info:    Redeclaring text command \textngeqq (encoding L8U) on input line 2977.
+LaTeX Encoding Info:    Redeclaring text command \textlneqq (encoding L8U) on input line 2978.
+LaTeX Encoding Info:    Redeclaring text command \textgneqq (encoding L8U) on input line 2979.
+LaTeX Encoding Info:    Redeclaring text command \textll (encoding L8U) on input line 2980.
+LaTeX Encoding Info:    Redeclaring text command \textnll (encoding L8U) on input line 2981.
+LaTeX Encoding Info:    Redeclaring text command \textgg (encoding L8U) on input line 2982.
+LaTeX Encoding Info:    Redeclaring text command \textngg (encoding L8U) on input line 2983.
+LaTeX Encoding Info:    Redeclaring text command \textbetween (encoding L8U) on input line 2984.
+LaTeX Encoding Info:    Redeclaring text command \textnless (encoding L8U) on input line 2986.
+LaTeX Encoding Info:    Redeclaring text command \textngtr (encoding L8U) on input line 2987.
+LaTeX Encoding Info:    Redeclaring text command \textnleq (encoding L8U) on input line 2988.
+LaTeX Encoding Info:    Redeclaring text command \textngeq (encoding L8U) on input line 2989.
+LaTeX Encoding Info:    Redeclaring text command \textlesssim (encoding L8U) on input line 2990.
+LaTeX Encoding Info:    Redeclaring text command \textgtrsim (encoding L8U) on input line 2991.
+LaTeX Encoding Info:    Redeclaring text command \textnlesssim (encoding L8U) on input line 2992.
+LaTeX Encoding Info:    Redeclaring text command \textngtrsim (encoding L8U) on input line 2993.
+LaTeX Encoding Info:    Redeclaring text command \textlessgtr (encoding L8U) on input line 2994.
+LaTeX Encoding Info:    Redeclaring text command \textgtrless (encoding L8U) on input line 2995.
+LaTeX Encoding Info:    Redeclaring text command \textngtrless (encoding L8U) on input line 2996.
+LaTeX Encoding Info:    Redeclaring text command \textnlessgtr (encoding L8U) on input line 2997.
+LaTeX Encoding Info:    Redeclaring text command \textprec (encoding L8U) on input line 2998.
+LaTeX Encoding Info:    Redeclaring text command \textsucc (encoding L8U) on input line 2999.
+LaTeX Encoding Info:    Redeclaring text command \textpreccurlyeq (encoding L8U) on input line 3000.
+LaTeX Encoding Info:    Redeclaring text command \textsucccurlyeq (encoding L8U) on input line 3001.
+LaTeX Encoding Info:    Redeclaring text command \textprecsim (encoding L8U) on input line 3002.
+LaTeX Encoding Info:    Redeclaring text command \textnprecsim (encoding L8U) on input line 3003.
+LaTeX Encoding Info:    Redeclaring text command \textsuccsim (encoding L8U) on input line 3004.
+LaTeX Encoding Info:    Redeclaring text command \textnsuccsim (encoding L8U) on input line 3005.
+LaTeX Encoding Info:    Redeclaring text command \textnprec (encoding L8U) on input line 3006.
+LaTeX Encoding Info:    Redeclaring text command \textnsucc (encoding L8U) on input line 3007.
+LaTeX Encoding Info:    Redeclaring text command \textsubset (encoding L8U) on input line 3008.
+LaTeX Encoding Info:    Redeclaring text command \textsupset (encoding L8U) on input line 3009.
+LaTeX Encoding Info:    Redeclaring text command \textnsubset (encoding L8U) on input line 3010.
+LaTeX Encoding Info:    Redeclaring text command \textnsupset (encoding L8U) on input line 3011.
+LaTeX Encoding Info:    Redeclaring text command \textsubseteq (encoding L8U) on input line 3012.
+LaTeX Encoding Info:    Redeclaring text command \textsupseteq (encoding L8U) on input line 3013.
+LaTeX Encoding Info:    Redeclaring text command \textnsubseteq (encoding L8U) on input line 3014.
+LaTeX Encoding Info:    Redeclaring text command \textnsupseteq (encoding L8U) on input line 3015.
+LaTeX Encoding Info:    Redeclaring text command \textsubsetneq (encoding L8U) on input line 3016.
+LaTeX Encoding Info:    Redeclaring text command \textsupsetneq (encoding L8U) on input line 3017.
+LaTeX Encoding Info:    Redeclaring text command \textcupdot (encoding L8U) on input line 3019.
+LaTeX Encoding Info:    Redeclaring text command \textcupplus (encoding L8U) on input line 3020.
+LaTeX Encoding Info:    Redeclaring text command \textsqsubset (encoding L8U) on input line 3021.
+LaTeX Encoding Info:    Redeclaring text command \textnsqsubset (encoding L8U) on input line 3022.
+LaTeX Encoding Info:    Redeclaring text command \textsqsupset (encoding L8U) on input line 3023.
+LaTeX Encoding Info:    Redeclaring text command \textnsqsupset (encoding L8U) on input line 3024.
+LaTeX Encoding Info:    Redeclaring text command \textsqsubseteq (encoding L8U) on input line 3025.
+LaTeX Encoding Info:    Redeclaring text command \textnsqsubseteq (encoding L8U) on input line 3026.
+LaTeX Encoding Info:    Redeclaring text command \textsqsupseteq (encoding L8U) on input line 3027.
+LaTeX Encoding Info:    Redeclaring text command \textnsqsupseteq (encoding L8U) on input line 3028.
+LaTeX Encoding Info:    Redeclaring text command \textsqcap (encoding L8U) on input line 3029.
+LaTeX Encoding Info:    Redeclaring text command \textsqcup (encoding L8U) on input line 3030.
+LaTeX Encoding Info:    Redeclaring text command \textoplus (encoding L8U) on input line 3031.
+LaTeX Encoding Info:    Redeclaring text command \textominus (encoding L8U) on input line 3032.
+LaTeX Encoding Info:    Redeclaring text command \textotimes (encoding L8U) on input line 3033.
+LaTeX Encoding Info:    Redeclaring text command \textoslash (encoding L8U) on input line 3034.
+LaTeX Encoding Info:    Redeclaring text command \textodot (encoding L8U) on input line 3035.
+LaTeX Encoding Info:    Redeclaring text command \textcircledcirc (encoding L8U) on input line 3036.
+LaTeX Encoding Info:    Redeclaring text command \textcircledast (encoding L8U) on input line 3037.
+LaTeX Encoding Info:    Redeclaring text command \textcircleddash (encoding L8U) on input line 3039.
+LaTeX Encoding Info:    Redeclaring text command \textboxplus (encoding L8U) on input line 3040.
+LaTeX Encoding Info:    Redeclaring text command \textboxminus (encoding L8U) on input line 3041.
+LaTeX Encoding Info:    Redeclaring text command \textboxtimes (encoding L8U) on input line 3042.
+LaTeX Encoding Info:    Redeclaring text command \textboxdot (encoding L8U) on input line 3043.
+LaTeX Encoding Info:    Redeclaring text command \textvdash (encoding L8U) on input line 3044.
+LaTeX Encoding Info:    Redeclaring text command \textdashv (encoding L8U) on input line 3045.
+LaTeX Encoding Info:    Redeclaring text command \textndashv (encoding L8U) on input line 3046.
+LaTeX Encoding Info:    Redeclaring text command \texttop (encoding L8U) on input line 3047.
+LaTeX Encoding Info:    Redeclaring text command \textndownvdash (encoding L8U) on input line 3048.
+LaTeX Encoding Info:    Redeclaring text command \textbot (encoding L8U) on input line 3049.
+LaTeX Encoding Info:    Redeclaring text command \textnupvdash (encoding L8U) on input line 3050.
+LaTeX Encoding Info:    Redeclaring text command \textvDash (encoding L8U) on input line 3052.
+LaTeX Encoding Info:    Redeclaring text command \textVdash (encoding L8U) on input line 3053.
+LaTeX Encoding Info:    Redeclaring text command \textVvdash (encoding L8U) on input line 3054.
+LaTeX Encoding Info:    Redeclaring text command \textnVvash (encoding L8U) on input line 3055.
+LaTeX Encoding Info:    Redeclaring text command \textVDash (encoding L8U) on input line 3056.
+LaTeX Encoding Info:    Redeclaring text command \textnvdash (encoding L8U) on input line 3057.
+LaTeX Encoding Info:    Redeclaring text command \textnvDash (encoding L8U) on input line 3058.
+LaTeX Encoding Info:    Redeclaring text command \textnVdash (encoding L8U) on input line 3059.
+LaTeX Encoding Info:    Redeclaring text command \textnVDash (encoding L8U) on input line 3060.
+LaTeX Encoding Info:    Redeclaring text command \textlhd (encoding L8U) on input line 3062.
+LaTeX Encoding Info:    Redeclaring text command \textrhd (encoding L8U) on input line 3063.
+LaTeX Encoding Info:    Redeclaring text command \textunlhd (encoding L8U) on input line 3064.
+LaTeX Encoding Info:    Redeclaring text command \textunrhd (encoding L8U) on input line 3065.
+LaTeX Encoding Info:    Redeclaring text command \textmultimapdotbothA (encoding L8U) on input line 3066.
+LaTeX Encoding Info:    Redeclaring text command \textmultimapdotbothB (encoding L8U) on input line 3067.
+LaTeX Encoding Info:    Redeclaring text command \textmultimap (encoding L8U) on input line 3068.
+LaTeX Encoding Info:    Redeclaring text command \textveebar (encoding L8U) on input line 3070.
+LaTeX Encoding Info:    Redeclaring text command \textbarwedge (encoding L8U) on input line 3071.
+LaTeX Encoding Info:    Redeclaring text command \textstar (encoding L8U) on input line 3073.
+LaTeX Encoding Info:    Redeclaring text command \textdivideontimes (encoding L8U) on input line 3074.
+LaTeX Encoding Info:    Redeclaring text command \textbowtie (encoding L8U) on input line 3075.
+LaTeX Encoding Info:    Redeclaring text command \textltimes (encoding L8U) on input line 3076.
+LaTeX Encoding Info:    Redeclaring text command \textrtimes (encoding L8U) on input line 3077.
+LaTeX Encoding Info:    Redeclaring text command \textleftthreetimes (encoding L8U) on input line 3078.
+LaTeX Encoding Info:    Redeclaring text command \textrightthreetimes (encoding L8U) on input line 3079.
+LaTeX Encoding Info:    Redeclaring text command \textbacksimeq (encoding L8U) on input line 3080.
+LaTeX Encoding Info:    Redeclaring text command \textnbacksimeq (encoding L8U) on input line 3081.
+LaTeX Encoding Info:    Redeclaring text command \textcurlyvee (encoding L8U) on input line 3082.
+LaTeX Encoding Info:    Redeclaring text command \textcurlywedge (encoding L8U) on input line 3083.
+LaTeX Encoding Info:    Redeclaring text command \textSubset (encoding L8U) on input line 3084.
+LaTeX Encoding Info:    Redeclaring text command \textnSubset (encoding L8U) on input line 3085.
+LaTeX Encoding Info:    Redeclaring text command \textSupset (encoding L8U) on input line 3086.
+LaTeX Encoding Info:    Redeclaring text command \textnSupset (encoding L8U) on input line 3087.
+LaTeX Encoding Info:    Redeclaring text command \textCap (encoding L8U) on input line 3088.
+LaTeX Encoding Info:    Redeclaring text command \textCup (encoding L8U) on input line 3089.
+LaTeX Encoding Info:    Redeclaring text command \textpitchfork (encoding L8U) on input line 3090.
+LaTeX Encoding Info:    Redeclaring text command \textlessdot (encoding L8U) on input line 3092.
+LaTeX Encoding Info:    Redeclaring text command \textgtrdot (encoding L8U) on input line 3093.
+LaTeX Encoding Info:    Redeclaring text command \textlll (encoding L8U) on input line 3094.
+LaTeX Encoding Info:    Redeclaring text command \textggg (encoding L8U) on input line 3095.
+LaTeX Encoding Info:    Redeclaring text command \textlesseqgtr (encoding L8U) on input line 3096.
+LaTeX Encoding Info:    Redeclaring text command \textgtreqless (encoding L8U) on input line 3097.
+LaTeX Encoding Info:    Redeclaring text command \textcurlyeqprec (encoding L8U) on input line 3098.
+LaTeX Encoding Info:    Redeclaring text command \textncurlyeqprec (encoding L8U) on input line 3099.
+LaTeX Encoding Info:    Redeclaring text command \textcurlyeqsucc (encoding L8U) on input line 3100.
+LaTeX Encoding Info:    Redeclaring text command \textncurlyeqsucc (encoding L8U) on input line 3101.
+LaTeX Encoding Info:    Redeclaring text command \textnpreccurlyeq (encoding L8U) on input line 3102.
+LaTeX Encoding Info:    Redeclaring text command \textnsucccurlyeq (encoding L8U) on input line 3103.
+LaTeX Encoding Info:    Redeclaring text command \textnqsubseteq (encoding L8U) on input line 3104.
+LaTeX Encoding Info:    Redeclaring text command \textnqsupseteq (encoding L8U) on input line 3105.
+LaTeX Encoding Info:    Redeclaring text command \textsqsubsetneq (encoding L8U) on input line 3106.
+LaTeX Encoding Info:    Redeclaring text command \textsqsupsetneq (encoding L8U) on input line 3107.
+LaTeX Encoding Info:    Redeclaring text command \textlnsim (encoding L8U) on input line 3108.
+LaTeX Encoding Info:    Redeclaring text command \textgnsim (encoding L8U) on input line 3109.
+LaTeX Encoding Info:    Redeclaring text command \textprecnsim (encoding L8U) on input line 3110.
+LaTeX Encoding Info:    Redeclaring text command \textsuccnsim (encoding L8U) on input line 3111.
+LaTeX Encoding Info:    Redeclaring text command \textntriangleleft (encoding L8U) on input line 3112.
+LaTeX Encoding Info:    Redeclaring text command \textntriangleright (encoding L8U) on input line 3113.
+LaTeX Encoding Info:    Redeclaring text command \textntrianglelefteq (encoding L8U) on input line 3114.
+LaTeX Encoding Info:    Redeclaring text command \textntrianglerighteq (encoding L8U) on input line 3115.
+LaTeX Encoding Info:    Redeclaring text command \textvdots (encoding L8U) on input line 3116.
+LaTeX Encoding Info:    Redeclaring text command \textcdots (encoding L8U) on input line 3117.
+LaTeX Encoding Info:    Redeclaring text command \textudots (encoding L8U) on input line 3118.
+LaTeX Encoding Info:    Redeclaring text command \textddots (encoding L8U) on input line 3119.
+LaTeX Encoding Info:    Redeclaring text command \textbarin (encoding L8U) on input line 3120.
+LaTeX Encoding Info:    Redeclaring text command \textperp (encoding L8U) on input line 3541.
+LaTeX Encoding Info:    Redeclaring text command \textnotperp (encoding L8U) on input line 3542.
+LaTeX Encoding Info:    Redeclaring text command \textveedot (encoding L8U) on input line 3543.
+LaTeX Encoding Info:    Redeclaring text command \textwedgedot (encoding L8U) on input line 3544.
+LaTeX Encoding Info:    Redeclaring text command \textleftspoon (encoding L8U) on input line 3545.
+LaTeX Encoding Info:    Redeclaring text command \textlbrackdbl (encoding L8U) on input line 3546.
+LaTeX Encoding Info:    Redeclaring text command \textrbrackdbl (encoding L8U) on input line 3547.
+LaTeX Encoding Info:    Redeclaring text command \textcirclearrowleft (encoding L8U) on input line 3552.
+LaTeX Encoding Info:    Redeclaring text command \textcirclearrowright (encoding L8U) on input line 3553.
+LaTeX Encoding Info:    Redeclaring text command \textlongleftarrow (encoding L8U) on input line 3555.
+LaTeX Encoding Info:    Redeclaring text command \textlongrightarrow (encoding L8U) on input line 3556.
+LaTeX Encoding Info:    Redeclaring text command \textlongleftrightarrow (encoding L8U) on input line 3557.
+LaTeX Encoding Info:    Redeclaring text command \textLongleftarrow (encoding L8U) on input line 3558.
+LaTeX Encoding Info:    Redeclaring text command \textLongrightarrow (encoding L8U) on input line 3559.
+LaTeX Encoding Info:    Redeclaring text command \textLongleftrightarrow (encoding L8U) on input line 3560.
+LaTeX Encoding Info:    Redeclaring text command \textlongmapsto (encoding L8U) on input line 3562.
+LaTeX Encoding Info:    Redeclaring text command \textLongmapsfrom (encoding L8U) on input line 3563.
+LaTeX Encoding Info:    Redeclaring text command \textLongmapsto (encoding L8U) on input line 3564.
+LaTeX Encoding Info:    Redeclaring text command \textnwsearrow (encoding L8U) on input line 3570.
+LaTeX Encoding Info:    Redeclaring text command \textneswarrow (encoding L8U) on input line 3571.
+LaTeX Encoding Info:    Redeclaring text command \textlhooknwarrow (encoding L8U) on input line 3572.
+LaTeX Encoding Info:    Redeclaring text command \textrhooknearrow (encoding L8U) on input line 3573.
+LaTeX Encoding Info:    Redeclaring text command \textlhooksearrow (encoding L8U) on input line 3574.
+LaTeX Encoding Info:    Redeclaring text command \textrhookswarrow (encoding L8U) on input line 3575.
+LaTeX Encoding Info:    Redeclaring text command \textleadsto (encoding L8U) on input line 3577.
+LaTeX Encoding Info:    Redeclaring text command \textrcurvearrowne (encoding L8U) on input line 3578.
+LaTeX Encoding Info:    Redeclaring text command \textlcurvearrowse (encoding L8U) on input line 3579.
+LaTeX Encoding Info:    Redeclaring text command \textlcurvearrowsw (encoding L8U) on input line 3580.
+LaTeX Encoding Info:    Redeclaring text command \textrcurvearrowse (encoding L8U) on input line 3581.
+LaTeX Encoding Info:    Redeclaring text command \textlcurvearrowdown (encoding L8U) on input line 3582.
+LaTeX Encoding Info:    Redeclaring text command \textrcurvearrowdown (encoding L8U) on input line 3583.
+LaTeX Encoding Info:    Redeclaring text command \textrcurvearrowleft (encoding L8U) on input line 3584.
+LaTeX Encoding Info:    Redeclaring text command \textrcurvearrowright (encoding L8U) on input line 3585.
+LaTeX Encoding Info:    Redeclaring text command \textleftrightharpoon (encoding L8U) on input line 3587.
+LaTeX Encoding Info:    Redeclaring text command \textrightleftharpoon (encoding L8U) on input line 3588.
+LaTeX Encoding Info:    Redeclaring text command \textupdownharpoonrightleft (encoding L8U) on input line 3589.
+LaTeX Encoding Info:    Redeclaring text command \textupdownharpoonleftright (encoding L8U) on input line 3590.
+LaTeX Encoding Info:    Redeclaring text command \textleftleftharpoons (encoding L8U) on input line 3592.
+LaTeX Encoding Info:    Redeclaring text command \textupupharpoons (encoding L8U) on input line 3593.
+LaTeX Encoding Info:    Redeclaring text command \textrightrightharpoons (encoding L8U) on input line 3594.
+LaTeX Encoding Info:    Redeclaring text command \textdowndownharpoons (encoding L8U) on input line 3595.
+LaTeX Encoding Info:    Redeclaring text command \textleftbarharpoon (encoding L8U) on input line 3597.
+LaTeX Encoding Info:    Redeclaring text command \textbarleftharpoon (encoding L8U) on input line 3598.
+LaTeX Encoding Info:    Redeclaring text command \textrightbarharpoon (encoding L8U) on input line 3599.
+LaTeX Encoding Info:    Redeclaring text command \textbarrightharpoon (encoding L8U) on input line 3600.
+LaTeX Encoding Info:    Redeclaring text command \textupdownharpoons (encoding L8U) on input line 3601.
+LaTeX Encoding Info:    Redeclaring text command \textdownupharpoons (encoding L8U) on input line 3602.
+LaTeX Encoding Info:    Redeclaring text command \textmoo (encoding L8U) on input line 3604.
+LaTeX Encoding Info:    Redeclaring text command \textllparenthesis (encoding L8U) on input line 3609.
+LaTeX Encoding Info:    Redeclaring text command \textrrparenthesis (encoding L8U) on input line 3610.
+LaTeX Encoding Info:    Redeclaring text command \textinvdiameter (encoding L8U) on input line 3612.
+LaTeX Encoding Info:    Redeclaring text command \textobar (encoding L8U) on input line 3614.
+LaTeX Encoding Info:    Redeclaring text command \textobslash (encoding L8U) on input line 3616.
+LaTeX Encoding Info:    Redeclaring text command \textobot (encoding L8U) on input line 3618.
+LaTeX Encoding Info:    Redeclaring text command \textNoChemicalCleaning (encoding L8U) on input line 3619.
+LaTeX Encoding Info:    Redeclaring text command \textolessthan (encoding L8U) on input line 3621.
+LaTeX Encoding Info:    Redeclaring text command \textogreaterthan (encoding L8U) on input line 3622.
+LaTeX Encoding Info:    Redeclaring text command \textboxslash (encoding L8U) on input line 3624.
+LaTeX Encoding Info:    Redeclaring text command \textboxbslash (encoding L8U) on input line 3625.
+LaTeX Encoding Info:    Redeclaring text command \textboxast (encoding L8U) on input line 3626.
+LaTeX Encoding Info:    Redeclaring text command \textboxcircle (encoding L8U) on input line 3627.
+LaTeX Encoding Info:    Redeclaring text command \textboxbox (encoding L8U) on input line 3628.
+LaTeX Encoding Info:    Redeclaring text command \textValve (encoding L8U) on input line 3630.
+LaTeX Encoding Info:    Redeclaring text command \textmultimapboth (encoding L8U) on input line 3631.
+LaTeX Encoding Info:    Redeclaring text command \textshuffle (encoding L8U) on input line 3633.
+LaTeX Encoding Info:    Redeclaring text command \textuplus (encoding L8U) on input line 3638.
+LaTeX Encoding Info:    Redeclaring text command \textbigdoublewedge (encoding L8U) on input line 3639.
+LaTeX Encoding Info:    Redeclaring text command \textbigdoublevee (encoding L8U) on input line 3640.
+LaTeX Encoding Info:    Redeclaring text command \textJoin (encoding L8U) on input line 3641.
+LaTeX Encoding Info:    Redeclaring text command \textfatsemi (encoding L8U) on input line 3643.
+LaTeX Encoding Info:    Redeclaring text command \textcircplus (encoding L8U) on input line 3644.
+LaTeX Encoding Info:    Redeclaring text command \textminusdot (encoding L8U) on input line 3645.
+LaTeX Encoding Info:    Redeclaring text command \textdottimes (encoding L8U) on input line 3646.
+LaTeX Encoding Info:    Redeclaring text command \textdtimes (encoding L8U) on input line 3647.
+LaTeX Encoding Info:    Redeclaring text command \textodiv (encoding L8U) on input line 3648.
+LaTeX Encoding Info:    Redeclaring text command \textinvneg (encoding L8U) on input line 3649.
+LaTeX Encoding Info:    Redeclaring text command \textcapdot (encoding L8U) on input line 3650.
+LaTeX Encoding Info:    Redeclaring text command \textsqdoublecap (encoding L8U) on input line 3651.
+LaTeX Encoding Info:    Redeclaring text command \textsqdoublecup (encoding L8U) on input line 3652.
+LaTeX Encoding Info:    Redeclaring text command \textdoublewedge (encoding L8U) on input line 3653.
+LaTeX Encoding Info:    Redeclaring text command \textdoublevee (encoding L8U) on input line 3654.
+LaTeX Encoding Info:    Redeclaring text command \textdoublebarwedge (encoding L8U) on input line 3655.
+LaTeX Encoding Info:    Redeclaring text command \textveedoublebar (encoding L8U) on input line 3656.
+LaTeX Encoding Info:    Redeclaring text command \texteqdot (encoding L8U) on input line 3657.
+LaTeX Encoding Info:    Redeclaring text command \textneqdot (encoding L8U) on input line 3658.
+LaTeX Encoding Info:    Redeclaring text command \textcoloncolonequals (encoding L8U) on input line 3659.
+LaTeX Encoding Info:    Redeclaring text command \textleqslant (encoding L8U) on input line 3660.
+LaTeX Encoding Info:    Redeclaring text command \textnleqslant (encoding L8U) on input line 3661.
+LaTeX Encoding Info:    Redeclaring text command \textgeqslant (encoding L8U) on input line 3662.
+LaTeX Encoding Info:    Redeclaring text command \textngeqslant (encoding L8U) on input line 3663.
+LaTeX Encoding Info:    Redeclaring text command \textlessapprox (encoding L8U) on input line 3664.
+LaTeX Encoding Info:    Redeclaring text command \textnlessapprox (encoding L8U) on input line 3665.
+LaTeX Encoding Info:    Redeclaring text command \textgtrapprox (encoding L8U) on input line 3666.
+LaTeX Encoding Info:    Redeclaring text command \textngtrapprox (encoding L8U) on input line 3667.
+LaTeX Encoding Info:    Redeclaring text command \textlneq (encoding L8U) on input line 3668.
+LaTeX Encoding Info:    Redeclaring text command \textgneq (encoding L8U) on input line 3669.
+LaTeX Encoding Info:    Redeclaring text command \textlnapprox (encoding L8U) on input line 3670.
+LaTeX Encoding Info:    Redeclaring text command \textgnapprox (encoding L8U) on input line 3671.
+LaTeX Encoding Info:    Redeclaring text command \textlesseqqgtr (encoding L8U) on input line 3672.
+LaTeX Encoding Info:    Redeclaring text command \textgtreqqless (encoding L8U) on input line 3673.
+LaTeX Encoding Info:    Redeclaring text command \texteqslantless (encoding L8U) on input line 3674.
+LaTeX Encoding Info:    Redeclaring text command \texteqslantgtr (encoding L8U) on input line 3675.
+LaTeX Encoding Info:    Redeclaring text command \textleftslice (encoding L8U) on input line 3676.
+LaTeX Encoding Info:    Redeclaring text command \textrightslice (encoding L8U) on input line 3677.
+LaTeX Encoding Info:    Redeclaring text command \textpreceq (encoding L8U) on input line 3678.
+LaTeX Encoding Info:    Redeclaring text command \textnpreceq (encoding L8U) on input line 3679.
+LaTeX Encoding Info:    Redeclaring text command \textsucceq (encoding L8U) on input line 3680.
+LaTeX Encoding Info:    Redeclaring text command \textnsucceq (encoding L8U) on input line 3681.
+LaTeX Encoding Info:    Redeclaring text command \textprecneq (encoding L8U) on input line 3682.
+LaTeX Encoding Info:    Redeclaring text command \textsuccneq (encoding L8U) on input line 3683.
+LaTeX Encoding Info:    Redeclaring text command \textpreceqq (encoding L8U) on input line 3684.
+LaTeX Encoding Info:    Redeclaring text command \textnpreceqq (encoding L8U) on input line 3685.
+LaTeX Encoding Info:    Redeclaring text command \textsucceqq (encoding L8U) on input line 3686.
+LaTeX Encoding Info:    Redeclaring text command \textnsucceqq (encoding L8U) on input line 3687.
+LaTeX Encoding Info:    Redeclaring text command \textprecneqq (encoding L8U) on input line 3688.
+LaTeX Encoding Info:    Redeclaring text command \textsuccneqq (encoding L8U) on input line 3689.
+LaTeX Encoding Info:    Redeclaring text command \textprecapprox (encoding L8U) on input line 3690.
+LaTeX Encoding Info:    Redeclaring text command \textnprecapprox (encoding L8U) on input line 3691.
+LaTeX Encoding Info:    Redeclaring text command \textsuccapprox (encoding L8U) on input line 3692.
+LaTeX Encoding Info:    Redeclaring text command \textnsuccapprox (encoding L8U) on input line 3693.
+LaTeX Encoding Info:    Redeclaring text command \textprecnapprox (encoding L8U) on input line 3694.
+LaTeX Encoding Info:    Redeclaring text command \textsuccnapprox (encoding L8U) on input line 3695.
+LaTeX Encoding Info:    Redeclaring text command \textsubseteqq (encoding L8U) on input line 3696.
+LaTeX Encoding Info:    Redeclaring text command \textnsubseteqq (encoding L8U) on input line 3697.
+LaTeX Encoding Info:    Redeclaring text command \textsupseteqq (encoding L8U) on input line 3698.
+LaTeX Encoding Info:    Redeclaring text command \textnsupseteqq (encoding L8U) on input line 3699.
+LaTeX Encoding Info:    Redeclaring text command \textdashV (encoding L8U) on input line 3700.
+LaTeX Encoding Info:    Redeclaring text command \textndashV (encoding L8U) on input line 3701.
+LaTeX Encoding Info:    Redeclaring text command \textDashv (encoding L8U) on input line 3702.
+LaTeX Encoding Info:    Redeclaring text command \textnDashv (encoding L8U) on input line 3703.
+LaTeX Encoding Info:    Redeclaring text command \textDashV (encoding L8U) on input line 3704.
+LaTeX Encoding Info:    Redeclaring text command \textnDashV (encoding L8U) on input line 3705.
+LaTeX Encoding Info:    Redeclaring text command \textdownmodels (encoding L8U) on input line 3706.
+LaTeX Encoding Info:    Redeclaring text command \textndownmodels (encoding L8U) on input line 3707.
+LaTeX Encoding Info:    Redeclaring text command \textupmodels (encoding L8U) on input line 3708.
+LaTeX Encoding Info:    Redeclaring text command \textnupmodels (encoding L8U) on input line 3709.
+LaTeX Encoding Info:    Redeclaring text command \textupspoon (encoding L8U) on input line 3710.
+LaTeX Encoding Info:    Redeclaring text command \textinterleave (encoding L8U) on input line 3711.
+LaTeX Encoding Info:    Redeclaring text command \textsslash (encoding L8U) on input line 3712.
+LaTeX Encoding Info:    Redeclaring text command \textupstep (encoding L8U) on input line 3739.
+LaTeX Encoding Info:    Redeclaring text command \textdownstep (encoding L8U) on input line 3740.
+LaTeX Encoding Info:    Redeclaring text command \textcopyleft (encoding L8U) on input line 3810.
+)
+\pdfxsafeforxmp@toks=\toks55
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/xcolor/xcolor.sty
+Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/graphics-cfg/color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+
+Package xcolor Warning: Package option `hyperref' is obsolete and ignored on input line 265.
+
+Package xcolor Info: Driver file: pdftex.def on input line 274.
+LaTeX Info: Redefining \color on input line 762.
+(/usr/local/texlive/2026/texmf-dist/tex/latex/graphics/mathcolor.ltx)
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1349.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1353.
+Package xcolor Info: Model `RGB' extended on input line 1365.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1367.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1368.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1370.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1371.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
+)
+\pdfx@tmptoks=\toks56
+
+
+Package hyperref Warning: Option `pdftex' has already been used,
+(hyperref)                setting the option has no effect on input line 1532.
+
+Package hyperref Info: Option `psdextra' set `true' on input line 1535.
+(/usr/local/texlive/2026/texmf-dist/tex/latex/hyperref/psdextra.def
+File: psdextra.def 2026-01-29 v7.01p Hyperref: Additions to PDF string support
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/colorprofiles/colorprofiles.sty
+Package: colorprofiles 2018/11/01 v1.0.1 color profiles for PDF/X and PDF/A support
+ (/usr/local/texlive/2026/texmf-dist/tex/generic/colorprofiles/colorprofiles.tex)) (/usr/local/texlive/2026/texmf-dist/tex/latex/pdfx/AdobeColorProfiles.tex) (/usr/local/texlive/2026/texmf-dist/tex/latex/pdfx/8bit.def
+File: 8bit.def 2008/03/30 v1.1d Input encoding file
+)
+** pdfx: No file main.xmpdata . Metadata will be incomplete!
+<<sRGB.icc>> (/usr/local/texlive/2026/texmf-dist/tex/latex/pdfx/8bit.def
+File: 8bit.def 2008/03/30 v1.1d Input encoding file
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pdftex/glyphtounicode.tex) (/usr/local/texlive/2026/texmf-dist/tex/latex/pdfx/glyphtounicode-cmr.tex) (/usr/local/texlive/2026/texmf-dist/tex/latex/pdfx/glyphtounicode-ntx.tex) (/usr/local/texlive/2026/texmf-dist/tex/latex/xmpincl/xmpincl.sty
+Package: xmpincl 2021/09/22 v2.4 Include XMP data in pdflatex
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/pdfx/8bit.def
+File: 8bit.def 2008/03/30 v1.1d Input encoding file
+)
+Using XMP template file: pdfa.xmp
+\xmpinclWrite=\write129
+\xmpinclRead=\read5
+\openout4 = `pdfa.xmpi'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `pdfa.xmpi'.
+
+<<pdfa.xmpi>>
+
+Package pdfx Warning: Setting all color commands to rgb,
+consistent with the Color Model for PDF/A  on input line 3126.
+
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/base/utf8.def
+File: utf8.def 2022/06/07 v1.3c UTF-8 support
+Now handling font encoding OML ...
+... no UTF-8 mapping file for font encoding OML
+Now handling font encoding OMS ...
+... processing UTF-8 mapping file for font encoding OMS
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/base/omsenc.dfu
+File: omsenc.dfu 2022/06/07 v1.3c UTF-8 support
+   defining Unicode char U+00A7 (decimal 167)
+   defining Unicode char U+00B6 (decimal 182)
+   defining Unicode char U+00B7 (decimal 183)
+   defining Unicode char U+2020 (decimal 8224)
+   defining Unicode char U+2021 (decimal 8225)
+   defining Unicode char U+2022 (decimal 8226)
+)
+Now handling font encoding OT1 ...
+... processing UTF-8 mapping file for font encoding OT1
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/base/ot1enc.dfu
+File: ot1enc.dfu 2022/06/07 v1.3c UTF-8 support
+   defining Unicode char U+00A0 (decimal 160)
+   defining Unicode char U+00A1 (decimal 161)
+   defining Unicode char U+00A3 (decimal 163)
+   defining Unicode char U+00AD (decimal 173)
+   defining Unicode char U+00B8 (decimal 184)
+   defining Unicode char U+00BF (decimal 191)
+   defining Unicode char U+00C5 (decimal 197)
+   defining Unicode char U+00C6 (decimal 198)
+   defining Unicode char U+00D8 (decimal 216)
+   defining Unicode char U+00DF (decimal 223)
+   defining Unicode char U+00E6 (decimal 230)
+   defining Unicode char U+00EC (decimal 236)
+   defining Unicode char U+00ED (decimal 237)
+   defining Unicode char U+00EE (decimal 238)
+   defining Unicode char U+00EF (decimal 239)
+   defining Unicode char U+00F8 (decimal 248)
+   defining Unicode char U+0131 (decimal 305)
+   defining Unicode char U+0141 (decimal 321)
+   defining Unicode char U+0142 (decimal 322)
+   defining Unicode char U+0152 (decimal 338)
+   defining Unicode char U+0153 (decimal 339)
+   defining Unicode char U+0174 (decimal 372)
+   defining Unicode char U+0175 (decimal 373)
+   defining Unicode char U+0176 (decimal 374)
+   defining Unicode char U+0177 (decimal 375)
+   defining Unicode char U+0218 (decimal 536)
+   defining Unicode char U+0219 (decimal 537)
+   defining Unicode char U+021A (decimal 538)
+   defining Unicode char U+021B (decimal 539)
+   defining Unicode char U+0237 (decimal 567)
+   defining Unicode char U+2013 (decimal 8211)
+   defining Unicode char U+2014 (decimal 8212)
+   defining Unicode char U+2018 (decimal 8216)
+   defining Unicode char U+2019 (decimal 8217)
+   defining Unicode char U+201C (decimal 8220)
+   defining Unicode char U+201D (decimal 8221)
+   defining Unicode char U+FB00 (decimal 64256)
+   defining Unicode char U+FB01 (decimal 64257)
+   defining Unicode char U+FB02 (decimal 64258)
+   defining Unicode char U+FB03 (decimal 64259)
+   defining Unicode char U+FB04 (decimal 64260)
+   defining Unicode char U+FB05 (decimal 64261)
+   defining Unicode char U+FB06 (decimal 64262)
+)
+Now handling font encoding T1 ...
+... processing UTF-8 mapping file for font encoding T1
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/base/t1enc.dfu
+File: t1enc.dfu 2022/06/07 v1.3c UTF-8 support
+   defining Unicode char U+00A0 (decimal 160)
+   defining Unicode char U+00A1 (decimal 161)
+   defining Unicode char U+00A3 (decimal 163)
+   defining Unicode char U+00AB (decimal 171)
+   defining Unicode char U+00AD (decimal 173)
+   defining Unicode char U+00BB (decimal 187)
+   defining Unicode char U+00BF (decimal 191)
+   defining Unicode char U+00C0 (decimal 192)
+   defining Unicode char U+00C1 (decimal 193)
+   defining Unicode char U+00C2 (decimal 194)
+   defining Unicode char U+00C3 (decimal 195)
+   defining Unicode char U+00C4 (decimal 196)
+   defining Unicode char U+00C5 (decimal 197)
+   defining Unicode char U+00C6 (decimal 198)
+   defining Unicode char U+00C7 (decimal 199)
+   defining Unicode char U+00C8 (decimal 200)
+   defining Unicode char U+00C9 (decimal 201)
+   defining Unicode char U+00CA (decimal 202)
+   defining Unicode char U+00CB (decimal 203)
+   defining Unicode char U+00CC (decimal 204)
+   defining Unicode char U+00CD (decimal 205)
+   defining Unicode char U+00CE (decimal 206)
+   defining Unicode char U+00CF (decimal 207)
+   defining Unicode char U+00D0 (decimal 208)
+   defining Unicode char U+00D1 (decimal 209)
+   defining Unicode char U+00D2 (decimal 210)
+   defining Unicode char U+00D3 (decimal 211)
+   defining Unicode char U+00D4 (decimal 212)
+   defining Unicode char U+00D5 (decimal 213)
+   defining Unicode char U+00D6 (decimal 214)
+   defining Unicode char U+00D8 (decimal 216)
+   defining Unicode char U+00D9 (decimal 217)
+   defining Unicode char U+00DA (decimal 218)
+   defining Unicode char U+00DB (decimal 219)
+   defining Unicode char U+00DC (decimal 220)
+   defining Unicode char U+00DD (decimal 221)
+   defining Unicode char U+00DE (decimal 222)
+   defining Unicode char U+00DF (decimal 223)
+   defining Unicode char U+00E0 (decimal 224)
+   defining Unicode char U+00E1 (decimal 225)
+   defining Unicode char U+00E2 (decimal 226)
+   defining Unicode char U+00E3 (decimal 227)
+   defining Unicode char U+00E4 (decimal 228)
+   defining Unicode char U+00E5 (decimal 229)
+   defining Unicode char U+00E6 (decimal 230)
+   defining Unicode char U+00E7 (decimal 231)
+   defining Unicode char U+00E8 (decimal 232)
+   defining Unicode char U+00E9 (decimal 233)
+   defining Unicode char U+00EA (decimal 234)
+   defining Unicode char U+00EB (decimal 235)
+   defining Unicode char U+00EC (decimal 236)
+   defining Unicode char U+00ED (decimal 237)
+   defining Unicode char U+00EE (decimal 238)
+   defining Unicode char U+00EF (decimal 239)
+   defining Unicode char U+00F0 (decimal 240)
+   defining Unicode char U+00F1 (decimal 241)
+   defining Unicode char U+00F2 (decimal 242)
+   defining Unicode char U+00F3 (decimal 243)
+   defining Unicode char U+00F4 (decimal 244)
+   defining Unicode char U+00F5 (decimal 245)
+   defining Unicode char U+00F6 (decimal 246)
+   defining Unicode char U+00F8 (decimal 248)
+   defining Unicode char U+00F9 (decimal 249)
+   defining Unicode char U+00FA (decimal 250)
+   defining Unicode char U+00FB (decimal 251)
+   defining Unicode char U+00FC (decimal 252)
+   defining Unicode char U+00FD (decimal 253)
+   defining Unicode char U+00FE (decimal 254)
+   defining Unicode char U+00FF (decimal 255)
+   defining Unicode char U+0100 (decimal 256)
+   defining Unicode char U+0101 (decimal 257)
+   defining Unicode char U+0102 (decimal 258)
+   defining Unicode char U+0103 (decimal 259)
+   defining Unicode char U+0104 (decimal 260)
+   defining Unicode char U+0105 (decimal 261)
+   defining Unicode char U+0106 (decimal 262)
+   defining Unicode char U+0107 (decimal 263)
+   defining Unicode char U+0108 (decimal 264)
+   defining Unicode char U+0109 (decimal 265)
+   defining Unicode char U+010A (decimal 266)
+   defining Unicode char U+010B (decimal 267)
+   defining Unicode char U+010C (decimal 268)
+   defining Unicode char U+010D (decimal 269)
+   defining Unicode char U+010E (decimal 270)
+   defining Unicode char U+010F (decimal 271)
+   defining Unicode char U+0110 (decimal 272)
+   defining Unicode char U+0111 (decimal 273)
+   defining Unicode char U+0112 (decimal 274)
+   defining Unicode char U+0113 (decimal 275)
+   defining Unicode char U+0114 (decimal 276)
+   defining Unicode char U+0115 (decimal 277)
+   defining Unicode char U+0116 (decimal 278)
+   defining Unicode char U+0117 (decimal 279)
+   defining Unicode char U+0118 (decimal 280)
+   defining Unicode char U+0119 (decimal 281)
+   defining Unicode char U+011A (decimal 282)
+   defining Unicode char U+011B (decimal 283)
+   defining Unicode char U+011C (decimal 284)
+   defining Unicode char U+011D (decimal 285)
+   defining Unicode char U+011E (decimal 286)
+   defining Unicode char U+011F (decimal 287)
+   defining Unicode char U+0120 (decimal 288)
+   defining Unicode char U+0121 (decimal 289)
+   defining Unicode char U+0122 (decimal 290)
+   defining Unicode char U+0123 (decimal 291)
+   defining Unicode char U+0124 (decimal 292)
+   defining Unicode char U+0125 (decimal 293)
+   defining Unicode char U+0128 (decimal 296)
+   defining Unicode char U+0129 (decimal 297)
+   defining Unicode char U+012A (decimal 298)
+   defining Unicode char U+012B (decimal 299)
+   defining Unicode char U+012C (decimal 300)
+   defining Unicode char U+012D (decimal 301)
+   defining Unicode char U+012E (decimal 302)
+   defining Unicode char U+012F (decimal 303)
+   defining Unicode char U+0130 (decimal 304)
+   defining Unicode char U+0131 (decimal 305)
+   defining Unicode char U+0132 (decimal 306)
+   defining Unicode char U+0133 (decimal 307)
+   defining Unicode char U+0134 (decimal 308)
+   defining Unicode char U+0135 (decimal 309)
+   defining Unicode char U+0136 (decimal 310)
+   defining Unicode char U+0137 (decimal 311)
+   defining Unicode char U+0139 (decimal 313)
+   defining Unicode char U+013A (decimal 314)
+   defining Unicode char U+013B (decimal 315)
+   defining Unicode char U+013C (decimal 316)
+   defining Unicode char U+013D (decimal 317)
+   defining Unicode char U+013E (decimal 318)
+   defining Unicode char U+0141 (decimal 321)
+   defining Unicode char U+0142 (decimal 322)
+   defining Unicode char U+0143 (decimal 323)
+   defining Unicode char U+0144 (decimal 324)
+   defining Unicode char U+0145 (decimal 325)
+   defining Unicode char U+0146 (decimal 326)
+   defining Unicode char U+0147 (decimal 327)
+   defining Unicode char U+0148 (decimal 328)
+   defining Unicode char U+014A (decimal 330)
+   defining Unicode char U+014B (decimal 331)
+   defining Unicode char U+014C (decimal 332)
+   defining Unicode char U+014D (decimal 333)
+   defining Unicode char U+014E (decimal 334)
+   defining Unicode char U+014F (decimal 335)
+   defining Unicode char U+0150 (decimal 336)
+   defining Unicode char U+0151 (decimal 337)
+   defining Unicode char U+0152 (decimal 338)
+   defining Unicode char U+0153 (decimal 339)
+   defining Unicode char U+0154 (decimal 340)
+   defining Unicode char U+0155 (decimal 341)
+   defining Unicode char U+0156 (decimal 342)
+   defining Unicode char U+0157 (decimal 343)
+   defining Unicode char U+0158 (decimal 344)
+   defining Unicode char U+0159 (decimal 345)
+   defining Unicode char U+015A (decimal 346)
+   defining Unicode char U+015B (decimal 347)
+   defining Unicode char U+015C (decimal 348)
+   defining Unicode char U+015D (decimal 349)
+   defining Unicode char U+015E (decimal 350)
+   defining Unicode char U+015F (decimal 351)
+   defining Unicode char U+0160 (decimal 352)
+   defining Unicode char U+0161 (decimal 353)
+   defining Unicode char U+0162 (decimal 354)
+   defining Unicode char U+0163 (decimal 355)
+   defining Unicode char U+0164 (decimal 356)
+   defining Unicode char U+0165 (decimal 357)
+   defining Unicode char U+0168 (decimal 360)
+   defining Unicode char U+0169 (decimal 361)
+   defining Unicode char U+016A (decimal 362)
+   defining Unicode char U+016B (decimal 363)
+   defining Unicode char U+016C (decimal 364)
+   defining Unicode char U+016D (decimal 365)
+   defining Unicode char U+016E (decimal 366)
+   defining Unicode char U+016F (decimal 367)
+   defining Unicode char U+0170 (decimal 368)
+   defining Unicode char U+0171 (decimal 369)
+   defining Unicode char U+0172 (decimal 370)
+   defining Unicode char U+0173 (decimal 371)
+   defining Unicode char U+0174 (decimal 372)
+   defining Unicode char U+0175 (decimal 373)
+   defining Unicode char U+0176 (decimal 374)
+   defining Unicode char U+0177 (decimal 375)
+   defining Unicode char U+0178 (decimal 376)
+   defining Unicode char U+0179 (decimal 377)
+   defining Unicode char U+017A (decimal 378)
+   defining Unicode char U+017B (decimal 379)
+   defining Unicode char U+017C (decimal 380)
+   defining Unicode char U+017D (decimal 381)
+   defining Unicode char U+017E (decimal 382)
+   defining Unicode char U+01C4 (decimal 452)
+   defining Unicode char U+01C5 (decimal 453)
+   defining Unicode char U+01C6 (decimal 454)
+   defining Unicode char U+01C7 (decimal 455)
+   defining Unicode char U+01C8 (decimal 456)
+   defining Unicode char U+01C9 (decimal 457)
+   defining Unicode char U+01CA (decimal 458)
+   defining Unicode char U+01CB (decimal 459)
+   defining Unicode char U+01CC (decimal 460)
+   defining Unicode char U+01CD (decimal 461)
+   defining Unicode char U+01CE (decimal 462)
+   defining Unicode char U+01CF (decimal 463)
+   defining Unicode char U+01D0 (decimal 464)
+   defining Unicode char U+01D1 (decimal 465)
+   defining Unicode char U+01D2 (decimal 466)
+   defining Unicode char U+01D3 (decimal 467)
+   defining Unicode char U+01D4 (decimal 468)
+   defining Unicode char U+01E2 (decimal 482)
+   defining Unicode char U+01E3 (decimal 483)
+   defining Unicode char U+01E6 (decimal 486)
+   defining Unicode char U+01E7 (decimal 487)
+   defining Unicode char U+01E8 (decimal 488)
+   defining Unicode char U+01E9 (decimal 489)
+   defining Unicode char U+01EA (decimal 490)
+   defining Unicode char U+01EB (decimal 491)
+   defining Unicode char U+01F0 (decimal 496)
+   defining Unicode char U+01F4 (decimal 500)
+   defining Unicode char U+01F5 (decimal 501)
+   defining Unicode char U+0218 (decimal 536)
+   defining Unicode char U+0219 (decimal 537)
+   defining Unicode char U+021A (decimal 538)
+   defining Unicode char U+021B (decimal 539)
+   defining Unicode char U+0232 (decimal 562)
+   defining Unicode char U+0233 (decimal 563)
+   defining Unicode char U+0237 (decimal 567)
+   defining Unicode char U+02D9 (decimal 729)
+   defining Unicode char U+02DB (decimal 731)
+   defining Unicode char U+1E02 (decimal 7682)
+   defining Unicode char U+1E03 (decimal 7683)
+   defining Unicode char U+1E0D (decimal 7693)
+   defining Unicode char U+1E1E (decimal 7710)
+   defining Unicode char U+1E1F (decimal 7711)
+   defining Unicode char U+1E25 (decimal 7717)
+   defining Unicode char U+1E30 (decimal 7728)
+   defining Unicode char U+1E31 (decimal 7729)
+   defining Unicode char U+1E37 (decimal 7735)
+   defining Unicode char U+1E8E (decimal 7822)
+   defining Unicode char U+1E8F (decimal 7823)
+   defining Unicode char U+1E43 (decimal 7747)
+   defining Unicode char U+1E45 (decimal 7749)
+   defining Unicode char U+1E47 (decimal 7751)
+   defining Unicode char U+1E5B (decimal 7771)
+   defining Unicode char U+1E63 (decimal 7779)
+   defining Unicode char U+1E6D (decimal 7789)
+   defining Unicode char U+1E90 (decimal 7824)
+   defining Unicode char U+1E91 (decimal 7825)
+   defining Unicode char U+1E9E (decimal 7838)
+   defining Unicode char U+1EF2 (decimal 7922)
+   defining Unicode char U+1EF3 (decimal 7923)
+   defining Unicode char U+200C (decimal 8204)
+   defining Unicode char U+2010 (decimal 8208)
+   defining Unicode char U+2011 (decimal 8209)
+   defining Unicode char U+2012 (decimal 8210)
+   defining Unicode char U+2013 (decimal 8211)
+   defining Unicode char U+2014 (decimal 8212)
+   defining Unicode char U+2015 (decimal 8213)
+   defining Unicode char U+2018 (decimal 8216)
+   defining Unicode char U+2019 (decimal 8217)
+   defining Unicode char U+201A (decimal 8218)
+   defining Unicode char U+201C (decimal 8220)
+   defining Unicode char U+201D (decimal 8221)
+   defining Unicode char U+201E (decimal 8222)
+   defining Unicode char U+2030 (decimal 8240)
+   defining Unicode char U+2031 (decimal 8241)
+   defining Unicode char U+2039 (decimal 8249)
+   defining Unicode char U+203A (decimal 8250)
+   defining Unicode char U+2423 (decimal 9251)
+   defining Unicode char U+1E20 (decimal 7712)
+   defining Unicode char U+1E21 (decimal 7713)
+   defining Unicode char U+FB00 (decimal 64256)
+   defining Unicode char U+FB01 (decimal 64257)
+   defining Unicode char U+FB02 (decimal 64258)
+   defining Unicode char U+FB03 (decimal 64259)
+   defining Unicode char U+FB04 (decimal 64260)
+   defining Unicode char U+FB05 (decimal 64261)
+   defining Unicode char U+FB06 (decimal 64262)
+)
+Now handling font encoding TS1 ...
+... processing UTF-8 mapping file for font encoding TS1
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/base/ts1enc.dfu
+File: ts1enc.dfu 2022/06/07 v1.3c UTF-8 support
+   defining Unicode char U+00A2 (decimal 162)
+   defining Unicode char U+00A3 (decimal 163)
+   defining Unicode char U+00A4 (decimal 164)
+   defining Unicode char U+00A5 (decimal 165)
+   defining Unicode char U+00A6 (decimal 166)
+   defining Unicode char U+00A7 (decimal 167)
+   defining Unicode char U+00A8 (decimal 168)
+   defining Unicode char U+00A9 (decimal 169)
+   defining Unicode char U+00AA (decimal 170)
+   defining Unicode char U+00AC (decimal 172)
+   defining Unicode char U+00AE (decimal 174)
+   defining Unicode char U+00AF (decimal 175)
+   defining Unicode char U+00B0 (decimal 176)
+   defining Unicode char U+00B1 (decimal 177)
+   defining Unicode char U+00B2 (decimal 178)
+   defining Unicode char U+00B3 (decimal 179)
+   defining Unicode char U+00B4 (decimal 180)
+   defining Unicode char U+00B5 (decimal 181)
+   defining Unicode char U+00B6 (decimal 182)
+   defining Unicode char U+00B7 (decimal 183)
+   defining Unicode char U+00B9 (decimal 185)
+   defining Unicode char U+00BA (decimal 186)
+   defining Unicode char U+00BC (decimal 188)
+   defining Unicode char U+00BD (decimal 189)
+   defining Unicode char U+00BE (decimal 190)
+   defining Unicode char U+00D7 (decimal 215)
+   defining Unicode char U+00F7 (decimal 247)
+   defining Unicode char U+0192 (decimal 402)
+   defining Unicode char U+02C7 (decimal 711)
+   defining Unicode char U+02D8 (decimal 728)
+   defining Unicode char U+02DD (decimal 733)
+   defining Unicode char U+0E3F (decimal 3647)
+   defining Unicode char U+2016 (decimal 8214)
+   defining Unicode char U+2020 (decimal 8224)
+   defining Unicode char U+2021 (decimal 8225)
+   defining Unicode char U+2022 (decimal 8226)
+   defining Unicode char U+2030 (decimal 8240)
+   defining Unicode char U+2031 (decimal 8241)
+   defining Unicode char U+203B (decimal 8251)
+   defining Unicode char U+203D (decimal 8253)
+   defining Unicode char U+2044 (decimal 8260)
+   defining Unicode char U+204E (decimal 8270)
+   defining Unicode char U+2052 (decimal 8274)
+   defining Unicode char U+20A1 (decimal 8353)
+   defining Unicode char U+20A4 (decimal 8356)
+   defining Unicode char U+20A6 (decimal 8358)
+   defining Unicode char U+20A9 (decimal 8361)
+   defining Unicode char U+20AB (decimal 8363)
+   defining Unicode char U+20AC (decimal 8364)
+   defining Unicode char U+20B1 (decimal 8369)
+   defining Unicode char U+2103 (decimal 8451)
+   defining Unicode char U+2116 (decimal 8470)
+   defining Unicode char U+2117 (decimal 8471)
+   defining Unicode char U+211E (decimal 8478)
+   defining Unicode char U+2120 (decimal 8480)
+   defining Unicode char U+2122 (decimal 8482)
+   defining Unicode char U+2126 (decimal 8486)
+   defining Unicode char U+2127 (decimal 8487)
+   defining Unicode char U+212E (decimal 8494)
+   defining Unicode char U+2190 (decimal 8592)
+   defining Unicode char U+2191 (decimal 8593)
+   defining Unicode char U+2192 (decimal 8594)
+   defining Unicode char U+2193 (decimal 8595)
+   defining Unicode char U+2329 (decimal 9001)
+   defining Unicode char U+3008 (decimal 12296)
+   defining Unicode char U+232A (decimal 9002)
+   defining Unicode char U+3009 (decimal 12297)
+   defining Unicode char U+2422 (decimal 9250)
+   defining Unicode char U+25E6 (decimal 9702)
+   defining Unicode char U+25EF (decimal 9711)
+   defining Unicode char U+266A (decimal 9834)
+   defining Unicode char U+27E8 (decimal 10216)
+   defining Unicode char U+27E9 (decimal 10217)
+   defining Unicode char U+FEFF (decimal 65279)
+)
+Now handling font encoding OMX ...
+... no UTF-8 mapping file for font encoding OMX
+Now handling font encoding U ...
+... no UTF-8 mapping file for font encoding U
+Now handling font encoding PD1 ...
+... no UTF-8 mapping file for font encoding PD1
+Now handling font encoding PU ...
+... no UTF-8 mapping file for font encoding PU
+   defining Unicode char U+00A9 (decimal 169)
+   defining Unicode char U+00AA (decimal 170)
+   defining Unicode char U+00AE (decimal 174)
+   defining Unicode char U+00BA (decimal 186)
+   defining Unicode char U+02C6 (decimal 710)
+   defining Unicode char U+02DC (decimal 732)
+   defining Unicode char U+200C (decimal 8204)
+   defining Unicode char U+2026 (decimal 8230)
+   defining Unicode char U+2122 (decimal 8482)
+   defining Unicode char U+2423 (decimal 9251)
+   defining Unicode char U+FEFF (decimal 65279)
+) (./configuracoes.tex (/usr/local/texlive/2026/texmf-dist/tex/latex/multirow/bigdelim.sty
+Package: bigdelim 2024/11/12 v2.9 Create big delimiters in tabular or array
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/multirow/multirow.sty
+Package: multirow 2024/11/12 v2.9 Span multiple rows of a table
+\multirow@colwidth=\skip298
+\multirow@cntb=\count465
+\multirow@dima=\skip299
+\bigstrutjot=\dimen337
+)) (/usr/local/texlive/2026/texmf-dist/tex/latex/colortbl/colortbl.sty
+Package: colortbl 2024/10/29 v1.0k Color table columns (DPC)
+\everycr=\toks57
+\minrowclearance=\skip300
+\rownum=\count466
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/amssymb.sty
+Package: amssymb 2013/01/14 v3.01 AMS font symbols
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+)) (/usr/local/texlive/2026/texmf-dist/tex/latex/amscls/amsthm.sty
+Package: amsthm 2020/05/29 v2.20.6
+\thm@style=\toks58
+\thm@bodyfont=\toks59
+\thm@headfont=\toks60
+\thm@notefont=\toks61
+\thm@headpunct=\toks62
+\thm@preskip=\skip301
+\thm@postskip=\skip302
+\thm@headsep=\skip303
+\dth@everypar=\toks63
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/was/icomma.sty
+Package: icomma 2002/03/10 v2.0 (WaS)
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/psnfss/pifont.sty
+Package: pifont 2020/03/25 PSNFSS-v9.3 Pi font support (SPQR) 
+LaTeX Font Info:    Trying to load font information for U+pzd on input line 63.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/psnfss/upzd.fd
+File: upzd.fd 2001/06/04 font definitions for U/pzd.
+)
+LaTeX Font Info:    Trying to load font information for U+psy on input line 64.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/psnfss/upsy.fd
+File: upsy.fd 2001/06/04 font definitions for U/psy.
+)) (/usr/local/texlive/2026/texmf-dist/tex/latex/base/textcomp.sty
+Package: textcomp 2024/04/24 v2.1b Standard LaTeX package
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/wasysym/wasysym.sty
+Package: wasysym 2020/01/19 v2.4 Wasy-2 symbol support package
+\symwasy=\mathgroup6
+LaTeX Font Info:    Overwriting symbol font `wasy' in version `bold'
+(Font)                  U/wasy/m/n --> U/wasy/b/n on input line 93.
+)
+
+Class memoir Warning: The subfig package hasn't been updated since 2005.
+(memoir)              Consider using the subcaption package instead.  on input line 36.
+
+(/usr/local/texlive/2026/texmf-dist/tex/latex/subfig/subfig.sty
+Package: subfig 2005/06/28 ver: 1.3 subfig package
+\c@KVtest=\count467
+\sf@farskip=\skip304
+\sf@captopadj=\dimen338
+\sf@capskip=\skip305
+\sf@nearskip=\skip306
+\c@subfigure=\count468
+\c@subfigure@save=\count469
+\c@subtable=\count470
+\c@subtable@save=\count471
+\sf@top=\skip307
+\sf@bottom=\skip308
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/tools/xspace.sty
+Package: xspace 2014/10/28 v1.13 Space after command names (DPC,MH)
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/ulem/ulem.sty
+\UL@box=\box74
+\UL@hyphenbox=\box75
+\UL@skip=\skip309
+\UL@hook=\toks64
+\UL@height=\dimen339
+\UL@pe=\count472
+\UL@pixel=\dimen340
+\ULC@box=\box76
+Package: ulem 2019/11/18
+\ULdepth=\dimen341
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/tcolorbox/tcolorbox.sty
+Package: tcolorbox 2025/11/28 version 6.9.0 text color boxes
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/pgf/frontendlayer/tikz.sty (/usr/local/texlive/2026/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty (/usr/local/texlive/2026/texmf-dist/tex/latex/pgf/utilities/pgfrcs.sty (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/utilities/pgfutil-common.tex
+\pgfutil@everybye=\toks65
+\pgfutil@tempdima=\dimen342
+\pgfutil@tempdimb=\dimen343
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/utilities/pgfutil-latex.def
+\pgfutil@abb=\box77
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/utilities/pgfrcs.code.tex (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/pgf.revision.tex)
+Package: pgfrcs 2025-08-29 v3.1.11a (3.1.11a)
+))
+Package: pgf 2025-08-29 v3.1.11a (3.1.11a)
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/pgf/basiclayer/pgfcore.sty (/usr/local/texlive/2026/texmf-dist/tex/latex/pgf/systemlayer/pgfsys.sty (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/systemlayer/pgfsys.code.tex
+Package: pgfsys 2025-08-29 v3.1.11a (3.1.11a)
+ (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex
+\pgfkeys@pathtoks=\toks66
+\pgfkeys@temptoks=\toks67
+ (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/utilities/pgfkeyslibraryfiltered.code.tex
+\pgfkeys@tmptoks=\toks68
+))
+\pgf@x=\dimen344
+\pgf@y=\dimen345
+\pgf@xa=\dimen346
+\pgf@ya=\dimen347
+\pgf@xb=\dimen348
+\pgf@yb=\dimen349
+\pgf@xc=\dimen350
+\pgf@yc=\dimen351
+\pgf@xd=\dimen352
+\pgf@yd=\dimen353
+\w@pgf@writea=\write130
+\r@pgf@reada=\read6
+\c@pgf@counta=\count473
+\c@pgf@countb=\count474
+\c@pgf@countc=\count475
+\c@pgf@countd=\count476
+\t@pgf@toka=\toks69
+\t@pgf@tokb=\toks70
+\t@pgf@tokc=\toks71
+\pgf@sys@id@count=\count477
+ (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/systemlayer/pgf.cfg
+File: pgf.cfg 2025-08-29 v3.1.11a (3.1.11a)
+)
+Driver file for pgf: pgfsys-pdftex.def
+ (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/systemlayer/pgfsys-pdftex.def
+File: pgfsys-pdftex.def 2025-08-29 v3.1.11a (3.1.11a)
+ (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/systemlayer/pgfsys-common-pdf.def
+File: pgfsys-common-pdf.def 2025-08-29 v3.1.11a (3.1.11a)
+))) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/systemlayer/pgfsyssoftpath.code.tex
+File: pgfsyssoftpath.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfsyssoftpath@smallbuffer@items=\count478
+\pgfsyssoftpath@bigbuffer@items=\count479
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/systemlayer/pgfsysprotocol.code.tex
+File: pgfsysprotocol.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/basiclayer/pgfcore.code.tex
+Package: pgfcore 2025-08-29 v3.1.11a (3.1.11a)
+ (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/math/pgfmathutil.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/math/pgfmathparser.code.tex
+\pgfmath@dimen=\dimen354
+\pgfmath@count=\count480
+\pgfmath@box=\box78
+\pgfmath@toks=\toks72
+\pgfmath@stack@operand=\toks73
+\pgfmath@stack@operation=\toks74
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.basic.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.trigonometric.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.random.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.comparison.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.base.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.round.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.misc.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.integerarithmetics.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/math/pgfmathcalc.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/math/pgfmathfloat.code.tex
+\c@pgfmathroundto@lastzeros=\count481
+)) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/math/pgfint.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepoints.code.tex
+File: pgfcorepoints.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@picminx=\dimen355
+\pgf@picmaxx=\dimen356
+\pgf@picminy=\dimen357
+\pgf@picmaxy=\dimen358
+\pgf@pathminx=\dimen359
+\pgf@pathmaxx=\dimen360
+\pgf@pathminy=\dimen361
+\pgf@pathmaxy=\dimen362
+\pgf@xx=\dimen363
+\pgf@xy=\dimen364
+\pgf@yx=\dimen365
+\pgf@yy=\dimen366
+\pgf@zx=\dimen367
+\pgf@zy=\dimen368
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathconstruct.code.tex
+File: pgfcorepathconstruct.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@path@lastx=\dimen369
+\pgf@path@lasty=\dimen370
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathusage.code.tex
+File: pgfcorepathusage.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@shorten@end@additional=\dimen371
+\pgf@shorten@start@additional=\dimen372
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/basiclayer/pgfcorescopes.code.tex
+File: pgfcorescopes.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfpic=\box79
+\pgf@hbox=\box80
+\pgf@layerbox@main=\box81
+\pgf@picture@serial@count=\count482
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/basiclayer/pgfcoregraphicstate.code.tex
+File: pgfcoregraphicstate.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgflinewidth=\dimen373
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransformations.code.tex
+File: pgfcoretransformations.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@pt@x=\dimen374
+\pgf@pt@y=\dimen375
+\pgf@pt@temp=\dimen376
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/basiclayer/pgfcorequick.code.tex
+File: pgfcorequick.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreobjects.code.tex
+File: pgfcoreobjects.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathprocessing.code.tex
+File: pgfcorepathprocessing.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/basiclayer/pgfcorearrows.code.tex
+File: pgfcorearrows.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfarrowsep=\dimen377
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreshade.code.tex
+File: pgfcoreshade.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@max=\dimen378
+\pgf@sys@shading@range@num=\count483
+\pgf@shadingcount=\count484
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreimage.code.tex
+File: pgfcoreimage.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreexternal.code.tex
+File: pgfcoreexternal.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfexternal@startupbox=\box82
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/basiclayer/pgfcorelayers.code.tex
+File: pgfcorelayers.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransparency.code.tex
+File: pgfcoretransparency.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepatterns.code.tex
+File: pgfcorepatterns.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/basiclayer/pgfcorerdf.code.tex
+File: pgfcorerdf.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+))) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/modules/pgfmoduleshapes.code.tex
+File: pgfmoduleshapes.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfnodeparttextbox=\box83
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/modules/pgfmoduleplot.code.tex
+File: pgfmoduleplot.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-0-65.sty
+Package: pgfcomp-version-0-65 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@nodesepstart=\dimen379
+\pgf@nodesepend=\dimen380
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18.sty
+Package: pgfcomp-version-1-18 2025-08-29 v3.1.11a (3.1.11a)
+)) (/usr/local/texlive/2026/texmf-dist/tex/latex/pgf/utilities/pgffor.sty (/usr/local/texlive/2026/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex)) (/usr/local/texlive/2026/texmf-dist/tex/latex/pgf/math/pgfmath.sty (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex)) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex
+Package: pgffor 2025-08-29 v3.1.11a (3.1.11a)
+\pgffor@iter=\dimen381
+\pgffor@skip=\dimen382
+\pgffor@stack=\toks75
+\pgffor@toks=\toks76
+)) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+Package: tikz 2025-08-29 v3.1.11a (3.1.11a)
+ (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers.code.tex
+File: pgflibraryplothandlers.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@plot@mark@count=\count485
+\pgfplotmarksize=\dimen383
+)
+\tikz@lastx=\dimen384
+\tikz@lasty=\dimen385
+\tikz@lastxsaved=\dimen386
+\tikz@lastysaved=\dimen387
+\tikz@lastmovetox=\dimen388
+\tikz@lastmovetoy=\dimen389
+\tikzleveldistance=\dimen390
+\tikzsiblingdistance=\dimen391
+\tikz@figbox=\box84
+\tikz@figbox@bg=\box85
+\tikz@tempbox=\box86
+\tikz@tempbox@bg=\box87
+\tikztreelevel=\count486
+\tikznumberofchildren=\count487
+\tikznumberofcurrentchild=\count488
+\tikz@fig@count=\count489
+ (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+File: pgfmodulematrix.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfmatrixcurrentrow=\count490
+\pgfmatrixcurrentcolumn=\count491
+\pgf@matrix@numberofcolumns=\count492
+)
+\tikz@expandcount=\count493
+ (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarytopaths.code.tex
+File: tikzlibrarytopaths.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+))) (/usr/local/texlive/2026/texmf-dist/tex/latex/environ/environ.sty
+Package: environ 2014/05/04 v0.3 A new way to define environments
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/trimspaces/trimspaces.sty
+Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
+))
+\tcb@titlebox=\box88
+\tcb@upperbox=\box89
+\tcb@lowerbox=\box90
+\tcb@phantombox=\box91
+\c@tcbbreakpart=\count494
+\c@tcblayer=\count495
+\c@tcolorbox@number=\count496
+\l__tcobox_tmpa_box=\box92
+\l__tcobox_tmpa_dim=\dimen392
+\tcb@temp=\box93
+\tcb@temp=\box94
+\tcb@temp=\box95
+\tcb@temp=\box96
+)) (./variaveis.tex)
+\main@idxfile=\write131
+\openout4 = `main.idx'.
+
+
+Writing index file main.idx 
+\glswrite=\write132
+\glo@main@file=\write133
+\openout4 = `main.glo'.
+
+Package glossaries Info: Writing glossary file main.glo on input line 96.
+\glo@acronym@file=\write134
+\openout4 = `main.acn'.
+
+Package glossaries Info: Writing glossary file main.acn on input line 96.
+\glo@sigla@file=\write135
+\openout4 = `main.acn2'.
+
+Package glossaries Info: Writing glossary file main.acn2 on input line 96.
+\glo@abreviatura@file=\write136
+\openout4 = `main.acn3'.
+
+Package glossaries Info: Writing glossary file main.acn3 on input line 96.
+
+LaTeX Warning: \include should only be used after \begin{document} on input line 97.
+
+(./PreTexto/entradas-siglas.tex)
+
+LaTeX Warning: \include should only be used after \begin{document} on input line 98.
+
+(./PosTexto/entradas-glossario.tex)
+\@nomenclaturefile=\write137
+\openout4 = `main.nlo'.
+
+Package nomencl Info: Writing nomenclature file main.nlo on input line 101.
+LaTeX Font Info:    Trying to load font information for T1+phv on input line 104.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/psnfss/t1phv.fd
+File: t1phv.fd 2020/03/25 scalable font definitions for T1/phv.
+)
+LaTeX Font Info:    Font shape `T1/phv/m/n' will be
+(Font)              scaled to size 10.79993pt on input line 104.
+ (./main.aux
+Package babel Info: 'brazil' activates 'portuges' shorthands.
+(babel)             Reported on input line 37.
+ (./PreTexto/dedicatoria.aux) (./PreTexto/agradecimentos.aux) (./PreTexto/epigrafe.aux) (./PreTexto/resumo.aux) (./PreTexto/abstract.aux) (./PreTexto/declaracao-ia.aux) (./PreTexto/lista-acronimos.aux) (./PreTexto/lista-simbolos.aux) (./capitulos/cap-introducao.aux) (./capitulos/cap-conceitos.aux) (./capitulos/cap-trabalhos-relacionados.aux) (./capitulos/cap-proposta.aux) (./capitulos/cap-metodologia.aux) (./capitulos/cap-experimentos-resultados.aux) (./capitulos/cap-conclusoes.aux) (./PosTexto/apendicea.aux) (./PosTexto/apendiceb.aux))
+\openout1 = `main.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 104.
+LaTeX Font Info:    ... okay on input line 104.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 104.
+LaTeX Font Info:    ... okay on input line 104.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 104.
+LaTeX Font Info:    ... okay on input line 104.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 104.
+LaTeX Font Info:    ... okay on input line 104.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 104.
+LaTeX Font Info:    ... okay on input line 104.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 104.
+LaTeX Font Info:    ... okay on input line 104.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 104.
+LaTeX Font Info:    ... okay on input line 104.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 104.
+LaTeX Font Info:    ... okay on input line 104.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 104.
+LaTeX Font Info:    ... okay on input line 104.
+ (/usr/local/texlive/2026/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count497
+\scratchdimen=\dimen393
+\scratchbox=\box97
+\nofMPsegments=\count498
+\nofMParguments=\count499
+\everyMPshowfont=\toks77
+\MPscratchCnt=\count500
+\MPscratchDim=\dimen394
+\MPnumerator=\count501
+\makeMPintoPDFobject=\count502
+\everyMPtoPDFconversion=\toks78
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
+))
+Package hyperref Info: Link coloring ON on input line 104.
+LaTeX Info: Redefining \degres on input line 104.
+\myptabbox=\box98
+\myptabboxwidth=\skip310
+
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(85.35826pt, 455.24411pt, 56.9055pt)
+* v-part:(T,H,B)=(85.35826pt, 702.78308pt, 56.9055pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=455.24411pt
+* \textheight=702.78308pt
+* \oddsidemargin=13.08827pt
+* \evensidemargin=13.08827pt
+* \topmargin=-43.81721pt
+* \headheight=28.45274pt
+* \headsep=28.45274pt
+* \topskip=12.0pt
+* \footskip=14.22636pt
+* \marginparwidth=42.9055pt
+* \marginparsep=7.0pt
+* \columnsep=10.0pt
+* \skip\footins=12.0pt plus 4.0pt minus 4.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+<<ot1.cmap>><<oml.cmap>><<oms.cmap>><<omx.cmap>>
+LaTeX Font Info:    Trying to load font information for U+msa on input line 104.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 104.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
+LaTeX Font Info:    Trying to load font information for U+wasy on input line 104.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/wasysym/uwasy.fd
+File: uwasy.fd 2020/01/19 v2.4 Wasy-2 symbol font definitions
+)<<ot1tt.cmap>>
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: subfig package v1.3 is loaded.
+Package caption Info: listings package is loaded.
+Package caption Info: xtab package is loaded.
+Package caption Info: End \AtBeginDocument code.
+*geometry* verbose mode - [ newgeometry ] result:
+* driver: pdftex
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: includehead 
+* h-part:(L,W,R)=(85.35826pt, 455.24411pt, 56.9055pt)
+* v-part:(T,H,B)=(85.35826pt, 702.78308pt, 56.9055pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=455.24411pt
+* \textheight=631.6512pt
+* \oddsidemargin=13.08827pt
+* \evensidemargin=13.08827pt
+* \topmargin=13.08827pt
+* \headheight=71.13188pt
+* \headsep=0.0pt
+* \topskip=12.0pt
+* \footskip=14.22636pt
+* \marginparwidth=42.9055pt
+* \marginparsep=7.0pt
+* \columnsep=10.0pt
+* \skip\footins=12.0pt plus 4.0pt minus 4.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/pdflscape/pdflscape.sty
+Package: pdflscape 2025-06-23 v0.14 Display of landscape pages in PDF
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/pdflscape/pdflscape-nometadata.sty
+Package: pdflscape-nometadata 2025-06-23 v0.14 Display of landscape pages in PDF (HO)
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/graphics/lscape.sty
+Package: lscape 2020/05/28 v3.02 Landscape Pages (DPC)
+)
+Package pdflscape Info: Auto-detected driver: pdftex on input line 81.
+))
+\c@lstlisting=\count503
+Package tocbasic Info: setting babel extension for `lol' on input line 104.
+LaTeX Font Info:    Font shape `T1/phv/m/n' will be
+(Font)              scaled to size 12.9599pt on input line 111.
+LaTeX Font Info:    Font shape `T1/phv/b/n' will be
+(Font)              scaled to size 12.9599pt on input line 111.
+LaTeX Font Info:    Font shape `T1/phv/b/it' in size <14.4> not available
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 111.
+LaTeX Font Info:    Font shape `T1/phv/b/sl' will be
+(Font)              scaled to size 12.9599pt on input line 111.
+\openout4 = `main.mw'.
+
+ [1
+
+
+
+
+{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/base/8r.enc}] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.ist'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.ist'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+
+Underfull \hbox (badness 3049) in paragraph at lines 115--115
+\T1/phv/m/n/12 apre-sen-tado como re-qui-sito para ob-ten-ção
+ []
+
+
+Underfull \hbox (badness 4120) in paragraph at lines 115--115
+\T1/phv/m/n/12 do tí-tulo de Ba-cha-rel em En-ge-nha-ria de
+ []
+
+
+Underfull \hbox (badness 4193) in paragraph at lines 115--115
+\T1/phv/m/n/12 Com-pu-ta-ção do Curso de En-ge-nha-ria de
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 115--115
+\T1/phv/m/n/12 Com-pu-ta-ção da Uni-ver-si-dade Tec-no-ló-gica
+ []
+
+
+Overfull \hbox (0.50658pt too wide) detected at line 115
+\T1/phv/m/n/12 Orientador: 
+ []
+
+LaTeX Font Info:    Font shape `T1/phv/b/n' will be
+(Font)              scaled to size 10.79993pt on input line 115.
+LaTeX Font Info:    Font shape `T1/phv/m/n' will be
+(Font)              scaled to size 9.85492pt on input line 115.
+Package epstopdf Info: Source file: <./PreTexto/arquivos/licencasCC/by.eps>
+(epstopdf)                    date: 2026-04-12 23:54:26
+(epstopdf)                    size: 36313 bytes
+(epstopdf)             Output file: <./PreTexto/arquivos/licencasCC/by-eps-converted-to.pdf>
+(epstopdf)                    date: 2026-04-13 01:23:16
+(epstopdf)                    size: 4868 bytes
+(epstopdf)             Command: <repstopdf --outfile=./PreTexto/arquivos/licencasCC/by-eps-converted-to.pdf ./PreTexto/arquivos/licencasCC/by.eps>
+(epstopdf)             \includegraphics on input line 115.
+Package epstopdf Info: Output file is already uptodate.
+<./PreTexto/arquivos/licencasCC/by-eps-converted-to.pdf, id=23, 120.45pt x 42.1575pt>
+File: ./PreTexto/arquivos/licencasCC/by-eps-converted-to.pdf Graphic file (type pdf)
+<use ./PreTexto/arquivos/licencasCC/by-eps-converted-to.pdf>
+Package pdftex.def Info: ./PreTexto/arquivos/licencasCC/by-eps-converted-to.pdf  used on input line 115.
+(pdftex.def)             Requested size: 72.27054pt x 25.29468pt.
+
+Overfull \hbox (14.73956pt too wide) in paragraph at lines 115--115
+[]|[]| 
+ []
+
+\openout4 = `main.mw'.
+
+[2
+
+
+
+ <./PreTexto/arquivos/licencasCC/by-eps-converted-to.pdf>] (./main.mw)
+\openout4 = `main.mw'.
+
+
+Underfull \hbox (badness 3049) in paragraph at lines 129--129
+\T1/phv/m/n/12 apre-sen-tado como re-qui-sito para ob-ten-ção
+ []
+
+
+Underfull \hbox (badness 4120) in paragraph at lines 129--129
+\T1/phv/m/n/12 do tí-tulo de Ba-cha-rel em En-ge-nha-ria de
+ []
+
+
+Underfull \hbox (badness 4193) in paragraph at lines 129--129
+\T1/phv/m/n/12 Com-pu-ta-ção do Curso de En-ge-nha-ria de
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 129--129
+\T1/phv/m/n/12 Com-pu-ta-ção da Uni-ver-si-dade Tec-no-ló-gica
+ []
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.134 \include{./PreTexto/dedicatoria}
+                                      %% Comente para remover este item
+\openout4 = `main.mw'.
+
+ [1
+
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout2 = `./PreTexto/dedicatoria.aux'.
+
+ (./PreTexto/dedicatoria.tex)
+pdfTeX warning (ext4): destination with the same identifier (name{page.2}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.134 \include{./PreTexto/dedicatoria}
+                                      %% Comente para remover este item
+\openout4 = `main.mw'.
+
+ [2
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout2 = `./PreTexto/agradecimentos.aux'.
+
+ (./PreTexto/agradecimentos.tex
+\openout4 = `main.mw'.
+
+ [3
+
+
+
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+)
+\openout2 = `./PreTexto/epigrafe.aux'.
+
+ (./PreTexto/epigrafe.tex
+\openout4 = `main.mw'.
+
+ [4
+
+
+
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+)
+\openout2 = `./PreTexto/resumo.aux'.
+
+ (./PreTexto/resumo.tex
+LaTeX Font Info:    Font shape `T1/phv/m/it' in size <12> not available
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 7.
+LaTeX Font Info:    Font shape `T1/phv/m/sl' will be
+(Font)              scaled to size 10.79993pt on input line 7.
+
+Underfull \hbox (badness 10000) in paragraph at lines 7--8
+
+ []
+
+\openout4 = `main.mw'.
+
+[5
+
+
+
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+)
+\openout2 = `./PreTexto/abstract.aux'.
+
+ (./PreTexto/abstract.tex
+Underfull \hbox (badness 10000) in paragraph at lines 6--7
+
+ []
+
+\openout4 = `main.mw'.
+
+[6
+
+
+
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+)
+\openout2 = `./PreTexto/declaracao-ia.aux'.
+
+ (./PreTexto/declaracao-ia.tex
+LaTeX Font Info:    Trying to load font information for TS1+phv on input line 8.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/psnfss/ts1phv.fd
+File: ts1phv.fd 2020/03/25 scalable font definitions for TS1/phv.
+)
+LaTeX Font Info:    Font shape `TS1/phv/m/n' will be
+(Font)              scaled to size 10.79993pt on input line 8.
+)
+\openout4 = `main.mw'.
+
+ [7
+
+
+
+
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+ (./main.lof
+LaTeX Font Info:    Font shape `T1/phv/b/it' in size <12> not available
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 7.
+LaTeX Font Info:    Font shape `T1/phv/b/sl' will be
+(Font)              scaled to size 10.79993pt on input line 7.
+)
+\openout4 = `main.mw'.
+
+ [8
+
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+ (./main.loh)
+\openout4 = `main.mw'.
+
+ [9
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+ (./main.lot)
+\openout4 = `main.mw'.
+
+ [10
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+ (./main.lod)
+\openout4 = `main.mw'.
+
+ [11
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+ (./main.loc)
+\openout4 = `main.mw'.
+
+ [12
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout2 = `./PreTexto/lista-acronimos.aux'.
+
+ (./PreTexto/lista-acronimos.tex
+Overfull \hbox (35.56593pt too wide) in paragraph at lines 30--31
+[][] 
+ []
+
+)
+\openout4 = `main.mw'.
+
+ [13
+
+
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout2 = `./PreTexto/lista-simbolos.aux'.
+
+ (./PreTexto/lista-simbolos.tex
+Overfull \hbox (35.56593pt too wide) in paragraph at lines 16--17
+[][] 
+ []
+
+
+Overfull \hbox (35.56593pt too wide) in paragraph at lines 22--23
+[][] 
+ []
+
+
+Overfull \hbox (35.56593pt too wide) in paragraph at lines 28--29
+[][] 
+ []
+
+
+Overfull \hbox (35.56593pt too wide) in paragraph at lines 36--37
+[][] 
+ []
+
+
+Overfull \hbox (35.56593pt too wide) in paragraph at lines 42--43
+[][] 
+ []
+
+)
+\openout4 = `main.mw'.
+
+ [14
+
+
+
+
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+ (./main.toc
+\openout4 = `main.mw'.
+
+ [15
+
+
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [16] (./main.mw)
+\openout4 = `main.mw'.
+
+)
+\openout4 = `main.mw'.
+
+ [17] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout2 = `./capitulos/cap-introducao.aux'.
+
+ (./capitulos/cap-introducao.tex
+Chapter 1.
+LaTeX Font Info:    Font shape `T1/phv/b/n' will be
+(Font)              scaled to size 9.85492pt on input line 12.
+<figuras/DE10Nano.jpg, id=489, 385.44pt x 263.7855pt>
+File: figuras/DE10Nano.jpg Graphic file (type jpg)
+<use figuras/DE10Nano.jpg>
+Package pdftex.def Info: figuras/DE10Nano.jpg  used on input line 15.
+(pdftex.def)             Requested size: 327.7763pt x 224.31935pt.
+\openout4 = `main.mw'.
+
+[18
+
+
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [19 <./figuras/DE10Nano.jpg>] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [20] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+)
+\openout4 = `main.mw'.
+
+ [21] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [22] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout2 = `./capitulos/cap-conceitos.aux'.
+
+ (./capitulos/cap-conceitos.tex
+Chapter 2.
+\openout4 = `main.mw'.
+
+[23
+
+
+
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [24] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [25] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+<figuras/livro-ofertas.png, id=569, 540.0175pt x 1069.9975pt>
+File: figuras/livro-ofertas.png Graphic file (type png)
+<use figuras/livro-ofertas.png>
+Package pdftex.def Info: figuras/livro-ofertas.png  used on input line 53.
+(pdftex.def)             Requested size: 241.18459pt x 477.88734pt.
+\openout4 = `main.mw'.
+
+ [26 <./figuras/livro-ofertas.png>] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [27] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [28] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [29] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [30] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [31] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+)
+\openout4 = `main.mw'.
+
+ [32] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout2 = `./capitulos/cap-trabalhos-relacionados.aux'.
+
+ (./capitulos/cap-trabalhos-relacionados.tex
+Chapter 3.
+\openout4 = `main.mw'.
+
+[33
+
+
+
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [34] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+
+Underfull \hbox (badness 2158) in paragraph at lines 53--53
+[]|\T1/phv/m/n/10.95 Redução de la-tên-cia em fun-ções
+ []
+
+
+Underfull \hbox (badness 1596) in paragraph at lines 53--53
+\T1/phv/m/n/10.95 crí-ti-cas, fre-quen-te-mente com rede
+ []
+
+
+Underfull \hbox (badness 1308) in paragraph at lines 53--53
+\T1/phv/m/n/10.95 nais e HLS em C/C++. Ex.: Kin-
+ []
+
+\openout4 = `main.mw'.
+
+[35] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+)
+\openout4 = `main.mw'.
+
+ [36] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout2 = `./capitulos/cap-proposta.aux'.
+
+ (./capitulos/cap-proposta.tex
+Chapter 4.
+<figuras/arquitetura-geral.png, id=689, 768.8725pt x 1509.64pt>
+File: figuras/arquitetura-geral.png Graphic file (type png)
+<use figuras/arquitetura-geral.png>
+Package pdftex.def Info: figuras/arquitetura-geral.png  used on input line 18.
+(pdftex.def)             Requested size: 318.66948pt x 625.70573pt.
+<figuras/diagrama-blocos-sistema.png, id=691, 1408.26125pt x 380.42125pt>
+File: figuras/diagrama-blocos-sistema.png Graphic file (type png)
+<use figuras/diagrama-blocos-sistema.png>
+Package pdftex.def Info: figuras/diagrama-blocos-sistema.png  used on input line 28.
+(pdftex.def)             Requested size: 455.24411pt x 122.9737pt.
+\openout4 = `main.mw'.
+
+[37
+
+
+
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+LaTeX Font Info:    Trying to load font information for T1+pcr on input line 48.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/psnfss/t1pcr.fd
+File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
+)
+\openout4 = `main.mw'.
+
+ [38] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+<figuras/fluxo-hls-estrategia.png, id=701, 301.125pt x 1124.2pt>
+File: figuras/fluxo-hls-estrategia.png Graphic file (type png)
+<use figuras/fluxo-hls-estrategia.png>
+Package pdftex.def Info: figuras/fluxo-hls-estrategia.png  used on input line 67.
+(pdftex.def)             Requested size: 128.00629pt x 477.88734pt.
+\openout4 = `main.mw'.
+
+ [39] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [40] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+)
+\openout4 = `main.mw'.
+
+ [41] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [42 <./figuras/arquitetura-geral.png>] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [43 <./figuras/diagrama-blocos-sistema.png (PNG copy)> <./figuras/fluxo-hls-estrategia.png>] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout2 = `./capitulos/cap-metodologia.aux'.
+
+ (./capitulos/cap-metodologia.tex
+Chapter 5.
+\openout4 = `main.mw'.
+
+[44
+
+
+
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+LaTeX Font Info:    Font shape `T1/phv/b/it' in size <10.95> not available
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 32.
+LaTeX Font Info:    Font shape `T1/phv/b/sl' will be
+(Font)              scaled to size 9.85492pt on input line 32.
+<figuras/platform-designer.png, id=738, 818.30719pt x 597.73312pt>
+File: figuras/platform-designer.png Graphic file (type png)
+<use figuras/platform-designer.png>
+Package pdftex.def Info: figuras/platform-designer.png  used on input line 35.
+(pdftex.def)             Requested size: 432.48051pt x 315.91234pt.
+\openout4 = `main.mw'.
+
+ [45] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [46 <./figuras/platform-designer.png>] (./main.mw)
+\openout4 = `main.mw'.
+
+
+Underfull \hbox (badness 2529) in paragraph at lines 77--77
+[]|\T1/phv/m/n/10.95 Barramento tra-vado ou tran-sa-ção
+ []
+
+\openout4 = `main.mw'.
+
+[47] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 97--97
+[]|\T1/phv/m/n/10.95 Modo \T1/pcr/m/n/10.95 fpga-sync\T1/phv/m/n/10.95 :
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 97--97
+\T1/phv/m/n/10.95 mede RTT
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 97--97
+\T1/phv/m/n/10.95 ARM$\OMS/cmsy/m/n/10.95 !$\T1/phv/m/n/10.95 FPGA$\OMS/cmsy/m/n/10.95 !$\T1/phv/m/n/10.95 ARM
+ []
+
+
+Underfull \hbox (badness 6625) in paragraph at lines 97--97
+\T1/phv/m/n/10.95 por men-sa-gem com
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 97--97
+[]|\T1/phv/b/n/10.95 10.228 ns \T1/phv/m/n/10.95 mé-dio;
+ []
+
+
+Underfull \hbox (badness 4266) in paragraph at lines 97--97
+\T1/phv/b/n/10.95 10.310 ns \T1/phv/m/n/10.95 p99 ([][]Ta-
+ []
+
+
+Underfull \hbox (badness 1173) in paragraph at lines 97--97
+[]|\T1/phv/m/n/10.95 Eventos por se-gundo
+ []
+
+
+Underfull \hbox (badness 3229) in paragraph at lines 97--97
+[]|\T1/phv/m/n/10.95 Pelo me-nos 100.000
+ []
+
+
+Underfull \hbox (badness 6758) in paragraph at lines 97--97
+[]|\T1/phv/m/n/10.95 Comparação do nú-
+ []
+
+
+Underfull \hbox (badness 7203) in paragraph at lines 97--97
+\T1/phv/m/n/10.95 vs. C++ equi-va-lente
+ []
+
+)
+\openout4 = `main.mw'.
+
+ [48] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout2 = `./capitulos/cap-experimentos-resultados.aux'.
+
+ (./capitulos/cap-experimentos-resultados.tex
+Chapter 6.
+\openout4 = `main.mw'.
+
+[49
+
+
+
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+<figuras/fluxo-temporal-evento.png, id=773, 1322.9425pt x 643.40375pt>
+File: figuras/fluxo-temporal-evento.png Graphic file (type png)
+<use figuras/fluxo-temporal-evento.png>
+Package pdftex.def Info: figuras/fluxo-temporal-evento.png  used on input line 31.
+(pdftex.def)             Requested size: 432.48051pt x 210.33093pt.
+\openout4 = `main.mw'.
+
+ [50 <./figuras/fluxo-temporal-evento.png>] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+<figuras/pipeline-livro.png, id=780, 1015.795pt x 1067.99pt>
+File: figuras/pipeline-livro.png Graphic file (type png)
+<use figuras/pipeline-livro.png>
+Package pdftex.def Info: figuras/pipeline-livro.png  used on input line 47.
+(pdftex.def)             Requested size: 467.90686pt x 491.946pt.
+
+Overfull \hbox (12.66275pt too wide) in paragraph at lines 47--48
+ [][] 
+ []
+
+LaTeX Font Info:    Font shape `TS1/phv/m/n' will be
+(Font)              scaled to size 9.85492pt on input line 68.
+\openout4 = `main.mw'.
+
+[51] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [52 <./figuras/pipeline-livro.png>] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [53] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [54] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [55] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 186--186
+[]|\T1/phv/m/n/10.95 Ciclos FPGA on-chip
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 186--186
+\T1/phv/m/n/10.95 (50 MHz), sem co-mu-ni-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 186--186
+[]|\T1/phv/m/n/10.95 RTT ARM$\OMS/cmsy/m/n/10.95 !$\T1/phv/m/n/10.95 FPGA$\OMS/cmsy/m/n/10.95 !$\T1/phv/m/n/10.95 ARM,
+ []
+
+
+Underfull \hbox (badness 1590) in paragraph at lines 186--186
+[]|\T1/phv/m/n/10.95 Mensagens/s com fi-las em
+ []
+
+\openout4 = `main.mw'.
+
+[56] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [57] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+LaTeX Font Info:    Font shape `TS1/phv/b/n' will be
+(Font)              scaled to size 10.79993pt on input line 212.
+
+Underfull \hbox (badness 2393) in paragraph at lines 225--225
+[]|\T1/phv/m/n/10.95 Núcleo C++ equi-va-lente no ARM
+ []
+
+\openout4 = `main.mw'.
+
+[58] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [59] (./main.mw)
+\openout4 = `main.mw'.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 280--280
+[]|\T1/phv/m/n/10.95 10.228 ns mé-dio;
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 280--280
+[]|\T1/phv/m/n/10.95 Cyclone V SoC
+ []
+
+
+Underfull \hbox (badness 2088) in paragraph at lines 280--280
+[]|\T1/phv/m/n/10.95 FPGA + rede in-te-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 280--280
+[]|\T1/phv/m/n/10.95 Kintex Ul-traS-cale
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 280--280
+[]|\T1/phv/m/n/10.95 FPGA, bi-bli-o-teca
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 280--280
+[]|\T1/phv/m/n/10.95 FPGA di-reto
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 280--280
+[]|\T1/phv/m/n/10.95 Hardware cus-to-mi-
+ []
+
+\openout4 = `main.mw'.
+
+[60] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+)
+\openout4 = `main.mw'.
+
+ [61] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [62] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout2 = `./capitulos/cap-conclusoes.aux'.
+
+ (./capitulos/cap-conclusoes.tex
+Chapter 7.
+\openout4 = `main.mw'.
+
+[63
+
+
+
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [64] (./main.mw)
+\openout4 = `main.mw'.
+
+)
+\openout4 = `main.mw'.
+
+ [65] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ (./main.bbl
+bibitemlist
+\openout4 = `main.mw'.
+
+[66
+
+
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+)
+\openout4 = `main.mw'.
+
+ [67] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout2 = `./PosTexto/apendicea.aux'.
+
+ (./PosTexto/apendicea.tex
+AP\^ENDICE A.
+\openout4 = `main.mw'.
+
+[68
+
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+
+Underfull \hbox (badness 4291) in paragraph at lines 5--6
+[]\T1/phv/m/n/12 Este apên-dice con-so-lida o con-trato de co-mu-ni-ca-ção uti-li-zado pelo pro-tó-tipo.
+ []
+
+
+Underfull \hbox (badness 2884) in paragraph at lines 5--6
+\T1/phv/m/n/12 Ele com-ple-menta a des-cri-ção do [][]Ca-pí-tulo 4[][][] e deve ser man-tido ali-nhado aos ar-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 5--6
+\T1/phv/m/n/12 qui-vos \T1/pcr/m/n/12 cpp/src/fpga_shared_stream.h\T1/phv/m/n/12 , \T1/pcr/m/n/12 cpp/src/fast_receiver.cpp\T1/phv/m/n/12 ,
+ []
+
+
+Overfull \hbox (98.34178pt too wide) in paragraph at lines 5--6
+\T1/pcr/m/n/12 vhdl/arm_fpga_shared_stream_bridge.vhd \T1/phv/m/n/12 e \T1/pcr/m/n/12 docs/arm-fpga-shared-memory-stream.md\T1/phv/m/n/12 . 
+ []
+
+\openout4 = `main.mw'.
+
+[69
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [70] (./main.mw)
+\openout4 = `main.mw'.
+
+)
+\openout4 = `main.mw'.
+
+ [71] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout2 = `./PosTexto/apendiceb.aux'.
+
+ (./PosTexto/apendiceb.tex
+AP\^ENDICE B.
+\openout4 = `main.mw'.
+
+[72
+
+
+
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [73
+
+] (./main.mw)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ [74] (./main.mw)
+\openout4 = `main.mw'.
+
+)
+\openout4 = `main.mw'.
+
+ [75] (./main.mw)
+\openout4 = `main.mw'.
+
+\tf@lof=\write138
+\openout4 = `main.lof'.
+
+\tf@loh=\write139
+\openout4 = `main.loh'.
+
+\tf@lot=\write140
+\openout4 = `main.lot'.
+
+\tf@lod=\write141
+\openout4 = `main.lod'.
+
+\tf@loc=\write142
+\openout4 = `main.loc'.
+
+\tf@toc=\write143
+\openout4 = `main.toc'.
+
+ 
+enddocument/afterlastpage (AED): lastpage setting LastPage.
+(./main.aux
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ (./PreTexto/dedicatoria.aux) (./PreTexto/agradecimentos.aux
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+) (./PreTexto/epigrafe.aux) (./PreTexto/resumo.aux) (./PreTexto/abstract.aux) (./PreTexto/declaracao-ia.aux
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ (./PreTexto/lista-acronimos.aux
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+) (./PreTexto/lista-simbolos.aux
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ (./capitulos/cap-introducao.aux
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+) (./capitulos/cap-conceitos.aux
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+) (./capitulos/cap-trabalhos-relacionados.aux
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+) (./capitulos/cap-proposta.aux
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+) (./capitulos/cap-metodologia.aux
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+) (./capitulos/cap-experimentos-resultados.aux
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+) (./capitulos/cap-conclusoes.aux
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+)
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+ (./PosTexto/apendicea.aux
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+) (./PosTexto/apendiceb.aux
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+\openout4 = `main.mw'.
+
+))
+ ***********
+LaTeX2e <2025-11-01>
+L3 programming layer <2020/03/25>
+ ***********
+\openout4 = `main.idx'.
+
+\openout4 = `main.glo'.
+
+\openout4 = `main.acn'.
+
+\openout4 = `main.acn2'.
+
+\openout4 = `main.acn3'.
+
+\openout4 = `main.nlo'.
+
+\openout4 = `main.lof'.
+
+\openout4 = `main.loh'.
+
+\openout4 = `main.lot'.
+
+\openout4 = `main.lod'.
+
+\openout4 = `main.loc'.
+
+\openout4 = `main.toc'.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 54493 strings out of 467349
+ 1026307 string characters out of 5415641
+ 1575239 words of memory out of 5000000
+ 80799 multiletter control sequences out of 15000+600000
+ 676280 words of font info for 114 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 125i,19n,131p,2601b,2536s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/courier/ucrb8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/helvetic/uhvbo8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/helvetic/uhvro8a.pfb>
+Output written on main.pdf (77 pages, 1282254 bytes).
+PDF statistics:
+ 1445 PDF objects out of 1728 (max. 8388607)
+ 1288 compressed objects within 13 object streams
+ 309 named destinations out of 1000 (max. 500000)
+ 854 words of extra memory for PDF output out of 10000 (max. 10000000)
+
