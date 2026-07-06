@@ -46,7 +46,7 @@
 \contentsline {subsection}{\numberline {5.2.3}Geração e integração da estratégia}{31}{subsection.5.2.3}%
 \contentsline {section}{\numberline {5.3}Validação funcional}{33}{section.5.3}%
 \contentsline {section}{\numberline {5.4}Método da avaliação quantitativa}{33}{section.5.4}%
-\contentsline {section}{\numberline {5.5}Método do experimento de cálculo energético}{35}{section.5.5}%
+\contentsline {section}{\numberline {5.5}Método do experimento de cálculo energético}{36}{section.5.5}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
 \contentsline {chapter}{\chapternumberline {6}Resultados e discussão}{37}{chapter.6}%
 \contentsline {section}{\numberline {6.1}Execução funcional na DE10-Nano}{37}{section.6.1}%
