@@ -1,5 +1,6 @@
-\contentsline {sourcecode}{\numberline {1}{\ignorespaces Trecho da saída do receptor com respostas FPGA--ARM}}{53}{sourcecode.caption.40}%
-\contentsline {sourcecode}{\numberline {2}{\ignorespaces Comandos de teste local}}{65}{sourcecode.caption.52}%
-\contentsline {sourcecode}{\numberline {3}{\ignorespaces Geração do bloco de estratégia por HDL Coder}}{65}{sourcecode.caption.53}%
-\contentsline {sourcecode}{\numberline {4}{\ignorespaces Fluxo previsto para DE10-Nano}}{66}{sourcecode.caption.54}%
-\contentsline {sourcecode}{\numberline {5}{\ignorespaces Execução na placa}}{66}{sourcecode.caption.55}%
+\contentsline {sourcecode}{\numberline {1}{\ignorespaces Pseudocódigo da regra de decisão}}{27}{sourcecode.caption.26}%
+\contentsline {sourcecode}{\numberline {2}{\ignorespaces Trecho da saída do receptor com respostas FPGA--ARM}}{37}{sourcecode.caption.33}%
+\contentsline {sourcecode}{\numberline {3}{\ignorespaces Comandos de teste local}}{52}{sourcecode.caption.45}%
+\contentsline {sourcecode}{\numberline {4}{\ignorespaces Geração do bloco de estratégia por HDL Coder}}{52}{sourcecode.caption.46}%
+\contentsline {sourcecode}{\numberline {5}{\ignorespaces Fluxo previsto para DE10-Nano}}{53}{sourcecode.caption.47}%
+\contentsline {sourcecode}{\numberline {6}{\ignorespaces Execução na placa}}{53}{sourcecode.caption.48}%

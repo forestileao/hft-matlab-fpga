@@ -1,7 +1,7 @@
 \babel@toc {brazil}{}\relax
-\contentsline {figure}{\numberline {1}{\ignorespaces Arquitetura conceitual do livro de ofertas simplificado}}{27}{figure.caption.27}%
-\contentsline {figure}{\numberline {2}{\ignorespaces Comunicação ARM--FPGA por filas circulares mapeadas em memória}}{33}{figure.caption.28}%
-\contentsline {figure}{\numberline {3}{\ignorespaces Arquitetura geral da plataforma proposta}}{39}{figure.caption.31}%
-\contentsline {figure}{\numberline {4}{\ignorespaces Fluxo sugerido de criação de estratégia por MATLAB HDL Coder}}{43}{figure.caption.33}%
-\contentsline {figure}{\numberline {5}{\ignorespaces Fluxo de dados do protótipo}}{50}{figure.caption.38}%
-\contentsline {figure}{\numberline {6}{\ignorespaces Pipeline lógico de atualização do livro}}{52}{figure.caption.39}%
+\contentsline {figure}{\numberline {1}{\ignorespaces Placa DE10-Nano utilizada no protótipo}}{15}{figure.caption.19}%
+\contentsline {figure}{\numberline {2}{\ignorespaces Arquitetura geral do protótipo}}{24}{figure.caption.21}%
+\contentsline {figure}{\numberline {3}{\ignorespaces Fluxo lógico do livro de ofertas simplificado}}{25}{figure.caption.22}%
+\contentsline {figure}{\numberline {4}{\ignorespaces Ligação entre o HPS e o periférico no Platform Designer}}{30}{figure.caption.28}%
+\contentsline {figure}{\numberline {5}{\ignorespaces Fluxo de um evento no ensaio funcional}}{31}{figure.caption.29}%
+\contentsline {figure}{\numberline {6}{\ignorespaces Procedimento de alteração e geração da estratégia}}{32}{figure.caption.30}%

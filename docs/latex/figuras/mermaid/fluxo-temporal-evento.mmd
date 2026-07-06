@@ -1,19 +1,15 @@
 %%{init: {"theme": "base", "sequence": {"showSequenceNumbers": false}, "themeVariables": {"fontFamily": "Arial", "primaryColor": "#ffffff", "primaryTextColor": "#111111", "lineColor": "#333333"}}}%%
 sequenceDiagram
-    participant Feed as fast_data_feed
-    participant Rec as fast_receiver
-    participant MMIO as MMIO / TX-RX
-    participant FPGA as hft_trade_engine
-    participant Book as order_book_core
-    participant Strat as strategy.vhd
+    participant Feed as Fluxo sintético
+    participant ARM as Receptor no ARM
+    participant MMIO as Filas MMIO
+    participant FPGA as Livro e estratégia no FPGA
 
-    Feed->>Rec: Mensagem FAST sintetica
-    Rec->>Rec: Decodifica e normaliza campos
-    Rec->>MMIO: Escreve evento no TX ring
-    MMIO->>FPGA: Evento disponivel
-    FPGA->>Book: Atualiza livro de ofertas
-    Book->>Strat: Envia best bid/ask, spread, imbalance
-    Strat->>FPGA: Retorna NOOP, BUY ou SELL
-    FPGA->>MMIO: Publica resposta no RX ring
-    MMIO->>Rec: Resposta disponivel
-    Rec->>Rec: Imprime acao e snapshot
+    Feed->>ARM: Mensagem FAST sintética por TCP
+    ARM->>ARM: Decodifica e normaliza campos
+    ARM->>MMIO: Grava evento e publica TX_HEAD
+    MMIO->>FPGA: Disponibiliza evento
+    FPGA->>FPGA: Atualiza livro e avalia estratégia
+    FPGA->>MMIO: Grava resposta e publica RX_HEAD
+    MMIO->>ARM: Disponibiliza resposta
+    ARM->>ARM: Imprime decisão e topo do livro

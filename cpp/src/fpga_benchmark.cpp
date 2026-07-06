@@ -60,6 +60,17 @@ struct SoftwareResult {
   uint64_t checksum;
 };
 
+struct SyncResult {
+  bool ran;
+  uint64_t messages;
+  double rtt_min_ns;
+  double rtt_avg_ns;
+  double rtt_p50_ns;
+  double rtt_p99_ns;
+  double rtt_max_ns;
+  double rtt_jitter_ns;
+};
+
 struct Level {
   uint32_t price;
   uint32_t qty;
@@ -99,7 +110,7 @@ bool parse_u64(const char* text, uint64_t* out) {
 void usage(const char* argv0) {
   std::cerr
       << "Usage: " << argv0
-      << " [--mode fpga-mmio|sw-core|full] [--messages N] [--warmup N]\n";
+      << " [--mode fpga-mmio|fpga-sync|sw-core|full] [--messages N] [--warmup N]\n";
   std::cerr << "       " << argv0 << " --enable-bridges-only\n";
 }
 
@@ -146,8 +157,8 @@ bool parse_args(int argc, char** argv, Options* options) {
     }
   }
 
-  if (options->mode != "fpga-mmio" && options->mode != "sw-core" &&
-      options->mode != "full") {
+  if (options->mode != "fpga-mmio" && options->mode != "fpga-sync" &&
+      options->mode != "sw-core" && options->mode != "full") {
     std::cerr << "Invalid --mode value\n";
     return false;
   }
@@ -529,6 +540,66 @@ bool run_fpga_benchmark(const std::vector<FpgaSharedStream::Frame>& events,
   return run_fpga_messages(&bridge, events, warmup, messages, result);
 }
 
+SyncResult run_fpga_sync(const std::vector<FpgaSharedStream::Frame>& events,
+                         uint64_t warmup, uint64_t messages) {
+  FpgaSharedStream bridge;
+  if (!open_bridge(&bridge)) {
+    return SyncResult{};
+  }
+  if (!bridge.ResetQueues() || !bridge.ResetPerfCounters()) {
+    std::cerr << "Failed to reset FPGA queues before sync warmup\n";
+    return SyncResult{};
+  }
+
+  for (uint64_t i = 0; i < warmup; ++i) {
+    while (!bridge.Send(events[static_cast<std::size_t>(i)])) {
+      __sync_synchronize();
+    }
+    FpgaSharedStream::Frame response{};
+    while (!bridge.Receive(&response)) {
+      __sync_synchronize();
+    }
+  }
+
+  if (!bridge.ResetQueues() || !bridge.ResetPerfCounters()) {
+    std::cerr << "Failed to reset FPGA before sync measurement\n";
+    return SyncResult{};
+  }
+
+  std::vector<double> rtts;
+  rtts.reserve(static_cast<std::size_t>(messages));
+
+  for (uint64_t i = 0; i < messages; ++i) {
+    const uint64_t t0 = now_ns();
+    while (!bridge.Send(events[static_cast<std::size_t>(warmup + i)])) {
+      __sync_synchronize();
+    }
+    FpgaSharedStream::Frame response{};
+    while (!bridge.Receive(&response)) {
+      __sync_synchronize();
+    }
+    const uint64_t t1 = now_ns();
+    rtts.push_back(static_cast<double>(t1 - t0));
+  }
+
+  std::sort(rtts.begin(), rtts.end());
+  double sum = 0.0;
+  for (double v : rtts) {
+    sum += v;
+  }
+
+  SyncResult result{};
+  result.ran = true;
+  result.messages = messages;
+  result.rtt_min_ns = rtts.front();
+  result.rtt_max_ns = rtts.back();
+  result.rtt_avg_ns = sum / static_cast<double>(messages);
+  result.rtt_p50_ns = rtts[static_cast<std::size_t>(messages * 50u / 100u)];
+  result.rtt_p99_ns = rtts[static_cast<std::size_t>(messages * 99u / 100u)];
+  result.rtt_jitter_ns = result.rtt_max_ns - result.rtt_min_ns;
+  return result;
+}
+
 double cycles_to_ns(double cycles, uint32_t clock_hz) {
   if (clock_hz == 0) {
     return 0.0;
@@ -537,7 +608,7 @@ double cycles_to_ns(double cycles, uint32_t clock_hz) {
 }
 
 void print_json(const Options& options, const BenchmarkResult& fpga,
-                const SoftwareResult& sw) {
+                const SoftwareResult& sw, const SyncResult& sync) {
   const double avg_cycles =
       fpga.perf.count == 0
           ? 0.0
@@ -577,7 +648,13 @@ void print_json(const Options& options, const BenchmarkResult& fpga,
   std::cout << "  \"pass_throughput\": "
             << (fpga.ran && fpga.throughput_msg_s >= kThroughputLimitMsgS ? "true" : "false") << ",\n";
   std::cout << "  \"pass_speedup\": "
-            << (sw.ran && fpga.ran && speedup_core >= kSpeedupLimit ? "true" : "false") << "\n";
+            << (sw.ran && fpga.ran && speedup_core >= kSpeedupLimit ? "true" : "false") << ",\n";
+  std::cout << "  \"sync_rtt_min_ns\": " << (sync.ran ? sync.rtt_min_ns : 0.0) << ",\n";
+  std::cout << "  \"sync_rtt_avg_ns\": " << (sync.ran ? sync.rtt_avg_ns : 0.0) << ",\n";
+  std::cout << "  \"sync_rtt_p50_ns\": " << (sync.ran ? sync.rtt_p50_ns : 0.0) << ",\n";
+  std::cout << "  \"sync_rtt_p99_ns\": " << (sync.ran ? sync.rtt_p99_ns : 0.0) << ",\n";
+  std::cout << "  \"sync_rtt_max_ns\": " << (sync.ran ? sync.rtt_max_ns : 0.0) << ",\n";
+  std::cout << "  \"sync_rtt_jitter_ns\": " << (sync.ran ? sync.rtt_jitter_ns : 0.0) << "\n";
   std::cout << "}\n";
 }
 
@@ -601,6 +678,7 @@ int main(int argc, char** argv) {
 
   BenchmarkResult fpga{};
   SoftwareResult sw{};
+  SyncResult sync{};
 
   if (options.mode == "sw-core" || options.mode == "full") {
     sw = run_sw_core(events, options.warmup, options.messages);
@@ -612,6 +690,13 @@ int main(int argc, char** argv) {
     }
   }
 
-  print_json(options, fpga, sw);
+  if (options.mode == "fpga-sync" || options.mode == "full") {
+    sync = run_fpga_sync(events, options.warmup, options.messages);
+    if (!sync.ran) {
+      return 1;
+    }
+  }
+
+  print_json(options, fpga, sw, sync);
   return 0;
 }

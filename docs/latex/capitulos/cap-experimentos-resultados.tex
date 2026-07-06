@@ -1,49 +1,18 @@
-%%%% CAPÍTULO 4 - RESULTADOS E DISCUSSÃO
+%%%% CAPÍTULO 6 - RESULTADOS E DISCUSSÃO
 
-\chapter{Resultados}\label{cap:resultados}
+\chapter{Resultados e discussão}\label{cap:resultados}
 
-Este capítulo apresenta os resultados funcionais obtidos com a plataforma. A campanha quantitativa completa de latência, vazão e uso de recursos ainda depende da instrumentação definida no \autoref{subsec:metodoMedicoes}; portanto, os resultados aqui descritos devem ser interpretados como evidência de integração e funcionamento do pipeline.
-
-\section{Sistema obtido}\label{sec:escopoSistema}
-
-O sistema desenvolvido recebe dados sintéticos de mercado, normaliza os eventos no ARM, envia os dados para a FPGA, atualiza um livro de ofertas simplificado e executa uma estratégia de trading gerada a partir de MATLAB. A resposta retorna ao ARM com a ação escolhida e com os principais sinais do livro de ofertas: melhor compra, melhor venda, quantidades, \textit{spread} e desbalanceamento.
-
-A \autoref{fig:placeholderFluxoDados} resume o fluxo obtido. A parte de software trata o protocolo de entrada e a conversão dos dados. A parte em FPGA executa o processamento de estado e decisão. A fronteira entre os dois domínios é uma interface de memória mapeada, escolhida por ser simples de validar e adequada à integração com a DE10-Nano.
-
-\begin{figure}[htb]
-\caption{Fluxo de dados do protótipo}
-\label{fig:placeholderFluxoDados}
-\centering
-\includegraphics[width=0.95\textwidth]{fluxo-temporal-evento}
-\fonte{Elaborado pelos autores a partir de diagrama Mermaid.}
-\end{figure}
-
-Os requisitos funcionais atendidos foram: geração de mensagens sintéticas, decodificação FAST, envio de eventos normalizados ao hardware, manutenção de livro de ofertas por símbolo, cálculo de sinais de topo de livro, geração das ações NOOP, BUY e SELL, retorno de resposta ao software e validação por testes em camadas. O sistema ainda não cobre negociação real, roteamento de ordens, controle de risco, dados proprietários, multicast de mercado, \textit{timestamping} de precisão ou comparação estatística com dados reais de bolsa.
-
-\section{Modelagem funcional}\label{sec:modelagemSistema}
-
-O livro de ofertas foi modelado com profundidade limitada e representação em ponto fixo. Preços decimais são convertidos para inteiros escalados por $10^4$, o que simplifica comparações e subtrações em hardware. Essa representação evita ponto flutuante na FPGA e é suficiente para os dados sintéticos utilizados. Em uma aplicação real, a escala deveria ser definida de acordo com o \textit{tick size} e a faixa de preço de cada instrumento.
-
-A atualização do livro segue um pipeline lógico: interpretar o evento, localizar o símbolo, atualizar ou remover nível, preservar a ordenação, calcular o topo do livro e entregar os sinais à estratégia. A \autoref{fig:placeholderPipelineLivro} ilustra esse fluxo. A profundidade limitada reduz o custo lógico e facilita a validação, mas restringe estratégias que dependam de muitos níveis de profundidade.
-
-\begin{figure}[htb]
-\caption{Pipeline lógico de atualização do livro}
-\label{fig:placeholderPipelineLivro}
-\centering
-\includegraphics[height=0.70\textheight]{pipeline-livro}
-\fonte{Elaborado pelos autores a partir de diagrama Mermaid.}
-\end{figure}
-
-A estratégia atual usa uma regra simples baseada em \textit{spread} e desbalanceamento. Quando o livro está inválido, vazio ou com \textit{spread} acima do limite, a ação é NOOP. Quando o desbalanceamento comprador ultrapassa o limiar, a ação é BUY. Quando o desbalanceamento vendedor ultrapassa o limiar negativo, a ação é SELL. Essa regra não é proposta como estratégia lucrativa; sua função é fornecer um comportamento verificável para demonstrar o fluxo MATLAB--HDL--FPGA.
+Este capítulo apresenta três conjuntos de evidências: execução funcional na placa, testes automatizados e uma campanha quantitativa. Os conjuntos respondem a perguntas diferentes. A execução em placa mostra que os componentes foram integrados; os testes exercitam casos especificados; e a campanha caracteriza tempo e vazão na configuração registrada. Nenhum deles avalia lucratividade, envio de ordens ou operação em bolsa.
 
 \section{Execução funcional na DE10-Nano}\label{subsec:execucaoFuncionalDe10}
 
-Foi realizada uma execução funcional na DE10-Nano acessada por SSH. O receptor foi iniciado com o caminho FPGA habilitado e reconheceu corretamente a ponte MMIO. A inicialização indicou assinatura \codigo{0x48465431}, versão 1, filas com profundidade 64, slots de oito palavras e base RX calculada como \codigo{0x900}. Em seguida, o receptor conectou-se ao feed local e passou a imprimir, para cada evento recebido, a resposta produzida pelo hardware.
+No ensaio preservado pelos autores, o receptor foi iniciado com base MMIO \codigo{0xff200000} e reconheceu assinatura \codigo{0x48465431}, versão 1, profundidade 64, oito palavras por posição e base RX \codigo{0x900}. Depois da conexão ao gerador local, eventos produziram respostas com a mesma sequência.
 
-O trecho do \autoref{codigo:saidaFpgaArm} mostra três casos representativos. Para TSLA e NVDA, o desbalanceamento positivo resultou em ação BUY. Para AAPL, o desbalanceamento observado não atingiu o limiar de decisão e a ação retornada foi NOOP. Esse comportamento é coerente com a regra implementada e confirma que o ARM recebeu da FPGA não apenas uma ação, mas também o estado derivado do livro de ofertas.
+O \autoref{codigo:saidaFpgaArm} contém três observações desse ensaio. Nos dois primeiros casos, a diferença entre as quantidades do topo excede 500 e a regra do \autoref{codigo:pseudocodigoEstrategia} retorna BUY. No terceiro, a diferença é 121 e a saída é NOOP. O trecho evidencia correlação e coerência com a regra; por ser uma amostra curta, não mede taxa de erro nem cobre todos os eventos possíveis.
 
 \begin{sourcecode}[htb]
-\caption{\label{codigo:saidaFpgaArm}Trecho da saída do receptor com respostas FPGA--ARM}
+\caption{Trecho da saída do receptor com respostas FPGA--ARM}
+\label{codigo:saidaFpgaArm}
 \begin{lstlisting}[frame=single]
 FPGA MMIO bridge enabled: base=0xff200000 span=0x2000
 magic=0x48465431 version=1 tx_depth=64 rx_depth=64
@@ -68,100 +37,130 @@ seq=36 sym=AAPL side=sell price=185.75 qty=1795
   best_ask_px_1e4=1850300 best_ask_qty=818
   spread_1e4=400 imbalance=121
 \end{lstlisting}
-\fonte{Execução funcional na DE10-Nano realizada pelos autores.}
+\fonte{Registro de execução dos autores na DE10-Nano}
 \end{sourcecode}
 
+A \autoref{tab:execucaoFuncionalDe10} relaciona cada conclusão funcional à evidência disponível. O ensaio não inclui ordem de saída, bolsa externa ou instrumento financeiro real.
+
 \begin{table}[htb]
-\caption{Resumo da execução funcional na DE10-Nano}
+\caption{Evidências do ensaio funcional na DE10-Nano}
 \label{tab:execucaoFuncionalDe10}
 \begin{tabularx}{\textwidth}{lX}
 \toprule
-\textbf{Item observado} & \textbf{Evidência} \\ \midrule
-Ponte reconhecida & Assinatura, versão e geometria foram lidas antes do envio de eventos. \\
-Feed conectado & O receptor conectou-se ao servidor local de dados sintéticos. \\
-Eventos processados & Sequências recebidas pelo software geraram respostas correspondentes do hardware. \\
-Ações observadas & BUY para desbalanceamentos positivos elevados e NOOP para desbalanceamento baixo. \\
-Campos retornados & Melhor compra, melhor venda, quantidades, \textit{spread} e desbalanceamento foram impressos pelo ARM. \\ \bottomrule
+\textbf{Item} & \textbf{Evidência observada} \\ \midrule
+Identificação & Assinatura, versão e geometria lidas antes dos eventos. \\
+Comunicação & Conexão TCP local e sequências correlacionadas nas respostas. \\
+Estado & Melhores preços, quantidades, \textit{spread} e desbalanceamento devolvidos. \\
+Decisão & BUY e NOOP coerentes com os limiares nos exemplos registrados. \\
+Limite & Não foram exercitados envio de ordens, risco ou conexão externa. \\ \bottomrule
 \end{tabularx}
-\fonte{}
+\fonte{Elaborado pelos autores a partir do registro do \autoref{codigo:saidaFpgaArm}}
 \end{table}
 
-Esse ensaio comprova a integração funcional feed--ARM--FPGA--ARM. Ele ainda não permite afirmar ganho de desempenho, pois não mede distribuição de latência, vazão máxima, frequência final ou uso de recursos. Essas conclusões dependem das medições propostas na metodologia.
+\section{Resultados dos testes automatizados}\label{sec:validacaoTestes}
 
-\section{Validação por testes}\label{sec:validacaoTestes}
+Os procedimentos do \autoref{quad:matrizValidacao} foram executados na versão revisada. Os dois testes C++ concluíram sem falha: o teste do invólucro e o teste rápido do núcleo de referência. Também concluíram os seis alvos VHDL: ponte básica, ponte com rajadas e retorno de índices, livro, estratégia gerada, motor e periférico Avalon-MM.
 
-A validação automatizada foi organizada por risco técnico. Os testes de software verificam o contrato de filas sem exigir hardware real. Os testbenches VHDL verificam a ponte, o livro de ofertas, a estratégia, o motor integrado e a interface Avalon-MM. Essa divisão é importante porque uma execução em placa pode indicar que o caminho funciona em um cenário específico, mas os testes isolados mostram se cada parte respeita seus invariantes.
+Os bancos de teste que instanciam a estratégia gerada emitiram avisos de \codigo{NUMERIC_STD} no instante inicial, antes de os sinais assumirem valores conhecidos, mas alcançaram suas asserções finais de sucesso. Isso indica uma oportunidade de inicialização mais limpa nos testes; não houve asserção funcional de falha. A evidência permanece limitada aos casos neles codificados.
+
+O \autoref{quad:criteriosAceitacao} resume a quantidade de testes concluídos em cada grupo. Ele registra execução sem falha, e não porcentagem de cobertura do código.
 
 \begin{tabframed}[htb]
-\caption{Critérios de aceitação funcional}
+\caption{Resultado da execução dos testes automatizados}
 \label{quad:criteriosAceitacao}
-\begin{tabularx}{\textwidth}{lX}
+\begin{tabularx}{\textwidth}{lXl}
 \toprule
-\textbf{Critério} & \textbf{Evidência esperada} \\ \midrule
-Identificação da ponte & Software reconhece assinatura, versão e geometria antes de enviar eventos. \\
-Publicação correta & O produtor escreve o conteúdo completo antes de publicar o evento. \\
-Resposta correta & O consumidor lê a resposta completa antes de liberar o espaço. \\
-Livro ordenado & Compras permanecem em ordem decrescente e vendas em ordem crescente. \\
-Estado inválido protegido & Atualizações que cruzariam o livro são rejeitadas ou não geram ordem. \\
-Estratégia verificável & NOOP, BUY e SELL aparecem em cenários controlados. \\
-Integração em placa & Eventos reais do feed sintético produzem respostas FPGA--ARM. \\ \bottomrule
+\textbf{Grupo} & \textbf{Escopo} & \textbf{Resultado} \\ \midrule
+C++ & Invólucro MMIO e núcleo C++ de referência. & 2 de 2 testes concluídos. \\
+Ponte VHDL & Registradores, filas, rajadas e contrapressão. & 2 bancos de teste concluídos. \\
+Processamento VHDL & Livro, estratégia gerada e motor integrado. & 3 bancos de teste concluídos. \\
+Avalon-MM & Acesso ao periférico pela interface de barramento. & 1 banco de teste concluído. \\ \bottomrule
 \end{tabularx}
-\fonte{}
+\fonte{Execução dos alvos \codigo{make cpp-test} e \codigo{make vhdl-test-all}}
 \end{tabframed}
 
-Os critérios do \autoref{quad:criteriosAceitacao} foram atendidos no nível funcional. O resultado mais importante para o objetivo do TCC é a estabilização da infraestrutura que envolve a estratégia. Com a comunicação, o livro e os testes funcionando, a regra MATLAB pode ser modificada e regenerada sem redesenhar toda a arquitetura.
+\section{Campanha quantitativa}\label{sec:benchmarkDesempenho}
 
-\section{Discussão}\label{sec:discussoes}
+Os valores desta seção foram transcritos de uma campanha com 1.000.000 de eventos, precedidos de 10.000 eventos de aquecimento, na DE10-Nano a 50~MHz. Como a saída JSON bruta não está versionada, a análise não pode recalcular estatísticas nem avaliar variação entre execuções independentes. Os números são reportados com esse limite.
 
-O resultado obtido reforça a viabilidade de uma plataforma acadêmica para estudar HLS em estratégias de trading. O uso de FPGA não é apresentado como solução completa para HFT profissional, mas como ambiente de experimentação em que decisões simples podem ser descritas em MATLAB, sintetizadas para hardware e avaliadas dentro de um fluxo ARM--FPGA funcional.
+A \autoref{tab:resultadosBenchmark} reúne as métricas registradas. A latência interna é medida pelo contador no FPGA. O tempo C++ mede somente o algoritmo de referência. A latência fim a fim mede o modo síncrono entre chamadas de envio e recepção no ARM. A vazão usa o modo em fluxo, com mais de um evento em trânsito.
 
-A principal vantagem da abordagem é a separação entre infraestrutura e política de decisão. O usuário pode concentrar-se na regra de trading, enquanto a plataforma fornece dados normalizados, sinais de livro e caminho de retorno. A principal limitação é que o sistema ainda trabalha com dados sintéticos, livro simplificado e métricas quantitativas pendentes. Portanto, os resultados atuais demonstram funcionamento e integração, não superioridade estatística ou operacional sobre sistemas de software em produção.
-
-Também permanecem riscos técnicos típicos de projetos FPGA. Um circuito correto em simulação pode falhar em frequência após síntese se o caminho crítico for longo. A interface MMIO pode limitar vazão quando comparada a soluções com DMA ou rede direta em hardware. A estratégia gerada por HLS pode exigir ajustes caso use operações não sintetizáveis ou tipos inadequados. O \autoref{quad:riscosMitigacoes} resume esses pontos.
-
-\begin{tabframed}[htb]
-\caption{Riscos técnicos remanescentes e mitigação}
-\label{quad:riscosMitigacoes}
-\begin{tabularx}{\textwidth}{lX}
+\begin{table}[htb]
+\caption{Valores registrados na campanha quantitativa}
+\label{tab:resultadosBenchmark}
+\begin{tabularx}{\textwidth}{lXl}
 \toprule
-\textbf{Risco} & \textbf{Mitigação recomendada} \\ \midrule
-Caminho crítico no livro & Coletar relatório de temporização e inserir pipeline se necessário. \\
-MMIO limitando vazão & Comparar polling com interrupções ou DMA em trabalhos futuros. \\
-Feed pouco realista & Adicionar replay de dados históricos e rajadas controladas. \\
-Regeneração HLS incompatível & Manter wrapper estável e executar testbench após cada geração. \\
-Comparação incompleta & Implementar versão software-only equivalente e coletar distribuições de latência. \\ \bottomrule
+\textbf{Métrica} & \textbf{Escopo} & \textbf{Valor} \\ \midrule
+Latência interna FPGA & Comando aceito até resposta produzida. & 3 ciclos (60~ns) \\
+Variação interna & Máximo menos mínimo do contador de ciclos. & Não resolvida; desprezível na resolução de 1 ciclo (20~ns) \\
+Tempo médio C++ & Livro e regra no ARM, sem comunicação. & 315~ns/evento \\
+Razão C++/FPGA & Razão reportada entre as médias não arredondadas. & 5,253 vezes \\
+RTT médio & ARM--MMIO--FPGA--MMIO--ARM, modo síncrono. & 10.228~ns \\
+RTT p99 & Percentil 99 do mesmo modo. & 10.310~ns \\
+RTT máximo & Maior amostra registrada. & 1.146.360~ns \\
+Amplitude do RTT & Máximo menos mínimo registrado. & 1.136.220~ns \\
+Vazão & Modo em fluxo pelas filas MMIO. & 102.381 mensagens/s \\ \bottomrule
 \end{tabularx}
-\fonte{}
-\end{tabframed}
+\fonte{Campanha dos autores com \codigo{fpga_benchmark --mode full --messages 1000000 --warmup 10000}}
+\end{table}
 
-\section{Espaço para resultados quantitativos}\label{subsec:evolucaoExperimental}
+O programa calcula também mediana, mas esse valor não foi preservado no texto nem em arquivo bruto. Percentis 90 e 95 tampouco foram registrados. Acrescentá-los agora exigiria repetir a campanha na placa; não é possível derivá-los dos valores disponíveis.
 
-Para transformar os resultados funcionais em resultados quantitativos, serão instrumentados três pontos no software: entrada do evento, publicação para FPGA e leitura da resposta. No hardware, será usado um contador de ciclos para medir o intervalo entre consumo do evento e publicação da resposta. Com isso, será possível separar latência de software, latência de transferência e latência interna de processamento.
+\subsection{Variação interna e resolução do contador}\label{subsec:jitter}
 
-A vazão será avaliada aumentando a taxa de chegada até ocorrer saturação. O uso de recursos será obtido dos relatórios do Quartus. A produtividade do fluxo HLS será avaliada pela troca de uma estratégia MATLAB e pelo tempo necessário até sua aprovação nos testes. Essas medições são essenciais porque o objetivo principal do trabalho não é apenas acelerar uma regra específica, mas facilitar a criação de estratégias de trading por MATLAB HDL Coder.
+O contador atribuiu três ciclos tanto ao mínimo quanto ao máximo para os eventos da campanha. Como sua resolução é de um ciclo, ou 20~ns, o experimento não distingue variações menores que esse intervalo. A variação interna é, portanto, tratada como desprezível na resolução adotada. Essa classificação vale apenas para o núcleo e para a configuração testados; ela não determina a variação de outra implementação, frequência, condição de espera ou estratégia regenerada.
 
-\begin{graph}[htb]
-\caption{Vazão e ocupação de filas sugeridas para avaliação futura}
-\label{gra:placeholderVazao}
-\centering
-\fbox{\begin{minipage}{0.9\textwidth}
-\centering
-\vspace{0.9cm}
-[GRÁFICO 2 -- Sugestão: eventos por segundo suportados antes de saturação e evolução de ocupação das filas para diferentes taxas de chegada.]
-\vspace{0.9cm}
-\end{minipage}}
-\fonte{}
-\end{graph}
+O núcleo possui caminhos sincronizados e tamanhos fixos, o que explica a contagem constante nos casos medidos. Entretanto, o atendimento da frequência depende do relatório de temporização da síntese, e o sistema completo inclui componentes assíncronos em relação ao núcleo. Por isso, o texto não transfere a observação de três ciclos para o ARM, o MMIO ou a rede.
 
-\begin{graph}[htb]
-\caption{Uso de recursos FPGA sugerido para relatório pós-síntese}
-\label{gra:placeholderRecursos}
-\centering
-\fbox{\begin{minipage}{0.9\textwidth}
-\centering
-\vspace{0.9cm}
-[GRÁFICO 3 -- Sugestão: porcentagem de lógica, registradores, memória interna e multiplicadores usados por ponte, livro de ofertas e estratégia.]
-\vspace{0.9cm}
-\end{minipage}}
-\fonte{}
-\end{graph}
+A comparação de 60~ns com 315~ns produz o fator de 5,253 para os núcleos isolados. Ela compara duas implementações do algoritmo sob o procedimento descrito, não FPGA e software como plataformas completas. Quando a comunicação é incluída, o RTT médio de 10.228~ns é cerca de 32,4 vezes o tempo médio do núcleo C++; portanto, o protótipo não reduz a latência da decisão quando usado pelo ARM dessa maneira.
+
+\subsection{Comunicação e vazão}\label{subsec:gargaloMMIO}
+
+Cada envio bem-sucedido exige, no mínimo, leitura dos dois ponteiros TX, escrita das oito palavras e publicação de \codigo{TX_HEAD}. A recepção exige leitura dos ponteiros RX, leitura das oito palavras e publicação de \codigo{RX_TAIL}. Consultas adicionais ocorrem enquanto não há espaço ou resposta. Assim, a diferença entre 60~ns internos e 10.228~ns de ida e volta é compatível com o custo acumulado de MMIO, espera ativa e execução no ARM, mas a campanha não decompõe esse custo por componente.
+
+O máximo de 1.146.360~ns mostra que o caminho completo teve uma cauda muito maior que a média. Sem rastreamento do sistema operacional e do barramento, não é possível atribuir essa amostra exclusivamente ao escalonador Linux ou exclusivamente ao MMIO. A conclusão sustentada é mais restrita: a variabilidade aparece fora do contador do núcleo lógico.
+
+A vazão de 102.381 mensagens/s corresponde a aproximadamente 6,55~MB/s de carga útil somando 32 bytes de evento e 32 bytes de resposta. Esse cálculo não representa todo o tráfego do barramento, pois exclui ponteiros e consultas repetidas. O valor superou o limiar de engenharia de 100.000 mensagens/s adotado pelos autores, mas o limiar não veio de uma exigência de bolsa e não permite afirmar adequação a HFT operacional.
+
+\subsection{Resultado do experimento de cálculo energético}\label{sec:energiaBenchmark}
+
+A \autoref{tab:energiaComparacao} aplica a \autoref{eq:energiaDecisao} às potências e aos tempos declarados na metodologia. O resultado é estimado, não medido. Em particular, a linha x86 combina duas hipóteses e não corresponde a uma execução realizada neste trabalho.
+
+\begin{table}[htb]
+\caption{Estimativa de energia por decisão sob as hipóteses adotadas}
+\label{tab:energiaComparacao}
+\begin{tabularx}{\textwidth}{lXXX}
+\toprule
+\textbf{Substrato} & \textbf{Potência adotada} & \textbf{Tempo adotado} & \textbf{Energia estimada} \\ \midrule
+Lógica FPGA Cyclone~V & 50~mW & 60~ns, registrado & 3~nJ \\
+Núcleo ARM Cortex-A9 & 1,5~W & 315~ns, registrado & 0,47~$\mu$J \\
+Núcleo x86 ilustrativo & 15~W & 30~ns, hipótese & 0,45~$\mu$J \\ \bottomrule
+\end{tabularx}
+\fonte{Experimento de cálculo dos autores; potências e tempo x86 adotados como hipóteses}
+\end{table}
+
+Sob essas hipóteses, o valor calculado para a lógica FPGA é inferior aos valores calculados para os núcleos de processador. A diferença não deve ser interpretada como medição de eficiência da plataforma: os limites de potência não são equivalentes e o cálculo exclui ARM, memória, ponte MMIO, alimentação da placa e rede. O resultado indica apenas uma hipótese a ser verificada por instrumentação direta.
+
+\section{Discussão frente aos trabalhos relacionados}\label{subsec:comparacaoLiteraturaBench}
+
+A \autoref{tab:comparacaoNumerica} contextualiza os números sem tratá-los como ranking. As referências de FPGA incluem rede ou medem subsistemas com fronteiras diferentes; o protótipo mede ida e volta por uma ponte MMIO controlada pelo ARM. Frequência, dispositivo, protocolo e instrumentação também diferem.
+
+\begin{table}[htb]
+\caption{Contextualização das latências reportadas}
+\label{tab:comparacaoNumerica}
+\begin{tabularx}{\textwidth}{lXX}
+\toprule
+\textbf{Referência} & \textbf{Valor reportado} & \textbf{Fronteira principal} \\ \midrule
+Este trabalho & 60~ns internos; 10.228~ns de RTT médio & Núcleo Cyclone V e ida e volta ARM--MMIO--FPGA. \\
+\citeonline{Leber2011} & inferior a 1~$\mu$s & Processamento FPGA integrado ao caminho de rede descrito pelos autores. \\
+\citeonline{Boutros2017} & 269~ns no subsistema; 869~ns de ida e volta & Kintex UltraScale a 156~MHz com HLS e interface de rede. \\
+\citeonline{Lockwood2012} & inferior a 1~$\mu$s & Biblioteca FPGA com funções de rede e negociação. \\ \bottomrule
+\end{tabularx}
+\fonte{Elaborado pelos autores com dados de \citeonline{Leber2011}, \citeonline{Boutros2017} e \citeonline{Lockwood2012}}
+\end{table}
+
+Os valores da literatura não isolam o efeito de custo, ferramenta HLS ou dispositivo. A comparação permite apenas observar que retirar o processador de propósito geral do caminho crítico é uma decisão arquitetural recorrente nos trabalhos de menor latência. Implementar rede diretamente no FPGA seria outro projeto e permanece fora do escopo desta monografia.
+
+\subsection{Limitações da evidência}\label{sec:limitacoesResultados}
+
+Os testes demonstram os comportamentos codificados e o ensaio de placa demonstra integração no cenário registrado. A campanha fornece uma caracterização inicial, mas carece de repetições independentes, arquivo bruto versionado, medição de uso de CPU e decomposição do RTT. O fluxo de 5 mensagens/s não foi usado para determinar a vazão; o programa de medição usa eventos pré-construídos. Também não houve medição elétrica. A energia por decisão foi apenas calculada com potências de referência e limites físicos diferentes; por isso, não se conclui eficiência energética da plataforma nem se extrapolam os valores para uma instalação de mercado.

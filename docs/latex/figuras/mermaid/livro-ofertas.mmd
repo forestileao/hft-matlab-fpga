@@ -1,18 +1,18 @@
 %%{init: {"theme": "base", "flowchart": {"htmlLabels": false}, "themeVariables": {"fontFamily": "Arial", "primaryColor": "#ffffff", "primaryTextColor": "#111111", "lineColor": "#333333", "clusterBkg": "#f8f8f8", "clusterBorder": "#666666"}}}%%
 flowchart TB
-    Event["Evento normalizado<br/>symbol, side, price, qty"]
-    Decode["Decodificacao do quadro<br/>8 palavras de 32 bits"]
-    Select["Selecao do simbolo<br/>e lado do livro"]
+    Event["Evento normalizado<br/>símbolo, lado, preço e quantidade"]
+    Decode["Decodificação do quadro<br/>oito palavras de 32 bits"]
+    Select["Seleção do símbolo<br/>e do lado do livro"]
 
-    subgraph Book["Livro por nivel de preco"]
-        Bid["Vetor de compras<br/>ordem decrescente"]
-        Ask["Vetor de vendas<br/>ordem crescente"]
+    subgraph Book["Livro agregado por nível de preço"]
+        Bid["Níveis de compra<br/>preço decrescente"]
+        Ask["Níveis de venda<br/>preço crescente"]
     end
 
-    Top["Calculo do topo<br/>best bid e best ask"]
-    Signals["Sinais derivados<br/>spread e imbalance"]
-    Strategy["Estrategia gerada por HLS<br/>NOOP, BUY ou SELL"]
-    Response["Resposta FPGA -> ARM<br/>acao + snapshot"]
+    Top["Cálculo do topo<br/>melhor compra e melhor venda"]
+    Signals["Sinais derivados<br/>spread e desbalanceamento"]
+    Strategy["Estratégia gerada por HLS<br/>NOOP, BUY ou SELL"]
+    Response["Resposta FPGA para ARM<br/>decisão e topo do livro"]
 
     Event --> Decode
     Decode --> Select

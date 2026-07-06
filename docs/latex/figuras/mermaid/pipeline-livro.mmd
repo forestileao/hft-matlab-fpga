@@ -1,19 +1,19 @@
 %%{init: {"theme": "base", "flowchart": {"htmlLabels": false}, "themeVariables": {"fontFamily": "Arial", "primaryColor": "#ffffff", "primaryTextColor": "#111111", "lineColor": "#333333"}}}%%
 flowchart TB
-    W0["word0<br/>seq_no"]
-    W1["word1<br/>symbol_id"]
-    W2["word2<br/>price_1e4"]
-    W3["word3<br/>qty"]
-    W4["word4<br/>event_type"]
-    W5["word5<br/>side"]
+    W0["Palavra 0<br/>sequência"]
+    W1["Palavra 1<br/>identificador do símbolo"]
+    W2["Palavra 2<br/>preço × 10⁴"]
+    W3["Palavra 3<br/>quantidade"]
+    W4["Palavra 4<br/>tipo do evento"]
+    W5["Palavra 5<br/>lado"]
 
-    Decode["Decodificacao<br/>do evento"]
-    Check["Validacao<br/>simbolo, lado e cruzamento"]
-    Update["Atualizacao incremental<br/>inserir, alterar ou remover nivel"]
-    Compact["Compactacao e ordenacao<br/>bids decrescente<br/>asks crescente"]
-    Top["Recalculo do topo<br/>best bid e best ask"]
-    Metrics["Calculo dos sinais<br/>spread e imbalance"]
-    Snapshot["snapshot_valid<br/>para estrategia"]
+    Decode["Decodificação<br/>do evento"]
+    Check["Validação<br/>símbolo, lado e cruzamento"]
+    Update["Atualização incremental<br/>inserir, alterar ou remover nível"]
+    Compact["Compactação e ordenação<br/>compras decrescentes<br/>vendas crescentes"]
+    Top["Recálculo do topo<br/>melhor compra e melhor venda"]
+    Metrics["Cálculo dos sinais<br/>spread e desbalanceamento"]
+    Snapshot["Estado válido<br/>para a estratégia"]
 
     W0 --> Decode
     W1 --> Decode

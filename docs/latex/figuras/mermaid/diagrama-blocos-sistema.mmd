@@ -1,0 +1,32 @@
+%%{init: {"theme": "base", "flowchart": {"htmlLabels": false}, "themeVariables": {"fontFamily": "Arial", "primaryColor": "#ffffff", "primaryTextColor": "#111111", "lineColor": "#333333", "clusterBkg": "#f8f8f8", "clusterBorder": "#666666"}}}%%
+flowchart LR
+    feed["Gerador de dados<br/>FAST sintéticos"]
+    
+    subgraph SW["Software — ARM Linux"]
+        direction TB
+        recv["Receptor C++<br/>decodificação e normalização"]
+        mmio["Acesso MMIO<br/>/dev/mem"]
+        recv <--> mmio
+    end
+
+    subgraph FPGA["FPGA Cyclone V"]
+        direction TB
+        tx["Fila TX<br/>eventos"]
+        livro["Livro de ofertas<br/>oito níveis por lado"]
+        estrategia["Estratégia gerada<br/>NOOP, BUY ou SELL"]
+        rx["Fila RX<br/>respostas"]
+        tx --> livro --> estrategia --> rx
+    end
+
+    subgraph DEV["Desenvolvimento (offline)"]
+        direction TB
+        matlab["Função de estratégia<br/>em MATLAB"]
+        hdlcoder["MATLAB HDL Coder"]
+        vhdl["Estratégia VHDL<br/>gerada"]
+        matlab --> hdlcoder --> vhdl
+    end
+
+    feed --> recv
+    mmio --> tx
+    rx --> mmio
+    vhdl -.-> estrategia

@@ -1,14 +1,14 @@
 %%{init: {"theme": "base", "flowchart": {"htmlLabels": false}, "themeVariables": {"fontFamily": "Arial", "primaryColor": "#ffffff", "primaryTextColor": "#111111", "lineColor": "#333333"}}}%%
 flowchart TB
-    A["Usuario escreve<br/>strategy.m"]
-    B["Restricoes de sintese<br/>tipos fixos, sem strings,<br/>sem alocacao dinamica"]
+    A["Autores alteram<br/>strategy.m"]
+    B["Teste da função MATLAB<br/>com entradas de largura fixa"]
     C["hdl_generator.m"]
     D["MATLAB HDL Coder"]
-    E["strategy.vhd<br/>bloco VHDL gerado"]
-    F["generated_strategy_core<br/>adaptacao valid/ready<br/>e quadro de resposta"]
-    G["Testbenches<br/>estrategia e motor completo"]
-    H["Quartus / Platform Designer"]
-    I["DE10-Nano<br/>execucao no FPGA"]
+    E["Bloco VHDL<br/>gerado"]
+    F["Invólucro estável<br/>do motor de decisão"]
+    G["Testbenches da estratégia<br/>e do motor integrado"]
+    H["Síntese no Quartus<br/>e integração no Platform Designer"]
+    I["Programação e ensaio<br/>na DE10-Nano"]
 
     A --> B
     B --> C
