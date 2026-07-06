@@ -1,14 +1,14 @@
 %%{init: {"theme": "base", "flowchart": {"htmlLabels": false, "curve": "linear"}, "themeVariables": {"fontFamily": "Arial", "primaryColor": "#ffffff", "primaryTextColor": "#111111", "lineColor": "#333333", "clusterBkg": "#f8f8f8", "clusterBorder": "#666666"}}}%%
-flowchart LR
-    Feed["Feed FAST<br/>sintetico"]
-    ARM["ARM/HPS<br/>decodifica e normaliza"]
-    Bridge["Ponte ARM-FPGA<br/>MMIO"]
-    FPGA["FPGA<br/>Order Book + estrategia"]
-    Output["Resposta no ARM<br/>acao e sinais de mercado"]
+flowchart TB
+    Feed["Fluxo FAST<br/>sintético por TCP"]
+    ARM["ARM / HPS<br/>decodificação e normalização"]
+    Bridge["Ponte ARM--FPGA<br/>MMIO e filas"]
+    FPGA["FPGA<br/>livro de ofertas e estratégia"]
+    Output["Resposta no ARM<br/>código de decisão e topo do livro"]
 
     Feed --> ARM --> Bridge --> FPGA --> Output
 
-    MATLAB["Estrategia em MATLAB"]
+    MATLAB["Estratégia em MATLAB"]
     HLS["HDL Coder"]
     Quartus["Quartus / Platform Designer"]
 

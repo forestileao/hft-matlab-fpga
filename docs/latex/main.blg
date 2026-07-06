@@ -3,12 +3,10 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: main.aux
 A level-1 auxiliary file: ./PreTexto/dedicatoria.aux
 A level-1 auxiliary file: ./PreTexto/agradecimentos.aux
-A level-1 auxiliary file: ./PreTexto/epigrafe.aux
 A level-1 auxiliary file: ./PreTexto/resumo.aux
 A level-1 auxiliary file: ./PreTexto/abstract.aux
 A level-1 auxiliary file: ./PreTexto/declaracao-ia.aux
 A level-1 auxiliary file: ./PreTexto/lista-acronimos.aux
-A level-1 auxiliary file: ./PreTexto/lista-simbolos.aux
 A level-1 auxiliary file: ./capitulos/cap-introducao.aux
 A level-1 auxiliary file: ./capitulos/cap-conceitos.aux
 A level-1 auxiliary file: ./capitulos/cap-trabalhos-relacionados.aux
@@ -39,44 +37,44 @@ Reallocated glb_str_end (elt_size=4) to 20 items from 10.
 | Em caso de dúvidas ou problemas com este estilo procure |
 | http://www.abntex.net.br/                               |
 +---------------------------------------------------------+
-You've used 32 entries,
+You've used 34 entries,
             6712 wiz_defined-function locations,
-            1376 strings with 14373 characters,
-and the built_in function-call counts, 37720 in all, are:
-= -- 4330
-> -- 670
-< -- 904
-+ -- 1171
-- -- 206
-* -- 2330
-:= -- 4622
-add.period$ -- 107
-call.type$ -- 34
-change.case$ -- 253
-chr.to.int$ -- 59
-cite$ -- 24
-duplicate$ -- 3509
-empty$ -- 1816
-format.name$ -- 964
-if$ -- 7809
+            1390 strings with 14487 characters,
+and the built_in function-call counts, 36396 in all, are:
+= -- 3988
+> -- 727
+< -- 755
++ -- 1043
+- -- 223
+* -- 2282
+:= -- 4526
+add.period$ -- 113
+call.type$ -- 36
+change.case$ -- 274
+chr.to.int$ -- 64
+cite$ -- 26
+duplicate$ -- 3145
+empty$ -- 1943
+format.name$ -- 1048
+if$ -- 7725
 int.to.chr$ -- 9
 int.to.str$ -- 3
-missing$ -- 481
-newline$ -- 120
-num.names$ -- 120
-pop$ -- 514
+missing$ -- 522
+newline$ -- 128
+num.names$ -- 130
+pop$ -- 567
 preamble$ -- 1
-purify$ -- 115
+purify$ -- 123
 quote$ -- 0
-skip$ -- 3949
+skip$ -- 3586
 stack$ -- 1
-substring$ -- 1680
-swap$ -- 1302
-text.length$ -- 31
+substring$ -- 1567
+swap$ -- 1186
+text.length$ -- 30
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 5
 warning$ -- 0
-while$ -- 187
+while$ -- 198
 width$ -- 0
-write$ -- 394
+write$ -- 422

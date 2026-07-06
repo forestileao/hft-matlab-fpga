@@ -1,61 +1,44 @@
-\chapter{Trabalhos Relacionados}
+\chapter{Trabalhos relacionados}
 \label{cap:trabalhos:relacionados}
 
-Os trabalhos relacionados são agrupados em três eixos: efeitos e características de negociação de baixa latência, aceleração por FPGA em HFT e modelagem de \gls{orderbook}. Essa separação ajuda a organizar a revisão entre contexto de mercado, técnicas de implementação e estruturas de dados relevantes.
+Este capítulo organiza a literatura em três eixos: efeitos da baixa latência nos mercados, aceleração de funções de negociação em FPGA e representação do livro de ofertas. As decisões e os resultados do protótipo são usados apenas ao final para delimitar sua posição, sem substituir a revisão bibliográfica.
 
 \section{Negociação algorítmica e baixa latência}\label{sec:relacionadosHFT}
 
-\citeonline{Hendershott2011} analisam a relação entre negociação algorítmica e liquidez, indicando que automação pode melhorar algumas métricas de mercado ao reduzir custos de seleção adversa e aumentar eficiência de cotação. \citeonline{Brogaard2014} discutem HFT e descoberta de preços, mostrando que participantes de alta frequência podem contribuir para incorporação de informação aos preços, embora o debate permaneça dependente de contexto e desenho de mercado. \citeonline{HasbrouckSaar2013} tratam especificamente de negociação de baixa latência, destacando que a velocidade passa a ser um componente estratégico da interação entre participantes.
+\citeonline{Hendershott2011} analisam a relação entre negociação algorítmica e liquidez. \citeonline{Brogaard2014} estudam a participação de agentes de alta frequência na descoberta de preços. \citeonline{HasbrouckSaar2013} tratam especificamente de negociação de baixa latência e mostram que o tempo de reação integra a interação estratégica entre participantes. Esses trabalhos são econômicos e empíricos; eles fundamentam a relevância do tema, mas não prescrevem uma arquitetura ARM--FPGA.
 
-Esses estudos justificam a relevância de investigar infraestrutura computacional. Eles, porém, concentram-se em análise econômica e estatística, não em mecanismos de implementação de uma cadeia ARM--FPGA para processamento de dados de mercado.
+\section{Aceleração em FPGA}\label{sec:relacionadosFPGA}
 
-\section{Aceleração de HFT com FPGA}\label{sec:relacionadosFPGA}
+\citeonline{Leber2011} implementam em FPGA funções associadas ao processamento de HFT e discutem o deslocamento do caminho sensível à latência para hardware reconfigurável. \citeonline{Lockwood2012} apresentam uma biblioteca FPGA de baixa latência e destacam a integração entre rede, transporte e lógica de aplicação. Nos dois casos, a conexão da FPGA ao fluxo de rede é parte da arquitetura; isso difere de uma FPGA acessada como periférico de um processador.
 
-\citeonline{Leber2011} apresentam aceleração de HFT com FPGAs, destacando a possibilidade de deslocar funções sensíveis a latência para hardware reconfigurável. O argumento central é próximo ao adotado neste TCC: operações de mercado com formato fixo e fluxo repetitivo podem se beneficiar de circuitos dedicados. \citeonline{Boutros2017} exploram HFT baseado em FPGA com \gls{hls}, demonstrando que ferramentas de síntese de alto nível podem ser usadas para construir blocos de negociação com menor esforço de desenvolvimento em comparação à escrita manual integral em RTL. Nesse trabalho, o sistema foi implementado em uma Xilinx Kintex UltraScale rodando a 156~MHz, com latência de ida e volta inferior a 870~ns e latência de 269~ns para o subsistema HFT; por simples inversão dessa latência, isso equivale a uma taxa teórica de aproximadamente 3.717.472 mensagens por segundo para o núcleo lógico. \citeonline{Lockwood2012} discutem uma biblioteca de baixa latência em FPGA para HFT, reforçando que a latência não depende apenas do algoritmo, mas também da forma de conexão entre rede, memória, barramento e lógica.
+\citeonline{Boutros2017} investigam HLS para construir blocos de negociação em uma FPGA Kintex UltraScale. Os autores informam 269~ns para o subsistema HFT e 869~ns no ensaio de ida e volta. Esses valores pertencem à plataforma, à frequência e ao método descritos no artigo. Eles não constituem referência diretamente comparável ao caminho ARM--MMIO--FPGA deste trabalho.
 
-A diferença principal em relação ao presente trabalho é o escopo de custo, ferramenta e maturidade. Os trabalhos citados se aproximam de bibliotecas e plataformas de maior desempenho, enquanto este TCC utiliza uma DE10-Nano e privilegia um fluxo acadêmico em que a estratégia é escrita em MATLAB e gerada por HDL Coder. Em vez de implementar MAC Ethernet, UDP multicast ou \textit{kernel bypass}, o projeto usa TCP sintético e concentra a aceleração no \gls{orderbook} e na estratégia. Essa escolha reduz fidelidade operacional, mas torna o projeto reproduzível em laboratório de graduação.
+Em conjunto, esses estudos indicam que o resultado depende não apenas do algoritmo, mas da posição do FPGA no caminho de dados e das interfaces ao redor do núcleo. Também mostram que HLS reduz parte do trabalho de descrição RTL sem eliminar decisões sobre largura, paralelismo e protocolo \cite{Leber2011,Lockwood2012,Boutros2017}.
 
-Essa diferença também aparece no orçamento e na plataforma física. A DE10-Nano utilizada neste trabalho custa aproximadamente US\$190 em condição acadêmica \cite{TerasicDE10NanoPrice}. Já o FPGA AMD/Xilinx XCKU115-2FLVA1517E, usado por \citeonline{Boutros2017}, aparece listado por US\$10.290,57 na Mouser \cite{MouserXCKU115Price}. Em outras palavras, apenas o componente lógico de alto desempenho já custa mais de 54 vezes o valor da plataforma completa adotada neste TCC. Além disso, \citeonline{Boutros2017} operam com uma infraestrutura diretamente conectada à rede e com clock de 156~MHz, ao passo que o presente protótipo opera a 50~MHz e depende da cadeia ARM$\to$MMIO$\to$FPGA$\to$MMIO$\to$ARM para fechar o laço de decisão. Portanto, uma comparação puramente por throughput bruto seria metodologicamente injusta se não considerar simultaneamente custo, frequência e arquitetura de comunicação.
+\section{Livro de ofertas}\label{sec:relacionadosLivro}
 
-Do ponto de vista de arquitetura de computadores, a motivação para FPGA também pode ser interpretada pela diferença entre execução sequencial e execução espacial. Em uma CPU, uma sequência de atualizações do \gls{orderbook} compartilha unidades funcionais, hierarquia de cache e controle de fluxo. Mesmo quando há paralelismo interno, como execução fora de ordem, predição de desvios e vetorização, o programador observa uma abstração sequencial. Na FPGA, comparadores, registradores e somadores podem ser alocados como estruturas físicas distintas, permitindo que partes do processamento ocorram simultaneamente. Essa vantagem, contudo, só aparece quando o problema possui regularidade suficiente para justificar hardware dedicado \cite{PattersonHennessy2017,HarrisHarris2013}.
+\citeonline{Gould2013} revisam a estrutura e a dinâmica de livros de ofertas, incluindo preço, prioridade, profundidade e tipos de evento. \citeonline{Cont2010} modelam chegadas, cancelamentos e execuções como processos que atualizam um estado discreto. Essas representações abrangem fenômenos que o protótipo não reproduz, como ordens individuais e dinâmica estatística de um mercado.
 
-O problema estudado se encaixa nesse perfil porque o quadro de entrada tem largura fixa, a profundidade do \gls{orderbook} é parametrizada e a estratégia usa limiares simples. A parte menos regular, isto é, decodificação de mensagens FAST, tratamento de TCP e manipulação de strings, permanece em software. Essa divisão evita transferir para a FPGA tarefas que exigiriam muito controle e pouco ganho.
+Para implementação em hardware, a representação por nível e com profundidade fixa reduz estruturas de busca e torna conhecidos os limites dos laços. Essa simplificação é compatível com validação de integração, mas não autoriza tratar o estado resultante como reconstrução completa de um livro real \cite{Gould2013,Boutros2017}.
 
-\section{Order Book e modelos de atualização}\label{sec:relacionadosLivro}
+\section{Posicionamento do protótipo}\label{sec:posicionamento}
 
-\citeonline{Gould2013} revisam conceitos fundamentais de \glspl{orderbook}, incluindo melhor compra, melhor venda, profundidade, eventos e impacto de chegada de ordens. \citeonline{Cont2010} propõem modelagem estocástica da dinâmica do livro, indicando que chegadas, cancelamentos e execuções podem ser tratados como processos que alteram estado discretamente. Embora o protótipo não implemente modelo estocástico completo nem prioridade temporal real, ele adota o princípio de estado discreto atualizado por eventos.
-
-O \gls{orderbook} adotado na plataforma é propositalmente limitado: os eventos são de nível de preço, a quantidade substitui o valor agregado no nível, a profundidade é fixa e o número de símbolos é parametrizado. Essa escolha permite implementação em VHDL com arrays estáticos e laços limitados. Em comparação com estruturas de software mais gerais, há perda de expressividade; em comparação com uma estrutura de hardware totalmente customizada para um mercado específico, há ganho de clareza e facilidade de teste.
-
-\section{Síntese de alto nível e fronteiras de projeto}\label{sec:relacionadosHLS}
-
-HLS é uma técnica recorrente em projetos de aceleração porque permite expressar parte do comportamento em linguagem de nível mais alto, reduzindo o esforço de escrita RTL. O MATLAB HDL Coder segue essa linha ao converter funções compatíveis com síntese em VHDL ou Verilog \cite{MathWorksHDLCoder}. Entretanto, a literatura e a prática de projeto indicam que HLS não elimina a necessidade de decisões arquiteturais: tipos de dados, latência, paralelismo, interface, memória e protocolo continuam determinando a qualidade do circuito gerado.
-
-Na plataforma proposta, essa fronteira aparece de forma clara. A estratégia é escrita em MATLAB, pois consiste em comparações e condições sobre sinais já normalizados. Já a ponte MMIO, as filas circulares e o \gls{orderbook} foram mantidos em VHDL manual. Essa escolha é compatível com o papel de cada bloco: a estratégia é uma política que tende a mudar com experimentos; a ponte é infraestrutura crítica que exige controle explícito de registradores, ponteiros e ordem de publicação. O uso parcial de HLS, portanto, não representa uma limitação acidental, mas uma decisão de engenharia.
-
-Em relação a \citeonline{Boutros2017}, a diferença principal está menos na busca por uma implementação HFT completa e mais na construção de um fluxo acessível para graduação. A ferramenta escolhida é MATLAB HDL Coder, o que favorece a escrita de estratégias em uma linguagem já usada em modelagem numérica.
-
-\section{Comparação com o protótipo desenvolvido}\label{sec:comparacaoRelacionados}
-
-O \autoref{quad:comparacaoRelacionados} sintetiza a relação entre os trabalhos revisados e o protótipo. O objetivo não é estabelecer superioridade, mas evidenciar o espaço ocupado por este TCC: uma plataforma acadêmica, aberta, de baixo custo e orientada à integração hardware/software e à geração de estratégias por HLS.
+O \autoref{quad:comparacaoRelacionados} explicita a diferença de escopo entre a literatura e o protótipo. O quadro não estabelece um ranking de desempenho; ele identifica quais aspectos foram preservados e quais foram excluídos.
 
 \begin{tabframed}[htb]
-\caption{Comparação entre eixos da literatura e o protótipo}
+\caption{Relação entre a literatura e o escopo do protótipo}
 \label{quad:comparacaoRelacionados}
 \begin{tabularx}{\textwidth}{lXX}
 \toprule
-\textbf{Eixo} & \textbf{Ênfase na literatura} & \textbf{Tratamento neste TCC} \\ \midrule
-Microestrutura e HFT & Efeitos de baixa latência sobre liquidez, descoberta de preço e competição entre agentes. & Uso do contexto de HFT como motivação computacional, sem pretensão de avaliar lucratividade ou impacto econômico. \\
-Aceleração por FPGA & Redução de latência em funções críticas, frequentemente com rede especializada, plataformas profissionais e HLS em C/C++. Ex.: Kintex UltraScale a 156~MHz e latência sub-microssegundo em \citeonline{Boutros2017}. & Uso de DE10-Nano de US\$190 em condição acadêmica, MMIO, filas circulares, livro simplificado e estratégia MATLAB gerada por HDL Coder. \\
-Order Book & Modelos por ordem, por nível, estocásticos ou estatísticos, com eventos de chegada, cancelamento e execução. & Livro por nível agregado, profundidade fixa, múltiplos símbolos parametrizados e proteção contra livro cruzado. \\
-HLS & Aumento de produtividade na geração de RTL, condicionado a restrições de código sintetizável. & Aplicação central à criação de estratégias em MATLAB, mantendo transporte e estado de mercado em VHDL manual. \\
-Validação & Medições de latência, frequência, vazão, área e comparação com alternativas. & Validação funcional por testes C++ e testbenches VHDL, complementada por benchmark quantitativo em placa para latência, vazão e speedup do núcleo lógico. \\ \bottomrule
+\textbf{Eixo} & \textbf{Literatura revisada} & \textbf{Escopo deste trabalho} \\ \midrule
+Mercado & Liquidez, descoberta de preços e interação entre participantes. & Contexto de aplicação; não há análise econômica ou de lucratividade. \\
+Fluxo de dados & Redes e protocolos integrados ao caminho de baixa latência. & Fluxo sintético por TCP, decodificado em software. \\
+FPGA & Núcleos e bibliotecas conectados a redes especializadas. & FPGA acessada pelo ARM por MMIO em placa educacional. \\
+Livro de ofertas & Ordens ou níveis, múltiplos eventos e modelos estatísticos. & Cinco símbolos do gerador, níveis agregados e profundidade de oito posições por lado. \\
+HLS & Geração de hardware condicionada pela arquitetura e pelos tipos. & Geração apenas da regra de decisão; ponte e livro permanecem em VHDL manual. \\
+Validação & Latência, vazão, área e comparação conforme cada plataforma. & Testes funcionais e uma campanha inicial de latência e vazão na DE10-Nano. \\ \bottomrule
 \end{tabularx}
-\fonte{}
+\fonte{Elaborado pelos autores com base em \citeonline{Leber2011}, \citeonline{Lockwood2012}, \citeonline{Boutros2017}, \citeonline{Gould2013} e \citeonline{Cont2010}}
 \end{tabframed}
 
-\section{Posicionamento do trabalho}\label{sec:posicionamento}
-
-O protótipo desenvolvido posiciona-se como uma ponte entre trabalhos conceituais de microestrutura e sistemas profissionais de baixa latência. Sua contribuição acadêmica está em explicitar, em código aberto e com ferramenta acessível, como organizar a fronteira entre ARM e FPGA em uma aplicação de mercado. O trabalho evidencia contratos que costumam ser pouco visíveis em descrições abstratas: largura de quadro, ordem de palavras, ponteiros de fila, base dinâmica da região RX, tratamento de livro cruzado e validação por testbench.
-
-Assim, a principal originalidade local está na integração entre feed sintético, receptor C++ com mFAST, wrapper MMIO, ponte VHDL de anéis, \gls{orderbook} simplificado, estratégia gerada por MATLAB HDL Coder e componente Avalon-MM para DE10-Nano. A lacuna coberta é sobretudo pedagógica e experimental: poucos materiais de graduação mostram em detalhe como essa cadeia completa é organizada e validada.
+A contribuição do protótipo é de integração e documentação: ele reúne fluxo sintético, receptor C++, filas MMIO, livro por nível e estratégia gerada a partir de MATLAB. Não se reivindica desempenho equivalente ao dos sistemas relacionados nem substituição de infraestrutura de negociação profissional.

@@ -2,9 +2,11 @@
 
 \chapter{Contrato de Comunicação ARM--FPGA}\label{cap:apendicea}
 
-Este apêndice consolida o contrato de comunicação utilizado pelo protótipo. Ele complementa a descrição do \autoref{cap:proposta} e deve ser mantido alinhado aos arquivos \codigo{cpp/src/fpga_shared_stream.h}, \codigo{cpp/src/fast_receiver.cpp}, \codigo{vhdl/arm_fpga_shared_stream_bridge.vhd} e \codigo{docs/arm-fpga-shared-memory-stream.md}.
+Este apêndice consolida o contrato de comunicação utilizado pelo protótipo. Ele complementa a descrição do \autoref{cap:proposta} e deve permanecer alinhado aos arquivos \path{cpp/src/fpga_shared_stream.h}, \path{cpp/src/fast_receiver.cpp}, \path{vhdl/arm_fpga_shared_stream_bridge.vhd} e \path{docs/arm-fpga-shared-memory-stream.md}.
 
 \section{Registradores}\label{sec:apendiceRegistradores}
+
+A \autoref{tab:apendiceRegistradores} consolida os registradores de identificação, controle das filas e telemetria. Os campos de desempenho são produzidos pelo motor e lidos pelo ARM; escrever 1 em \codigo{PERF_CTRL} reinicia seus contadores.
 
 \begin{table}[htb]
 \caption{Registradores da interface MMIO}
@@ -22,9 +24,18 @@ Este apêndice consolida o contrato de comunicação utilizado pelo protótipo. 
 \codigo{0x01C} & \codigo{RX_TAIL} & RW & ARM & Consumo de respostas. \\
 \codigo{0x020} & \codigo{TX_DEPTH} & RO & FPGA & Profundidade da fila TX. \\
 \codigo{0x024} & \codigo{RX_DEPTH} & RO & FPGA & Profundidade da fila RX. \\
-\codigo{0x028} & \codigo{SLOT_WORDS} & RO & FPGA & Palavras por quadro. \\ \bottomrule
+\codigo{0x028} & \codigo{SLOT_WORDS} & RO & FPGA & Palavras por quadro. \\
+\codigo{0x030} & \codigo{PERF_CTRL} & RW & ARM & Bit 0 reinicia contadores. \\
+\codigo{0x034} & \codigo{PERF_CLOCK_HZ} & RO & FPGA & Frequência usada na conversão de ciclos. \\
+\codigo{0x038} & \codigo{PERF_COUNT} & RO & FPGA & Quantidade de eventos medidos. \\
+\codigo{0x03C} & \codigo{PERF_LAST_LATENCY} & RO & FPGA & Latência mais recente, em ciclos. \\
+\codigo{0x040} & \codigo{PERF_MIN_LATENCY} & RO & FPGA & Menor latência, em ciclos. \\
+\codigo{0x044} & \codigo{PERF_MAX_LATENCY} & RO & FPGA & Maior latência, em ciclos. \\
+\codigo{0x048--0x04C} & \codigo{PERF_SUM_LATENCY} & RO & FPGA & Soma de latências em 64 bits. \\
+\codigo{0x050} & \codigo{PERF_CMD_STALL} & RO & FPGA & Ciclos de espera no comando. \\
+\codigo{0x054} & \codigo{PERF_RSP_STALL} & RO & FPGA & Ciclos de espera na resposta. \\ \bottomrule
 \end{tabularx}
-\fonte{}
+\fonte{Elaborado pelos autores conforme \codigo{fpga_shared_stream.h} e \codigo{arm_fpga_shared_stream_bridge.vhd}}
 \end{table}
 
 \section{Regras de filas}\label{sec:apendiceFilas}
@@ -45,6 +56,8 @@ Para \codigo{DEPTH = 64} e \codigo{SLOT_WORDS = 8}, a base TX é \codigo{0x100},
 
 O evento enviado do ARM para o FPGA usa oito palavras. A palavra de sequência é preservada para correlação entre entrada e saída. O identificador de símbolo é numérico para evitar processamento textual em hardware. O preço é escalado por $10^4$ para representar casas decimais com inteiros.
 
+A \autoref{tab:apendiceEvento} apresenta a ordem das palavras. A ordem é parte do protocolo: alterar uma posição exige atualizar software, RTL, testes e documentação.
+
 \begin{table}[htb]
 \caption{Formato do quadro ARM--FPGA}
 \label{tab:apendiceEvento}
@@ -60,7 +73,7 @@ O evento enviado do ARM para o FPGA usa oito palavras. A palavra de sequência �
 \codigo{word6} & Reserva & Campo reservado para extensão futura. \\
 \codigo{word7} & Reserva & Campo reservado para extensão futura. \\ \bottomrule
 \end{tabularx}
-\fonte{}
+\fonte{Elaborado pelos autores conforme o contrato implementado em C++ e VHDL}
 \end{table}
 
 \section{Formato de resposta}\label{sec:apendiceResposta}
@@ -85,7 +98,7 @@ Quando o contrato ARM--FPGA for alterado, os seguintes itens devem ser revisados
 \begin{itemize}
   \item mapa de registradores no VHDL e na documentação;
   \item largura \codigo{G_SLOT_WORDS} no VHDL e \codigo{kFrameWords} no C++;
-  \item cálculo da base RX no software, nos testbenches e no texto;
+  \item cálculo da base RX no software, nos bancos de teste e no texto;
   \item ordem das palavras em \codigo{fast_receiver.cpp};
   \item decodificação das palavras em \codigo{order_book_core.vhd};
   \item montagem da resposta em \codigo{generated_strategy_core.vhd};
@@ -93,4 +106,4 @@ Quando o contrato ARM--FPGA for alterado, os seguintes itens devem ser revisados
   \item comandos e exemplos de execução no README e neste apêndice.
 \end{itemize}
 
-Esse checklist existe porque mudanças pequenas em interfaces binárias podem causar erros difíceis de diagnosticar. Em particular, uma alteração de largura de slot muda a base RX; uma alteração de ordem de palavra pode fazer preço ser interpretado como quantidade; e uma alteração de evento sem atualização do livro pode gerar snapshots inconsistentes.
+Esse checklist existe porque mudanças pequenas em interfaces binárias podem causar erros difíceis de diagnosticar. Em particular, uma alteração da largura da posição muda a base RX; uma alteração da ordem das palavras pode fazer preço ser interpretado como quantidade; e uma alteração de evento sem atualização do livro pode gerar estados de topo inconsistentes.

@@ -1,101 +1,176 @@
-%%%% CAPÍTULO 3 - MATERIAL E MÉTODOS
+%%%% CAPÍTULO 5 - MATERIAIS E MÉTODOS
 
-\chapter{Materiais e Métodos}\label{cap:materialemetodos}
+\chapter{Materiais e métodos}\label{cap:materialemetodos}
 
-Este capítulo descreve os materiais e os métodos utilizados para construir e validar a plataforma proposta. A ênfase metodológica está no uso de MATLAB HDL Coder para gerar a lógica de estratégia, enquanto a infraestrutura de comunicação, \gls{orderbook} e testes permanece como base de execução.
+Este capítulo descreve os recursos empregados, o procedimento de implementação, os testes funcionais e o método da campanha quantitativa. Valores obtidos são reservados ao \autoref{cap:resultados}.
 
 \section{Materiais}\label{sec:materiais}
 
-A plataforma alvo é a DE10-Nano, baseada em Intel Cyclone V SoC. A escolha dessa placa é adequada ao trabalho porque combina processador ARM, FPGA e interface HPS--FPGA em um ambiente de baixo custo. O ARM executa Linux embarcado, sockets e decodificação de mensagens; a FPGA executa os blocos que exigem paralelismo e comportamento temporal mais previsível.
+O alvo físico foi a DE10-Nano, que contém um Cyclone V SoC com processadores ARM Cortex-A9 e lógica FPGA \cite{TerasicDE10Nano,IntelCycloneV}. O \autoref{quad:materiais} relaciona as ferramentas ao papel exercido no trabalho.
 
-O software de apoio foi desenvolvido em C++ e utiliza a biblioteca mFAST para codificação e decodificação de mensagens FAST. Essa camada é responsável por gerar dados sintéticos, receber mensagens, normalizar símbolos, converter preços para ponto fixo e interagir com a região de memória mapeada da FPGA. Essa escolha mantém no software as partes mais variáveis do protocolo de mercado e envia ao hardware apenas dados numéricos.
+\begin{tabframed}[htb]
+\caption{Materiais empregados no desenvolvimento}
+\label{quad:materiais}
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Material} & \textbf{Uso no trabalho} \\ \midrule
+DE10-Nano & Execução do software ARM e da lógica sintetizada no Cyclone V. \\
+C++ e mFAST & Gerador, receptor, normalização, acesso MMIO e programa de medição. \\
+VHDL e GHDL & Ponte, filas, livro, invólucros, motor integrado e simulações. \\
+MATLAB HDL Coder & Descrição, teste e geração VHDL da regra de decisão. \\
+Quartus Prime Lite e Platform Designer & Síntese e integração do periférico ao HPS. \\
+Make, CMake e Docker & Automação das compilações e dos testes que não dependem da placa ou da licença MATLAB. \\ \bottomrule
+\end{tabularx}
+\fonte{Elaborado pelos autores}
+\end{tabframed}
 
-O hardware foi descrito em VHDL, com simulações também em VHDL. A infraestrutura manual inclui a ponte ARM--FPGA, o \gls{orderbook}, o empacotamento de respostas e a adaptação ao barramento Avalon-MM. A estratégia de trading, por sua vez, é escrita em MATLAB e convertida para VHDL por meio do HDL Coder. Essa divisão foi adotada para preservar controle explícito das interfaces críticas e, ao mesmo tempo, facilitar a criação de novas regras de decisão.
+Os arquivos-fonte, as rotinas de construção, os bancos de teste e os arquivos LaTeX deste documento estão disponíveis no repositório público \url{https://github.com/forestileao/hft-matlab-fpga}. A identificação dos comandos e arquivos ao longo do texto corresponde à organização versionada nesse endereço.
 
-O fluxo de construção e validação utiliza Make, Docker, CMake, GHDL, MATLAB HDL Coder e Quartus Prime Lite com Platform Designer. Essas ferramentas são empregadas para reduzir diferenças de ambiente, executar testes C++ e VHDL, gerar o bloco HDL da estratégia, compilar o projeto FPGA e preparar binários para a DE10-Nano. Como o trabalho depende de ferramentas acadêmicas e dados sintéticos, não há necessidade de acesso a uma bolsa real, contrato de dados proprietário ou infraestrutura profissional de negociação.
+\section{Procedimento de implementação}\label{sec:metodo}
 
-\section{Métodos}\label{sec:metodo}
+O desenvolvimento foi dividido em interfaces verificáveis. Primeiro, o gerador e o receptor foram configurados com o modelo FAST \codigo{SimpleMD.xml}. Em seguida, definiu-se o quadro de oito palavras e implementaram-se as filas circulares. O livro por nível passou a consumir esse quadro e a produzir sinais de topo. Por último, a função MATLAB foi gerada para VHDL e ligada ao motor por um invólucro com controle de validade e prontidão.
 
-\subsection{Organização da plataforma}\label{subsec:definicaoPlataforma}
+O projeto usa inteiros sem sinal de 32 bits para preços e quantidades. O preço é multiplicado por $10^4$ antes do envio, e o desbalanceamento é tratado como inteiro com sinal de 32 bits. Foram configurados oito símbolos possíveis no núcleo e oito níveis por lado; o gerador utiliza cinco desses identificadores.
 
-O método de desenvolvimento foi orientado pela separação entre infraestrutura e estratégia. A infraestrutura compreende recepção de dados, normalização, transporte por MMIO, \gls{orderbook}, integração Avalon-MM e testes. A estratégia é mantida em uma função MATLAB sintetizável, com entradas numéricas já derivadas do \gls{orderbook}. Assim, a troca de estratégia deve exigir alteração prioritariamente no código MATLAB, não na ponte de comunicação nem no \gls{orderbook}.
+\subsection{Integração no Platform Designer}\label{subsec:metodoQuartus}
 
-Essa organização também define a responsabilidade de cada domínio. O software lida com mensagens textuais ou binárias de formato flexível. O hardware lida com palavras de largura fixa, estado do livro e decisão. O MATLAB HDL Coder atua no ponto de maior interesse do usuário: a regra de trading. A consequência é um fluxo de trabalho mais simples para experimentar variações de estratégia, desde que sejam respeitadas as restrições de código sintetizável.
+O periférico \codigo{hft_trade_engine_avalon_mm} adapta Avalon-MM à interface interna do motor. O HPS inicia leituras e escritas pela ponte leve HPS--FPGA, e o periférico expõe cabeçalho, registradores, contadores e regiões das filas \cite{IntelAvalon,IntelPlatformDesigner,IntelSoCFPGADesignGuidelines}.
 
-\subsection{Integração no Quartus e Platform Designer}\label{subsec:metodoQuartus}
-
-Além da descrição RTL e da geração automática da estratégia, o trabalho exige uma etapa explícita de integração no Quartus Prime Lite, em especial no Platform Designer da Intel \cite{IntelPlatformDesigner}. É nessa ferramenta que o \gls{hps}, a ponte HPS--FPGA e o periférico customizado \codigo{hft\_trade\_engine\_avalon\_mm} são ligados em um sistema SoC coerente para a DE10-Nano.
-
-A \autoref{fig:platformDesigner} mostra a integração utilizada no projeto. Nela, o HPS atua como bloco iniciador da comunicação e o motor HFT aparece como periférico Avalon-MM do tipo \textit{slave}. Essa ligação é importante porque materializa, em nível de ferramenta, o contrato discutido ao longo do texto: o software ARM publica eventos pela ponte, o periférico no FPGA consome esses eventos, atualiza o \gls{orderbook} e devolve respostas pela fila RX. Em outras palavras, a figura serve como evidência visual de como a arquitetura proposta foi efetivamente montada no ambiente Quartus.
+A \autoref{fig:platformDesigner} mostra a ligação montada no Platform Designer. O aspecto relevante é a conexão do HPS ao periférico customizado; a captura não demonstra, isoladamente, que o caminho funcional ou temporal esteja correto. Essas propriedades foram avaliadas pelos testes e pela execução descritos adiante.
 
 \begin{figure}[htb]
-\caption{Ligação entre HPS e o bloco \textit{HFT Trade Engine Avalon-MM} no Platform Designer}
+\caption{Ligação entre o HPS e o periférico no Platform Designer}
 \label{fig:platformDesigner}
 \centering
 \includegraphics[width=0.95\textwidth]{platform-designer}
-\fonte{Captura de tela elaborada pelos autores no Quartus Prime Lite Platform Designer.}
+\fonte{Captura de tela produzida pelos autores no Quartus Prime Lite}
 \end{figure}
 
-Essa etapa de integração complementa os artefatos em VHDL e os scripts de build. Embora a lógica de decisão, a ponte ARM--FPGA e o \gls{orderbook} estejam descritos nos arquivos-fonte, é o Platform Designer que define a conexão final com o HPS, o mapeamento Avalon-MM e a forma como o sistema sintetizado passa a existir como periférico acessível pelo software embarcado.
+\subsection{Fluxo sintético de dados}\label{subsec:metodoFeed}
 
-\subsection{Contrato de comunicação}\label{subsec:metodoContrato}
+O programa \codigo{fast_data_feed} escolhe pseudoaleatoriamente um dos cinco símbolos, um lado, uma quantidade entre 100 e 5.000 e um deslocamento de preço. Uma mensagem contém um único nível e é enviada a cada 200~ms por TCP na porta 9001. O programa \codigo{fast_receiver} decodifica essa mensagem com mFAST. No modo com FPGA, ele mapeia o símbolo, converte o preço e publica um evento do tipo inserção ou atualização.
 
-O contrato ARM--FPGA foi definido como uma interface de produtor e consumidor baseada em duas filas circulares: uma para eventos enviados pelo ARM e outra para respostas produzidas pela FPGA. Cada evento transporta sequência, símbolo normalizado, lado, preço em ponto fixo e quantidade. Cada resposta devolve sequência, ação, melhor compra, melhor venda, \textit{spread} e desbalanceamento.
+Esse procedimento foi usado para verificar codificação, decodificação e integração. A taxa fixa, a distribuição simples e a ausência de cancelamentos e execuções impedem interpretá-lo como reprodução estatística de um mercado.
 
-O uso de filas evita que cada evento dependa de uma chamada síncrona por registradores individuais. Com isso, o ARM pode publicar eventos enquanto houver espaço e a FPGA pode consumi-los conforme sua disponibilidade. Para manter corretude, o produtor escreve o conteúdo completo antes de publicar o ponteiro, e o consumidor lê o conteúdo completo antes de liberar o espaço. Os detalhes de offsets e palavras individuais são apresentados nas tabelas e apêndices, pois pertencem mais ao contrato técnico do que à discussão metodológica principal.
+A \autoref{fig:placeholderFluxoDados} organiza a sequência do ensaio funcional. O gerador envia a mensagem ao receptor; o ARM decodifica e publica o evento; o FPGA atualiza o livro e avalia a regra; e a resposta retorna pela fila RX. Essa figura descreve o procedimento, não a região temporizada pelo programa de medição.
 
-\subsection{Fluxo de dados de mercado}\label{subsec:metodoFeed}
+\begin{figure}[!htbp]
+\caption{Fluxo de um evento no ensaio funcional}
+\label{fig:placeholderFluxoDados}
+\centering
+\includegraphics[width=0.95\textwidth]{fluxo-temporal-evento}
+\fonte{Elaborado pelos autores}
+\end{figure}
 
-O fluxo de dados usa mensagens sintéticas codificadas em FAST e transmitidas por TCP. A escolha por um feed sintético permite repetir testes sem depender de dados reais ou infraestrutura de mercado. O receptor decodifica as mensagens, converte campos para representação numérica e, quando a FPGA está habilitada, envia o evento normalizado ao hardware.
+\subsection{Geração e integração da estratégia}\label{subsec:metodoGeracaoHls}
 
-Essa abordagem não pretende medir a latência de uma rede de bolsa real. O objetivo é exercitar o caminho de dados até a estratégia: mensagem de mercado, normalização, transporte ARM--FPGA, atualização do livro e retorno da decisão. Assim, a metodologia separa validação funcional do pipeline de qualquer afirmação quantitativa sobre redes financeiras reais.
+A função \codigo{strategy.m} foi integrada pelo seguinte procedimento, seguindo as restrições de geração descritas na documentação do HDL Coder \cite{MathWorksHDLCoder}:
 
-\subsection{Order Book e estratégia}\label{subsec:metodoLivroEstrategia}
+\begin{enumerate}
+  \item definição da função MATLAB com seis entradas inteiras e uma saída de decisão;
+  \item execução dos testes MATLAB da regra;
+  \item execução de \codigo{hdl_generator.m} para gerar o VHDL pelo HDL Coder;
+  \item conexão do arquivo gerado ao invólucro VHDL do motor;
+  \item execução dos bancos de teste da estratégia e do motor integrado;
+  \item recompilação do projeto no Quartus e programação da DE10-Nano.
+\end{enumerate}
 
-O \gls{orderbook} foi implementado em hardware com profundidade limitada. Ele mantém níveis de compra e venda por símbolo, atualiza preços e quantidades, rejeita estados cruzados e calcula os sinais necessários à estratégia. A profundidade limitada é coerente com o objetivo do protótipo: validar a integração e fornecer sinais de topo de livro, não reproduzir integralmente a complexidade de um livro de bolsa.
+A \autoref{fig:placeholderFluxoHls} representa esse procedimento. A geração do arquivo VHDL é uma etapa intermediária: os testes e a análise de temporização continuam necessários depois de cada alteração.
 
-A estratégia foi escrita em MATLAB com operações compatíveis com HDL Coder. Ela recebe os sinais do \gls{orderbook} e retorna uma ação discreta: NOOP, BUY ou SELL. O papel do HDL Coder é transformar essa regra em lógica sintetizável, permitindo que o usuário trabalhe em um nível mais próximo da formulação algorítmica. Estratégias futuras podem alterar limiares ou combinar os sinais de outra forma, desde que mantenham tipos e operações adequados à síntese.
+\begin{figure}[!htbp]
+\caption{Procedimento de alteração e geração da estratégia}
+\label{fig:placeholderFluxoHls}
+\centering
+\includegraphics[height=0.68\textheight]{fluxo-hls-estrategia}
+\fonte{Elaborado pelos autores}
+\end{figure}
 
-\subsection{Validação funcional}\label{subsec:metodoValidacao}
+\section{Validação funcional}\label{subsec:metodoValidacao}
 
-A validação foi dividida por camadas. O software é validado por testes de comunicação e empacotamento. A ponte ARM--FPGA é validada por simulações de fila, rajadas e contrapressão. O \gls{orderbook} é validado por casos de inserção, remoção, ordenação e rejeição de estados inválidos. A estratégia é validada por cenários que devem produzir NOOP, BUY e SELL. Por fim, o motor completo é validado pela passagem de eventos por todas as etapas.
-
-O \autoref{quad:matrizValidacao} resume os principais riscos cobertos por essa validação. A matriz evita que o trabalho dependa apenas de uma demonstração manual em placa, pois cada parte essencial da arquitetura possui uma evidência funcional própria.
+A validação foi organizada por camada. O \autoref{quad:matrizValidacao} apresenta o artefato, o comportamento observado e o comando reprodutível. ``Validado'', neste contexto, significa que os casos codificados nos testes foram executados sem asserções de falha; não significa cobertura exaustiva nem certificação operacional.
 
 \begin{tabframed}[htb]
-\caption{Matriz de validação funcional do protótipo}
+\caption{Procedimentos de validação funcional}
 \label{quad:matrizValidacao}
 \begin{tabularx}{\textwidth}{lXX}
 \toprule
-\textbf{Artefato} & \textbf{Risco técnico mitigado} & \textbf{Evidência de validação} \\ \midrule
-Interface ARM--FPGA & Divergência de contrato, fila cheia mal detectada ou avanço de ponteiro fora de ordem. & Teste C++ e testbenches VHDL da ponte. \\
-Order Book & Livro fora de ordem, remoção incorreta ou aceitação de livro cruzado. & Testbench específico com casos de inserção, atualização e remoção. \\
-Estratégia gerada & Ação incompatível com os sinais de mercado ou resposta perdida. & Testbench da estratégia e verificação de NOOP em estados inválidos. \\
-Motor integrado & Falha de integração entre comunicação, livro e decisão. & Testbench de motor completo com escrita de eventos e leitura de respostas. \\
-Integração Avalon-MM & Barramento travado ou transação sem retorno durante acesso do HPS. & Testbench do wrapper Avalon-MM. \\
-Feed e receptor & Falha de codificação, decodificação ou normalização dos eventos. & Teste de fumaça software-only e execução funcional em placa. \\ \bottomrule
+\textbf{Camada} & \textbf{Comportamentos exercitados} & \textbf{Procedimento} \\ \midrule
+Invólucro C++ & Geometria, base RX, fila cheia/vazia, envio e recepção. & \codigo{make cpp-test}. \\
+Ponte VHDL & Registradores, ordem das palavras, retorno de índice, rajadas e contrapressão. & \codigo{make vhdl-test} e \codigo{make vhdl-test-fast}. \\
+Livro & Inserção, atualização, remoção, ordenação e rejeição de cruzamento. & \codigo{make vhdl-test-order-book}. \\
+Estratégia gerada & Ramos NOOP, BUY e SELL e empacotamento da resposta. & \codigo{make vhdl-test-strategy}. \\
+Motor integrado & Caminho entre fila, livro, estratégia e resposta. & \codigo{make vhdl-test-engine}. \\
+Avalon-MM & Leituras e escritas do periférico e conclusão das transações. & \codigo{make vhdl-test-avalon}. \\
+Fluxo e receptor & Codificação, transmissão TCP e decodificação sem FPGA. & \codigo{make cpp-smoke}. \\ \bottomrule
 \end{tabularx}
-\fonte{}
+\fonte{Elaborado pelos autores a partir dos alvos do Makefile e dos casos de teste do repositório}
 \end{tabframed}
 
-\subsection{Método proposto para métricas experimentais}\label{subsec:metodoMedicoes}
+Além dos testes automatizados, foi realizado um ensaio funcional na placa. O critério foi reconhecer assinatura e geometria da ponte, publicar eventos do fluxo sintético e observar respostas com a mesma sequência e campos coerentes com o estado do livro. Esse ensaio verifica integração no cenário executado, mas não substitui a campanha de desempenho nem testes com dados reais.
 
-A implementação atual fornece principalmente evidências funcionais. Para completar a avaliação quantitativa, o método prevê instrumentar o software e a FPGA. No software, devem ser registrados os instantes de recebimento do evento, publicação do quadro e leitura da resposta. No hardware, recomenda-se usar um contador de ciclos para medir o intervalo entre consumo do evento e publicação da resposta.
+\section{Método da avaliação quantitativa}\label{subsec:metodoMedicoes}
 
-A vazão deve ser medida aumentando progressivamente a taxa do feed até ocorrer saturação, fila cheia ou perda de resposta.
+O programa \codigo{fpga_benchmark} implementa o ensaio de desempenho e foi usado separadamente do fluxo FAST. Ele pré-constrói eventos determinísticos e, durante a região medida, não executa TCP, decodificação FAST, esperas de 200~ms, geração aleatória ou impressão por mensagem. Essa separação permite medir o núcleo e a interface MMIO, mas impede atribuir os valores ao fluxo completo desde a rede.
+
+A campanha registrada utilizou a lógica a 50~MHz, 10.000 eventos de aquecimento e 1.000.000 de eventos medidos. O programa pré-constrói 1.010.000 eventos: os índices $0$ a $9.999$ aquecem o estado, e os índices $10.000$ a $1.009.999$ integram a região medida. Para um índice inteiro $i$, símbolo, lado, deslocamento de preço e quantidade são definidos por
+
+\begin{align}
+  s_i &= i \bmod 5, \\
+  c_i &=
+    \begin{cases}
+      \text{compra}, & i \bmod 2 = 0, \\
+      \text{venda},  & i \bmod 2 = 1,
+    \end{cases} \\
+  d_i &= 100\left[((17i) \bmod 80) + 1\right], \\
+  q_i &= 100 + ((37i) \bmod 4\,901), \\
+  p_i &=
+    \begin{cases}
+      b_{s_i} - d_i, & c_i = \text{compra}, \\
+      b_{s_i} + d_i, & c_i = \text{venda},
+    \end{cases}
+\end{align}
+
+em que $b_{s_i}$ é o preço-base do símbolo, com vetor $(1\,850\,000, 4\,150\,000, 8\,750\,000, 1\,700\,000, 1\,750\,000)$ para AAPL, MSFT, NVDA, GOOGL e TSLA, respectivamente, e os preços são representados na escala $10^4$. A sequência é $i+1$. Como 17 e 80 são coprimos, os 80 deslocamentos aparecem com a mesma frequência em cada período; como 37 e $4\,901$ também são coprimos, as $4\,901$ quantidades percorrem todo o conjunto antes de se repetir. Nos 1.000.000 de eventos medidos, cada símbolo aparece 200.000 vezes, cada lado 500.000 vezes, cada deslocamento 12.500 vezes e cada quantidade aparece 204 ou 205 vezes.
+
+Do ponto de vista estocástico, essas são distribuições marginais aproximadamente uniformes, mas não amostras aleatórias independentes: todas as variáveis derivam do mesmo índice e não há processo aleatório para intervalos de chegada, cancelamentos ou execuções. A campanha é exatamente reproduzível sem semente pseudoaleatória, porém não constitui um modelo estocástico de mercado \cite{Cont2010,Gould2013}. O programa executa três modos:
+
+\begin{itemize}
+  \item \codigo{sw-core}: executa no ARM uma implementação C++ do livro e da regra, sem entrada e saída por mensagem;
+  \item \codigo{fpga-mmio}: mantém múltiplos eventos em trânsito nas filas e mede a vazão do caminho ARM--FPGA--ARM;
+  \item \codigo{fpga-sync}: envia um evento, aguarda a respectiva resposta e registra o tempo de ida e volta antes de prosseguir.
+\end{itemize}
+
+No núcleo FPGA, um contador registra os ciclos entre a aceitação do comando e a produção da resposta. O período nominal é 20~ns a 50~MHz. São coletados mínimo, máximo, soma e contagem; a média é calculada pela razão entre soma e contagem, e a variação interna pela diferença entre máximo e mínimo.
+
+No ARM, o relógio monotônico bruto do sistema, quando disponível, mede o tempo. No modo síncrono, uma amostra envolve a chamada de envio, as consultas até haver resposta e a leitura da resposta; depois, o programa ordena as amostras e calcula média, mediana, percentil 99, mínimo e máximo. No modo em fluxo, a vazão é a contagem de respostas dividida pelo intervalo total. A referência C++ é a duração do laço dividida por um milhão de eventos. O fator de aceleração do núcleo é a média C++ dividida pela média interna do FPGA; ele não inclui MMIO.
+
+Os números preservados no texto correspondem a uma campanha. Não há, no repositório, arquivo bruto com a saída JSON dessa execução nem séries de campanhas independentes. Por isso, os resultados caracterizam a execução registrada e não fornecem intervalo de confiança ou análise de repetibilidade entre inicializações. A energia elétrica não foi instrumentada e, portanto, não integra as métricas medidas; ela é tratada separadamente como experimento de cálculo.
+
+O \autoref{quad:metricasPlanejadas} resume o significado operacional de cada métrica e evita comparar grandezas de escopos diferentes.
 
 \begin{tabframed}[htb]
-\caption{Métricas experimentais planejadas e resultados obtidos}
+\caption{Métricas e respectivos escopos de medição}
 \label{quad:metricasPlanejadas}
-\begin{tabularx}{\textwidth}{lXXX}
+\begin{tabularx}{\textwidth}{lXX}
 \toprule
-\textbf{Métrica} & \textbf{Como medir} & \textbf{Meta de referência} & \textbf{Resultado} \\ \midrule
-Latência fim a fim (RTT) & Modo \codigo{fpga-sync}: mede RTT ARM$\to$FPGA$\to$ARM por mensagem com percentis. & Comparar com versão software-only. & \textbf{10.228~ns} médio; \textbf{10.310~ns} p99 (\autoref{tab:latenciaComparacao}) \\
-Latência interna FPGA & Contador de ciclos do núcleo lógico. & Jitter interno inferior a $1~\mu$s. & \textbf{60~ns, jitter 0~ns} (\autoref{sec:benchmarkDesempenho}) \\
-Vazão & Eventos por segundo até ocorrência de saturação. & Pelo menos 100.000 mensagens/s. & \textbf{102.381~msg/s} \\
-Speedup (núcleo lógico) & Comparação do núcleo de decisão FPGA vs.\ C++ equivalente (sem comun.). & Aceleração mínima de 5 vezes. & \textbf{5,253\texttimes} (lógica isolada) \\ \bottomrule
+\textbf{Métrica} & \textbf{Procedimento} & \textbf{Inclui} \\ \midrule
+Latência interna FPGA & Contador de ciclos entre comando aceito e resposta produzida. & Livro, estratégia e controle interno; exclui MMIO e ARM. \\
+Tempo do núcleo C++ & Tempo total do laço \codigo{sw-core} dividido pelos eventos. & Algoritmo equivalente no ARM; exclui TCP e MMIO. \\
+Latência fim a fim & Amostras do modo \codigo{fpga-sync}. & Chamadas de fila, MMIO, espera ativa e núcleo FPGA. \\
+Vazão & Respostas por segundo no modo \codigo{fpga-mmio}. & Transferência pelas duas filas e processamento FPGA. \\
+Variação & Máximo menos mínimo no escopo correspondente. & Resolução e fontes de variação próprias de cada medição. \\ \bottomrule
 \end{tabularx}
-\fonte{}
+\fonte{Elaborado pelos autores conforme \codigo{fpga_benchmark.cpp}}
 \end{tabframed}
 
-As metas apresentadas funcionaram como critérios de avaliação para a campanha experimental e, na versão atual do trabalho, já podem ser confrontadas com resultados efetivamente obtidos. Essa distinção continua importante para não confundir integração funcional com desempenho: o benchmark já comprova aceleração do núcleo lógico e vazão da ponte MMIO.
+\section{Método do experimento de cálculo energético}\label{sec:metodoEnergia}
+
+Como não houve instrumentação elétrica na placa, a energia por decisão foi tratada como experimento de cálculo. Para cada substrato, aplicou-se
+
+\begin{equation}\label{eq:energiaDecisao}
+  E = P \times t,
+\end{equation}
+
+em que $E$ é a energia estimada por decisão, $P$ é uma potência de referência e $t$ é o tempo atribuído ao núcleo lógico ou computacional. Foram adotadas as hipóteses de 50~mW para a parcela dinâmica da lógica Cyclone~V, 1,5~W para um núcleo ARM Cortex-A9 e 15~W para um núcleo x86. Para os tempos, usaram-se os valores registrados de 60~ns no FPGA e 315~ns no ARM, além de 30~ns como hipótese ilustrativa para o núcleo x86.
+
+Essas potências não foram medidas no mesmo limite físico: uma representa a lógica FPGA, outra o núcleo ARM e outra um núcleo de servidor. O tempo x86 também não foi obtido no experimento. Portanto, o cálculo serve para comparar ordens de grandeza sob as hipóteses declaradas; ele não mede o consumo da DE10-Nano, não inclui comunicação e não permite concluir eficiência energética fim a fim.

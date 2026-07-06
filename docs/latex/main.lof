@@ -1,9 +1,7 @@
 \babel@toc {brazil}{}\relax
-\contentsline {figure}{\numberline {1}{\ignorespaces Placa DE10-Nano utilizada no protótipo}}{19}{figure.caption.29}%
-\contentsline {figure}{\numberline {2}{\ignorespaces Arquitetura conceitual do Order Book simplificado}}{26}{figure.caption.30}%
-\contentsline {figure}{\numberline {3}{\ignorespaces Arquitetura geral da plataforma proposta}}{42}{figure.caption.32}%
-\contentsline {figure}{\numberline {4}{\ignorespaces Diagrama de blocos do sistema}}{43}{figure.caption.33}%
-\contentsline {figure}{\numberline {5}{\ignorespaces Fluxo sugerido de criação de estratégia por MATLAB HDL Coder}}{43}{figure.caption.34}%
-\contentsline {figure}{\numberline {6}{\ignorespaces Ligação entre HPS e o bloco \textit {HFT Trade Engine Avalon-MM} no Platform Designer}}{46}{figure.caption.37}%
-\contentsline {figure}{\numberline {7}{\ignorespaces Fluxo de dados do protótipo}}{50}{figure.caption.40}%
-\contentsline {figure}{\numberline {8}{\ignorespaces Pipeline lógico de atualização do livro}}{52}{figure.caption.41}%
+\contentsline {figure}{\numberline {1}{\ignorespaces Placa DE10-Nano utilizada no protótipo}}{15}{figure.caption.19}%
+\contentsline {figure}{\numberline {2}{\ignorespaces Arquitetura geral do protótipo}}{24}{figure.caption.21}%
+\contentsline {figure}{\numberline {3}{\ignorespaces Fluxo lógico do livro de ofertas simplificado}}{25}{figure.caption.22}%
+\contentsline {figure}{\numberline {4}{\ignorespaces Ligação entre o HPS e o periférico no Platform Designer}}{30}{figure.caption.28}%
+\contentsline {figure}{\numberline {5}{\ignorespaces Fluxo de um evento no ensaio funcional}}{31}{figure.caption.29}%
+\contentsline {figure}{\numberline {6}{\ignorespaces Procedimento de alteração e geração da estratégia}}{32}{figure.caption.30}%

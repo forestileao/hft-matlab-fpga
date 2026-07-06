@@ -1,21 +1,19 @@
 %%{init: {"theme": "base", "flowchart": {"htmlLabels": false, "curve": "linear"}, "themeVariables": {"fontFamily": "Arial", "primaryColor": "#ffffff", "primaryTextColor": "#111111", "lineColor": "#333333", "clusterBkg": "#f8f8f8", "clusterBorder": "#666666"}}}%%
 flowchart TB
-    subgraph DATA["Fluxo de dados"]
+    subgraph TXFLOW["Fila TX — ARM para FPGA"]
         direction LR
-        A1["ARM escreve<br/>evento"]
-        TX["Fila TX"]
-        F2["FPGA processa<br/>evento"]
-        RX["Fila RX"]
-        A3["ARM le<br/>resposta"]
-        A1 --> TX --> F2 --> RX --> A3
+        A1["ARM grava<br/>oito palavras"]
+        A2["ARM publica<br/>TX_HEAD"]
+        F1["FPGA lê<br/>o evento"]
+        F2["FPGA publica<br/>TX_TAIL"]
+        A1 --> A2 --> F1 --> F2
     end
 
-    subgraph CTRL["Fluxo de controle"]
+    subgraph RXFLOW["Fila RX — FPGA para ARM"]
         direction LR
-        A2["ARM publica<br/>TX_HEAD"]
-        REG["Registradores<br/>HEAD/TAIL"]
+        F3["FPGA grava<br/>oito palavras"]
         F4["FPGA publica<br/>RX_HEAD"]
+        A3["ARM lê<br/>a resposta"]
         A4["ARM publica<br/>RX_TAIL"]
-        A2 --> REG --> F4
-        F4 --> REG --> A4
+        F3 --> F4 --> A3 --> A4
     end
