@@ -2,10 +2,10 @@
 \contentsline {table}{\numberline {1}{\ignorespaces Quadro enviado do ARM para o FPGA}}{26}{table.caption.23}%
 \contentsline {table}{\numberline {2}{\ignorespaces Quadro devolvido do FPGA para o ARM}}{26}{table.caption.24}%
 \contentsline {table}{\numberline {3}{\ignorespaces Mapeamento de símbolos do fluxo sintético}}{27}{table.caption.25}%
-\contentsline {table}{\numberline {4}{\ignorespaces Evidências do ensaio funcional na DE10-Nano}}{38}{table.caption.34}%
-\contentsline {table}{\numberline {5}{\ignorespaces Valores registrados na campanha quantitativa}}{39}{table.caption.36}%
-\contentsline {table}{\numberline {6}{\ignorespaces Estimativa de energia por decisão sob as hipóteses adotadas}}{41}{table.caption.37}%
-\contentsline {table}{\numberline {7}{\ignorespaces Contextualização das latências reportadas}}{41}{table.caption.38}%
-\contentsline {table}{\numberline {8}{\ignorespaces Registradores da interface MMIO}}{48}{table.caption.43}%
-\contentsline {table}{\numberline {9}{\ignorespaces Formato do quadro ARM--FPGA}}{49}{table.caption.44}%
-\contentsline {table}{\numberline {10}{\ignorespaces Variáveis de ambiente do receptor}}{54}{table.caption.49}%
+\contentsline {table}{\numberline {4}{\ignorespaces Evidências do ensaio funcional na DE10-Nano}}{39}{table.caption.34}%
+\contentsline {table}{\numberline {5}{\ignorespaces Valores registrados na campanha quantitativa}}{40}{table.caption.36}%
+\contentsline {table}{\numberline {6}{\ignorespaces Estimativa de energia por decisão sob as hipóteses adotadas}}{42}{table.caption.37}%
+\contentsline {table}{\numberline {7}{\ignorespaces Contextualização das latências reportadas}}{42}{table.caption.38}%
+\contentsline {table}{\numberline {8}{\ignorespaces Registradores da interface MMIO}}{49}{table.caption.43}%
+\contentsline {table}{\numberline {9}{\ignorespaces Formato do quadro ARM--FPGA}}{50}{table.caption.44}%
+\contentsline {table}{\numberline {10}{\ignorespaces Variáveis de ambiente do receptor}}{55}{table.caption.49}%

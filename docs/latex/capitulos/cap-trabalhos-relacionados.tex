@@ -9,17 +9,17 @@ Este capítulo organiza a literatura em três eixos: efeitos da baixa latência 
 
 \section{Aceleração em FPGA}\label{sec:relacionadosFPGA}
 
-\citeonline{Leber2011} implementam em FPGA funções associadas ao processamento de HFT e discutem o deslocamento do caminho sensível à latência para hardware reconfigurável. \citeonline{Lockwood2012} apresentam uma biblioteca FPGA de baixa latência e destacam a integração entre rede, transporte e lógica de aplicação. Nos dois casos, a conexão da FPGA ao fluxo de rede é parte da arquitetura; isso difere de uma FPGA acessada como periférico de um processador.
+\citeonline{Leber2011} implementam em FPGA funções associadas ao processamento de HFT e discutem o deslocamento do caminho sensível à latência para hardware reconfigurável. Na mesma direção, \citeonline{Lockwood2012} apresentam uma biblioteca FPGA de baixa latência e destacam a integração entre rede, transporte e lógica de aplicação. Nos dois casos, a conexão da FPGA ao fluxo de rede é parte da arquitetura; isso difere de uma FPGA acessada como periférico de um processador.
 
-\citeonline{Boutros2017} investigam HLS para construir blocos de negociação em uma FPGA Kintex UltraScale. Os autores informam 269~ns para o subsistema HFT e 869~ns no ensaio de ida e volta. Esses valores pertencem à plataforma, à frequência e ao método descritos no artigo. Eles não constituem referência diretamente comparável ao caminho ARM--MMIO--FPGA deste trabalho.
+\citeonline{Boutros2017} investigam HLS para construir blocos de negociação em uma FPGA Kintex UltraScale. Os autores informam 269~ns para o subsistema HFT e 869~ns no ensaio de ida e volta, valores vinculados à plataforma, à frequência e ao método descritos no artigo. Eles não constituem referência diretamente comparável ao caminho ARM--MMIO--FPGA deste trabalho.
 
-Em conjunto, esses estudos indicam que o resultado depende não apenas do algoritmo, mas da posição do FPGA no caminho de dados e das interfaces ao redor do núcleo. Também mostram que HLS reduz parte do trabalho de descrição RTL sem eliminar decisões sobre largura, paralelismo e protocolo \cite{Leber2011,Lockwood2012,Boutros2017}.
+Em conjunto, esses estudos indicam que o resultado depende não apenas do algoritmo, mas da posição do FPGA no caminho de dados e das interfaces ao redor do núcleo. A mesma literatura mostra que HLS reduz parte do trabalho de descrição RTL sem eliminar decisões sobre largura, paralelismo e protocolo \cite{Leber2011,Lockwood2012,Boutros2017}.
 
 \section{Livro de ofertas}\label{sec:relacionadosLivro}
 
 \citeonline{Gould2013} revisam a estrutura e a dinâmica de livros de ofertas, incluindo preço, prioridade, profundidade e tipos de evento. \citeonline{Cont2010} modelam chegadas, cancelamentos e execuções como processos que atualizam um estado discreto. Essas representações abrangem fenômenos que o protótipo não reproduz, como ordens individuais e dinâmica estatística de um mercado.
 
-Para implementação em hardware, a representação por nível e com profundidade fixa reduz estruturas de busca e torna conhecidos os limites dos laços. Essa simplificação é compatível com validação de integração, mas não autoriza tratar o estado resultante como reconstrução completa de um livro real \cite{Gould2013,Boutros2017}.
+Na implementação em hardware, a representação por nível e com profundidade fixa reduz estruturas de busca e torna conhecidos os limites dos laços. Essa simplificação é compatível com validação de integração, mas não autoriza tratar o estado resultante como reconstrução completa de um livro real \cite{Gould2013,Boutros2017}.
 
 \section{Posicionamento do protótipo}\label{sec:posicionamento}
 

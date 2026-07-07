@@ -8,7 +8,7 @@ O processamento de baixa latência não depende apenas da regra de decisão. Ele
 
 Este trabalho estuda esse recorte por meio de um protótipo acadêmico baseado na placa Intel/Terasic DE10-Nano, que reúne processadores ARM e lógica FPGA no mesmo sistema em chip \cite{TerasicDE10Nano,IntelCycloneV}. A proposta mantém em software a geração e a decodificação do fluxo sintético de dados e implementa em hardware a comunicação por filas, um livro de ofertas simplificado e uma regra de decisão. A regra é descrita em MATLAB e convertida em VHDL, uma linguagem de descrição de hardware, pelo MATLAB HDL Coder, ferramenta de síntese de alto nível, do inglês \textit{High-Level Synthesis} (HLS) \cite{MathWorksHDLCoder}. A HLS não gera, neste projeto, o receptor de rede, a ponte de comunicação nem o livro de ofertas.
 
-A \autoref{fig:de10nano} apresenta a placa usada na integração. A escolha decorre da presença de processadores, FPGA e pontes de comunicação no mesmo dispositivo \cite{TerasicDE10Nano}. Ela não implica equivalência técnica com equipamentos empregados em negociação profissional.
+A placa usada na integração é apresentada na \autoref{fig:de10nano}. Sua escolha decorre da presença de processadores, FPGA e pontes de comunicação no mesmo dispositivo \cite{TerasicDE10Nano}, característica suficiente para investigar a divisão entre software e hardware em ambiente acadêmico. Essa escolha, porém, não implica equivalência técnica com equipamentos empregados em negociação profissional.
 
 \begin{figure}[htb]
 \caption{Placa DE10-Nano utilizada no protótipo}
@@ -18,13 +18,13 @@ A \autoref{fig:de10nano} apresenta a placa usada na integração. A escolha deco
 \fonte{Terasic Technologies \cite{TerasicDE10Nano}}
 \end{figure}
 
-O protótipo não se conecta a uma bolsa, não recebe um fluxo real de mercado, não envia ordens e não implementa controle de risco ou conformidade regulatória. O termo HFT é, portanto, o contexto de aplicação do estudo, e não uma classificação operacional do sistema construído. A validação abrange o fluxo sintético, a integração ARM--FPGA, a lógica implementada e uma campanha inicial de desempenho.
+Com esse recorte, o protótipo não se conecta a uma bolsa, não recebe um fluxo real de mercado, não envia ordens e não implementa controle de risco ou conformidade regulatória. O termo HFT funciona como contexto de aplicação do estudo, e não como classificação operacional do sistema construído. A validação abrange o fluxo sintético, a integração ARM--FPGA, a lógica implementada e uma campanha inicial de desempenho.
 
 \section{Problema de pesquisa}\label{sec:problemaPesquisa}
 
 A pergunta de pesquisa é: como estruturar, em uma plataforma ARM--FPGA acadêmica, um fluxo simplificado de dados de mercado no qual a regra de decisão possa ser gerada a partir de MATLAB sem alterar o contrato de comunicação e o livro de ofertas?
 
-A pergunta delimita duas preocupações. A primeira é arquitetural: software e hardware precisam compartilhar formato de evento, mapa de registradores e regras de publicação das filas. A segunda é de desenvolvimento: a estratégia deve ser substituível sem transferir para o HDL Coder a responsabilidade por toda a infraestrutura. O estudo avalia essa separação por testes funcionais e por métricas do núcleo lógico e do caminho ARM--FPGA--ARM.
+A pergunta concentra duas preocupações. A primeira é arquitetural, pois software e hardware precisam compartilhar formato de evento, mapa de registradores e regras de publicação das filas. A segunda é de desenvolvimento, uma vez que a estratégia deve ser substituível sem transferir para o HDL Coder a responsabilidade por toda a infraestrutura. O estudo avalia essa separação por testes funcionais e por métricas do núcleo lógico e do caminho ARM--FPGA--ARM.
 
 \section{Objetivos}\label{sec:objetivos}
 
@@ -47,10 +47,10 @@ Os objetivos específicos são:
 
 \section{Justificativa}\label{sec:justificativa}
 
-O trabalho relaciona arquitetura de computadores, sistemas embarcados e processamento de dados financeiros. A literatura mostra que a baixa latência afeta a interação entre participantes de mercados eletrônicos, embora os efeitos econômicos dependam do mercado e da estratégia analisados \cite{Hendershott2011,Brogaard2014,HasbrouckSaar2013}. Este estudo não avalia esses efeitos; usa o domínio como caso para investigar a divisão de responsabilidades entre software e hardware.
+O trabalho relaciona arquitetura de computadores, sistemas embarcados e processamento de dados financeiros. A literatura mostra que a baixa latência afeta a interação entre participantes de mercados eletrônicos, embora os efeitos econômicos dependam do mercado e da estratégia analisados \cite{Hendershott2011,Brogaard2014,HasbrouckSaar2013}. Este estudo não avalia esses efeitos econômicos; o domínio financeiro é usado como caso para investigar a divisão de responsabilidades entre software e hardware.
 
 A contribuição técnica está na fronteira reproduzível entre os blocos: mensagens variáveis são tratadas no ARM; eventos numéricos de largura fixa são publicados em filas; o FPGA mantém estado simplificado; e a política de decisão é isolada atrás de uma interface estável. Essa organização permite verificar separadamente transporte, estado e decisão. A DE10-Nano torna possível estudar essa integração em uma placa educacional, mas as conclusões permanecem restritas ao protótipo e à configuração testada.
 
 \section{Estrutura do trabalho}\label{sec:estruturaTrabalho}
 
-O \autoref{cap:referencialTeorico} define os conceitos de HFT, livro de ofertas, FPGA, HLS, FAST, comunicação mapeada em memória e métricas. O \autoref{cap:trabalhos:relacionados} compara a proposta com estudos de microestrutura e aceleração em FPGA. O \autoref{cap:proposta} delimita a arquitetura, os contratos e a regra de decisão. O \autoref{cap:materialemetodos} descreve materiais, procedimentos de implementação, testes e método de medição. O \autoref{cap:resultados} apresenta as evidências funcionais, os valores da campanha experimental e sua discussão. Por fim, o \autoref{cap:conclusoeseperspectivas} relaciona os resultados aos objetivos e registra limitações e trabalhos futuros.
+O \autoref{cap:referencialTeorico} define os conceitos de HFT, livro de ofertas, FPGA, HLS, FAST, comunicação mapeada em memória e métricas. A partir dessa base, o \autoref{cap:trabalhos:relacionados} compara a proposta com estudos de microestrutura e aceleração em FPGA, enquanto o \autoref{cap:proposta} delimita a arquitetura, os contratos e a regra de decisão. O \autoref{cap:materialemetodos} descreve materiais, procedimentos de implementação, testes e método de medição. O \autoref{cap:resultados} apresenta as evidências funcionais, os valores da campanha experimental e sua discussão. O \autoref{cap:conclusoeseperspectivas} relaciona os resultados aos objetivos e registra limitações e trabalhos futuros.

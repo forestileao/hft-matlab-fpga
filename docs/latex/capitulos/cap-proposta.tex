@@ -5,7 +5,7 @@ Este capítulo define o que foi proposto antes de apresentar como a implementaç
 
 \section{Arquitetura e fronteiras}\label{sec:propostaVisao}
 
-A arquitetura separa o sistema em três domínios. No software, um gerador publica mensagens FAST sintéticas por TCP e um receptor C++ as decodifica. Quando o acesso ao FPGA está habilitado, o receptor converte símbolo, lado, preço e quantidade para palavras inteiras. Na lógica programável, duas filas transportam eventos e respostas, um livro de ofertas mantém níveis por símbolo e uma estratégia produz um código de decisão. No fluxo de desenvolvimento, o HDL Coder gera o VHDL da estratégia a partir de uma função MATLAB.
+A arquitetura separa o sistema em três domínios complementares. No software, um gerador publica mensagens FAST sintéticas por TCP e um receptor C++ as decodifica; quando o acesso ao FPGA está habilitado, esse receptor converte símbolo, lado, preço e quantidade para palavras inteiras. Na lógica programável, duas filas transportam eventos e respostas, um livro de ofertas mantém níveis por símbolo e uma estratégia produz um código de decisão. No fluxo de desenvolvimento, o HDL Coder gera o VHDL da estratégia a partir de uma função MATLAB.
 
 A \autoref{fig:placeholderArquiteturaGeral} apresenta o percurso de execução e, pela ligação tracejada, o percurso de geração. Durante a execução, os eventos seguem do fluxo sintético para o ARM, atravessam a ponte MMIO e chegam ao FPGA; a resposta retorna ao receptor. MATLAB e HDL Coder não participam desse percurso em tempo de execução: eles produzem um arquivo VHDL que é incorporado ao projeto antes da síntese.
 
@@ -17,15 +17,15 @@ A \autoref{fig:placeholderArquiteturaGeral} apresenta o percurso de execução e
 \fonte{Elaborado pelos autores}
 \end{figure}
 
-O ARM trata protocolo e conversão de representação; a ponte e as filas implementam o contrato binário; o livro mantém o estado simplificado; e a estratégia devolve NOOP, BUY ou SELL. Esses códigos são saídas internas de teste, não ordens transmitidas a um mercado. Há três fronteiras verificáveis: bytes FAST tornam-se campos C++ tipados; esses campos tornam-se um quadro de oito palavras de 32 bits; e a atualização do livro produz os sinais de topo consumidos pela estratégia.
+Esse percurso define a responsabilidade de cada bloco: o ARM trata protocolo e conversão de representação; a ponte e as filas implementam o contrato binário; o livro mantém o estado simplificado; e a estratégia devolve NOOP, BUY ou SELL. Esses códigos são saídas internas de teste, não ordens transmitidas a um mercado. A arquitetura cria três fronteiras verificáveis: bytes FAST tornam-se campos C++ tipados; esses campos tornam-se um quadro de oito palavras de 32 bits; e a atualização do livro produz os sinais de topo consumidos pela estratégia.
 
 \section{Decisões arquiteturais}\label{sec:decisoesArquiteturais}
 
-A decodificação FAST permanece no ARM porque envolve biblioteca, modelo de mensagem, campos textuais e tratamento de conexão. O FPGA recebe uma representação já normalizada. Essa escolha reduz o escopo do hardware, mas mantém o sistema operacional no caminho de execução e, portanto, afasta o protótipo de arquiteturas em que a FPGA recebe quadros diretamente da rede.
+A decodificação FAST permanece no ARM porque envolve biblioteca, modelo de mensagem, campos textuais e tratamento de conexão. Com isso, o FPGA recebe uma representação já normalizada. A escolha reduz o escopo do hardware, mas mantém o sistema operacional no caminho de execução e afasta o protótipo de arquiteturas em que a FPGA recebe quadros diretamente da rede.
 
 A comunicação usa duas filas circulares em MMIO: TX, do ARM para o FPGA, e RX, no sentido inverso. As filas desacoplam produtor e consumidor enquanto houver posições livres. A capacidade útil é uma posição menor que a profundidade física, e a publicação dos ponteiros só ocorre depois da escrita ou leitura completa do quadro.
 
-O livro e a estratégia são blocos distintos. O livro mantém estado e ordena até oito níveis de compra e oito de venda por símbolo. A estratégia é combinacional e recebe melhor compra, melhor venda, respectivas quantidades, \textit{spread} e desbalanceamento. Uma alteração da regra exige nova geração, novos testes e nova síntese do projeto, mas não exige mudar o formato do evento enquanto a interface do bloco for preservada.
+Livro e estratégia são tratados como blocos distintos. O livro mantém estado e ordena até oito níveis de compra e oito de venda por símbolo; a estratégia, por sua vez, é combinacional e recebe melhor compra, melhor venda, respectivas quantidades, \textit{spread} e desbalanceamento. Uma alteração da regra exige nova geração, novos testes e nova síntese do projeto, mas não exige mudar o formato do evento enquanto a interface do bloco for preservada.
 
 A \autoref{fig:placeholderLivro} mostra essa separação. O quadro é decodificado e direcionado ao símbolo e ao lado correspondentes; depois da atualização, os sinais do topo alimentam a estratégia e integram a resposta. A figura representa o fluxo lógico, não a temporização em ciclos.
 
@@ -81,7 +81,7 @@ A \autoref{tab:quadroResposta} descreve a resposta. O campo \codigo{action} é u
 \fonte{Elaborado pelos autores conforme o contrato implementado em C++ e VHDL}
 \end{table}
 
-O FPGA informa assinatura, versão, profundidades e número de palavras por posição. O software usa essa geometria para calcular a base da fila RX por
+O FPGA informa assinatura, versão, profundidades e número de palavras por posição, e o software usa essa geometria para calcular a base da fila RX por
 
 \begin{equation}
   \mathrm{RX\_BASE} = \mathrm{TX\_BASE} + \mathrm{TX\_DEPTH}\times\mathrm{SLOT\_WORDS}\times 4.
@@ -144,6 +144,6 @@ FIM FUNCAO
 
 Os limiares foram escolhidos pelos autores para produzir ramos verificáveis com o fluxo sintético; não foram calibrados com dados históricos e não devem ser interpretados como estratégia financeira.
 
-Sem a variável \codigo{HFT_FPGA_MMIO_BASE}, o receptor opera somente em software: conecta-se ao gerador, decodifica e imprime as mensagens. Com a variável definida, ele também abre a região MMIO, confere assinatura e geometria e publica eventos na fila TX. Esses modos ajudam a separar problemas de protocolo de problemas da integração física.
+O receptor possui dois modos de execução. Sem a variável \codigo{HFT_FPGA_MMIO_BASE}, ele opera somente em software: conecta-se ao gerador, decodifica e imprime as mensagens. Com a variável definida, também abre a região MMIO, confere assinatura e geometria e publica eventos na fila TX. A separação entre os modos ajuda a distinguir problemas de protocolo de problemas da integração física.
 
-O escopo termina na impressão da resposta. Não há canal de envio de ordens, conexão com bolsa, dados históricos, controle de posição, gestão de risco, multicast, carimbo de tempo de rede ou avaliação de resultado financeiro. A execução funcional valida a cadeia implementada, não uma operação de HFT completa.
+O escopo termina na impressão da resposta. Não há canal de envio de ordens, conexão com bolsa, dados históricos, controle de posição, gestão de risco, multicast, carimbo de tempo de rede ou avaliação de resultado financeiro. Desse modo, a execução funcional valida a cadeia implementada, não uma operação de HFT completa.

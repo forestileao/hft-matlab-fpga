@@ -1313,6 +1313,9 @@ INPUT ./figuras/fluxo-temporal-evento.png
 INPUT ./figuras/fluxo-temporal-evento.png
 INPUT ./figuras/fluxo-temporal-evento.png
 INPUT ./figuras/fluxo-temporal-evento.png
+OUTPUT main.mw
+INPUT main.mw
+OUTPUT main.mw
 INPUT ./figuras/fluxo-hls-estrategia.png
 INPUT ./figuras/fluxo-hls-estrategia.png
 INPUT ./figuras/fluxo-hls-estrategia.png

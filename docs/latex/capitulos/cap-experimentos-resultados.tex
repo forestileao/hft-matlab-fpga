@@ -2,11 +2,11 @@
 
 \chapter{Resultados e discussão}\label{cap:resultados}
 
-Este capítulo apresenta três conjuntos de evidências: execução funcional na placa, testes automatizados e uma campanha quantitativa. Os conjuntos respondem a perguntas diferentes. A execução em placa mostra que os componentes foram integrados; os testes exercitam casos especificados; e a campanha caracteriza tempo e vazão na configuração registrada. Nenhum deles avalia lucratividade, envio de ordens ou operação em bolsa.
+Este capítulo apresenta três conjuntos de evidências: execução funcional na placa, testes automatizados e uma campanha quantitativa. Cada conjunto responde a uma pergunta diferente. A execução em placa mostra que os componentes foram integrados; os testes exercitam casos especificados; e a campanha caracteriza tempo e vazão na configuração registrada. Nenhum deles avalia lucratividade, envio de ordens ou operação em bolsa.
 
 \section{Execução funcional na DE10-Nano}\label{subsec:execucaoFuncionalDe10}
 
-No ensaio preservado pelos autores, o receptor foi iniciado com base MMIO \codigo{0xff200000} e reconheceu assinatura \codigo{0x48465431}, versão 1, profundidade 64, oito palavras por posição e base RX \codigo{0x900}. Depois da conexão ao gerador local, eventos produziram respostas com a mesma sequência.
+No ensaio preservado pelos autores, o receptor foi iniciado com base MMIO \codigo{0xff200000} e reconheceu assinatura \codigo{0x48465431}, versão 1, profundidade 64, oito palavras por posição e base RX \codigo{0x900}. Após a conexão ao gerador local, os eventos produziram respostas com a mesma sequência.
 
 O \autoref{codigo:saidaFpgaArm} contém três observações desse ensaio. Nos dois primeiros casos, a diferença entre as quantidades do topo excede 500 e a regra do \autoref{codigo:pseudocodigoEstrategia} retorna BUY. No terceiro, a diferença é 121 e a saída é NOOP. O trecho evidencia correlação e coerência com a regra; por ser uma amostra curta, não mede taxa de erro nem cobre todos os eventos possíveis.
 
@@ -40,7 +40,7 @@ seq=36 sym=AAPL side=sell price=185.75 qty=1795
 \fonte{Registro de execução dos autores na DE10-Nano}
 \end{sourcecode}
 
-A \autoref{tab:execucaoFuncionalDe10} relaciona cada conclusão funcional à evidência disponível. O ensaio não inclui ordem de saída, bolsa externa ou instrumento financeiro real.
+A \autoref{tab:execucaoFuncionalDe10} relaciona cada conclusão funcional à evidência disponível e explicita o limite do ensaio, que não inclui ordem de saída, bolsa externa ou instrumento financeiro real.
 
 \begin{table}[htb]
 \caption{Evidências do ensaio funcional na DE10-Nano}
@@ -61,9 +61,9 @@ Limite & Não foram exercitados envio de ordens, risco ou conexão externa. \\ \
 
 Os procedimentos do \autoref{quad:matrizValidacao} foram executados na versão revisada. Os dois testes C++ concluíram sem falha: o teste do invólucro e o teste rápido do núcleo de referência. Também concluíram os seis alvos VHDL: ponte básica, ponte com rajadas e retorno de índices, livro, estratégia gerada, motor e periférico Avalon-MM.
 
-Os bancos de teste que instanciam a estratégia gerada emitiram avisos de \codigo{NUMERIC_STD} no instante inicial, antes de os sinais assumirem valores conhecidos, mas alcançaram suas asserções finais de sucesso. Isso indica uma oportunidade de inicialização mais limpa nos testes; não houve asserção funcional de falha. A evidência permanece limitada aos casos neles codificados.
+Os bancos de teste que instanciam a estratégia gerada emitiram avisos de \codigo{NUMERIC_STD} no instante inicial, antes de os sinais assumirem valores conhecidos, mas alcançaram suas asserções finais de sucesso. Os avisos indicam uma oportunidade de inicialização mais limpa nos testes; não houve asserção funcional de falha. A evidência permanece limitada aos casos neles codificados.
 
-O \autoref{quad:criteriosAceitacao} resume a quantidade de testes concluídos em cada grupo. Ele registra execução sem falha, e não porcentagem de cobertura do código.
+O \autoref{quad:criteriosAceitacao} resume a quantidade de testes concluídos em cada grupo e registra execução sem falha, não porcentagem de cobertura do código.
 
 \begin{tabframed}[htb]
 \caption{Resultado da execução dos testes automatizados}
@@ -81,7 +81,7 @@ Avalon-MM & Acesso ao periférico pela interface de barramento. & 1 banco de tes
 
 \section{Campanha quantitativa}\label{sec:benchmarkDesempenho}
 
-Os valores desta seção foram transcritos de uma campanha com 1.000.000 de eventos, precedidos de 10.000 eventos de aquecimento, na DE10-Nano a 50~MHz. Como a saída JSON bruta não está versionada, a análise não pode recalcular estatísticas nem avaliar variação entre execuções independentes. Os números são reportados com esse limite.
+Os valores desta seção foram transcritos de uma campanha com 1.000.000 de eventos, precedidos de 10.000 eventos de aquecimento, na DE10-Nano a 50~MHz. A saída JSON bruta não está versionada; por isso, a análise não pode recalcular estatísticas nem avaliar variação entre execuções independentes. Os números são reportados com esse limite.
 
 A \autoref{tab:resultadosBenchmark} reúne as métricas registradas. A latência interna é medida pelo contador no FPGA. O tempo C++ mede somente o algoritmo de referência. A latência fim a fim mede o modo síncrono entre chamadas de envio e recepção no ARM. A vazão usa o modo em fluxo, com mais de um evento em trânsito.
 
@@ -108,19 +108,19 @@ O programa calcula também mediana, mas esse valor não foi preservado no texto 
 
 \subsection{Variação interna e resolução do contador}\label{subsec:jitter}
 
-O contador atribuiu três ciclos tanto ao mínimo quanto ao máximo para os eventos da campanha. Como sua resolução é de um ciclo, ou 20~ns, o experimento não distingue variações menores que esse intervalo. A variação interna é, portanto, tratada como desprezível na resolução adotada. Essa classificação vale apenas para o núcleo e para a configuração testados; ela não determina a variação de outra implementação, frequência, condição de espera ou estratégia regenerada.
+O contador atribuiu três ciclos tanto ao mínimo quanto ao máximo para os eventos da campanha. Como sua resolução é de um ciclo, ou 20~ns, o experimento não distingue variações menores que esse intervalo. A variação interna é tratada como desprezível na resolução adotada. Essa classificação vale apenas para o núcleo e para a configuração testados; ela não determina a variação de outra implementação, frequência, condição de espera ou estratégia regenerada.
 
-O núcleo possui caminhos sincronizados e tamanhos fixos, o que explica a contagem constante nos casos medidos. Entretanto, o atendimento da frequência depende do relatório de temporização da síntese, e o sistema completo inclui componentes assíncronos em relação ao núcleo. Por isso, o texto não transfere a observação de três ciclos para o ARM, o MMIO ou a rede.
+O núcleo possui caminhos sincronizados e tamanhos fixos, o que explica a contagem constante nos casos medidos. Essa observação não elimina outras fontes de variação: o atendimento da frequência depende do relatório de temporização da síntese, e o sistema completo inclui componentes assíncronos em relação ao núcleo. Por esse motivo, o texto não transfere a observação de três ciclos para o ARM, o MMIO ou a rede.
 
-A comparação de 60~ns com 315~ns produz o fator de 5,253 para os núcleos isolados. Ela compara duas implementações do algoritmo sob o procedimento descrito, não FPGA e software como plataformas completas. Quando a comunicação é incluída, o RTT médio de 10.228~ns é cerca de 32,4 vezes o tempo médio do núcleo C++; portanto, o protótipo não reduz a latência da decisão quando usado pelo ARM dessa maneira.
+A comparação de 60~ns com 315~ns produz o fator de 5,253 para os núcleos isolados. Essa razão compara duas implementações do algoritmo sob o procedimento descrito, não FPGA e software como plataformas completas. Quando a comunicação é incluída, o RTT médio de 10.228~ns é cerca de 32,4 vezes o tempo médio do núcleo C++; nessa configuração, o protótipo não reduz a latência da decisão quando usado pelo ARM dessa maneira.
 
 \subsection{Comunicação e vazão}\label{subsec:gargaloMMIO}
 
-Cada envio bem-sucedido exige, no mínimo, leitura dos dois ponteiros TX, escrita das oito palavras e publicação de \codigo{TX_HEAD}. A recepção exige leitura dos ponteiros RX, leitura das oito palavras e publicação de \codigo{RX_TAIL}. Consultas adicionais ocorrem enquanto não há espaço ou resposta. Assim, a diferença entre 60~ns internos e 10.228~ns de ida e volta é compatível com o custo acumulado de MMIO, espera ativa e execução no ARM, mas a campanha não decompõe esse custo por componente.
+Cada envio bem-sucedido exige, no mínimo, leitura dos dois ponteiros TX, escrita das oito palavras e publicação de \codigo{TX_HEAD}. A recepção exige leitura dos ponteiros RX, leitura das oito palavras e publicação de \codigo{RX_TAIL}. Consultas adicionais ocorrem enquanto não há espaço ou resposta. A diferença entre 60~ns internos e 10.228~ns de ida e volta é compatível com o custo acumulado de MMIO, espera ativa e execução no ARM, mas a campanha não decompõe esse custo por componente.
 
 O máximo de 1.146.360~ns mostra que o caminho completo teve uma cauda muito maior que a média. Sem rastreamento do sistema operacional e do barramento, não é possível atribuir essa amostra exclusivamente ao escalonador Linux ou exclusivamente ao MMIO. A conclusão sustentada é mais restrita: a variabilidade aparece fora do contador do núcleo lógico.
 
-A vazão de 102.381 mensagens/s corresponde a aproximadamente 6,55~MB/s de carga útil somando 32 bytes de evento e 32 bytes de resposta. Esse cálculo não representa todo o tráfego do barramento, pois exclui ponteiros e consultas repetidas. O valor superou o limiar de engenharia de 100.000 mensagens/s adotado pelos autores, mas o limiar não veio de uma exigência de bolsa e não permite afirmar adequação a HFT operacional.
+A vazão de 102.381 mensagens/s corresponde a aproximadamente 6,55~MB/s de carga útil somando 32 bytes de evento e 32 bytes de resposta. Esse cálculo não representa todo o tráfego do barramento, pois exclui ponteiros e consultas repetidas. O valor superou o limiar de engenharia de 100.000 mensagens/s adotado pelos autores; ainda assim, o limiar não veio de uma exigência de bolsa e não permite afirmar adequação a HFT operacional.
 
 \subsection{Resultado do experimento de cálculo energético}\label{sec:energiaBenchmark}
 
@@ -139,7 +139,7 @@ Núcleo x86 ilustrativo & 15~W & 30~ns, hipótese & 0,45~$\mu$J \\ \bottomrule
 \fonte{Experimento de cálculo dos autores; potências e tempo x86 adotados como hipóteses}
 \end{table}
 
-Sob essas hipóteses, o valor calculado para a lógica FPGA é inferior aos valores calculados para os núcleos de processador. A diferença não deve ser interpretada como medição de eficiência da plataforma: os limites de potência não são equivalentes e o cálculo exclui ARM, memória, ponte MMIO, alimentação da placa e rede. O resultado indica apenas uma hipótese a ser verificada por instrumentação direta.
+Sob essas hipóteses, o valor calculado para a lógica FPGA é inferior aos valores calculados para os núcleos de processador. A diferença não deve ser interpretada como medição de eficiência da plataforma, porque os limites de potência não são equivalentes e o cálculo exclui ARM, memória, ponte MMIO, alimentação da placa e rede. O resultado indica apenas uma hipótese a ser verificada por instrumentação direta.
 
 \section{Discussão frente aos trabalhos relacionados}\label{subsec:comparacaoLiteraturaBench}
 
@@ -159,7 +159,7 @@ Este trabalho & 60~ns internos; 10.228~ns de RTT médio & Núcleo Cyclone V e id
 \fonte{Elaborado pelos autores com dados de \citeonline{Leber2011}, \citeonline{Boutros2017} e \citeonline{Lockwood2012}}
 \end{table}
 
-Os valores da literatura não isolam o efeito de custo, ferramenta HLS ou dispositivo. A comparação permite apenas observar que retirar o processador de propósito geral do caminho crítico é uma decisão arquitetural recorrente nos trabalhos de menor latência. Implementar rede diretamente no FPGA seria outro projeto e permanece fora do escopo desta monografia.
+Os valores da literatura não isolam o efeito de custo, ferramenta HLS ou dispositivo. A comparação permite observar apenas que retirar o processador de propósito geral do caminho crítico é uma decisão arquitetural recorrente nos trabalhos de menor latência. Implementar rede diretamente no FPGA seria outro projeto e permanece fora do escopo desta monografia.
 
 \subsection{Limitações da evidência}\label{sec:limitacoesResultados}
 

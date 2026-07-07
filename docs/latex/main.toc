@@ -29,7 +29,7 @@
 \contentsline {chapter}{\chapternumberline {3}Trabalhos relacionados}{21}{chapter.3}%
 \contentsline {section}{\numberline {3.1}Negociação algorítmica e baixa latência}{21}{section.3.1}%
 \contentsline {section}{\numberline {3.2}Aceleração em FPGA}{21}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Livro de ofertas}{22}{section.3.3}%
+\contentsline {section}{\numberline {3.3}Livro de ofertas}{21}{section.3.3}%
 \contentsline {section}{\numberline {3.4}Posicionamento do protótipo}{22}{section.3.4}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
 \contentsline {chapter}{\chapternumberline {4}Proposta}{23}{chapter.4}%
@@ -42,36 +42,36 @@
 \contentsline {section}{\numberline {5.1}Materiais}{29}{section.5.1}%
 \contentsline {section}{\numberline {5.2}Procedimento de implementação}{29}{section.5.2}%
 \contentsline {subsection}{\numberline {5.2.1}Integração no Platform Designer}{30}{subsection.5.2.1}%
-\contentsline {subsection}{\numberline {5.2.2}Fluxo sintético de dados}{30}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.2}Fluxo sintético de dados}{31}{subsection.5.2.2}%
 \contentsline {subsection}{\numberline {5.2.3}Geração e integração da estratégia}{31}{subsection.5.2.3}%
-\contentsline {section}{\numberline {5.3}Validação funcional}{33}{section.5.3}%
-\contentsline {section}{\numberline {5.4}Método da avaliação quantitativa}{33}{section.5.4}%
-\contentsline {section}{\numberline {5.5}Método do experimento de cálculo energético}{36}{section.5.5}%
+\contentsline {section}{\numberline {5.3}Validação funcional}{34}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Método da avaliação quantitativa}{34}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Método do experimento de cálculo energético}{37}{section.5.5}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
-\contentsline {chapter}{\chapternumberline {6}Resultados e discussão}{37}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Execução funcional na DE10-Nano}{37}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Resultados dos testes automatizados}{38}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Campanha quantitativa}{38}{section.6.3}%
-\contentsline {subsection}{\numberline {6.3.1}Variação interna e resolução do contador}{40}{subsection.6.3.1}%
-\contentsline {subsection}{\numberline {6.3.2}Comunicação e vazão}{40}{subsection.6.3.2}%
-\contentsline {subsection}{\numberline {6.3.3}Resultado do experimento de cálculo energético}{41}{subsection.6.3.3}%
-\contentsline {section}{\numberline {6.4}Discussão frente aos trabalhos relacionados}{41}{section.6.4}%
-\contentsline {subsection}{\numberline {6.4.1}Limitações da evidência}{42}{subsection.6.4.1}%
+\contentsline {chapter}{\chapternumberline {6}Resultados e discussão}{38}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Execução funcional na DE10-Nano}{38}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Resultados dos testes automatizados}{39}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Campanha quantitativa}{39}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}Variação interna e resolução do contador}{41}{subsection.6.3.1}%
+\contentsline {subsection}{\numberline {6.3.2}Comunicação e vazão}{41}{subsection.6.3.2}%
+\contentsline {subsection}{\numberline {6.3.3}Resultado do experimento de cálculo energético}{42}{subsection.6.3.3}%
+\contentsline {section}{\numberline {6.4}Discussão frente aos trabalhos relacionados}{42}{section.6.4}%
+\contentsline {subsection}{\numberline {6.4.1}Limitações da evidência}{43}{subsection.6.4.1}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
-\contentsline {chapter}{\chapternumberline {7}Conclusão}{43}{chapter.7}%
+\contentsline {chapter}{\chapternumberline {7}Conclusão}{44}{chapter.7}%
 \vspace {\cftbeforechapterskip }
 \setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
-\contentsline {chapter}{\uppercase {Refer\^encias}}{45}{section*.42}%
+\contentsline {chapter}{\uppercase {Refer\^encias}}{46}{section*.42}%
 \renewcommand *{\cftappendixname }{AP\^ENDICE \space }
-\contentsline {appendix}{\chapternumberline {A}Contrato de Comunicação ARM--FPGA}{48}{appendix.A}%
-\contentsline {section}{\numberline {A.1}Registradores}{48}{appendix.A.1}%
-\contentsline {section}{\numberline {A.2}Regras de filas}{48}{appendix.A.2}%
-\contentsline {section}{\numberline {A.3}Formato de evento}{49}{appendix.A.3}%
-\contentsline {section}{\numberline {A.4}Formato de resposta}{49}{appendix.A.4}%
-\contentsline {section}{\numberline {A.5}Checklist de alteração do contrato}{50}{appendix.A.5}%
-\contentsline {appendix}{\chapternumberline {B}Comandos de Construção, Teste e Execução}{52}{appendix.B}%
-\contentsline {section}{\numberline {B.1}Validação local}{52}{appendix.B.1}%
-\contentsline {section}{\numberline {B.2}Geração da estratégia}{52}{appendix.B.2}%
-\contentsline {section}{\numberline {B.3}Geração HDL e compilação para DE10-Nano}{52}{appendix.B.3}%
-\contentsline {section}{\numberline {B.4}Variáveis de ambiente}{54}{appendix.B.4}%
-\contentsline {section}{\numberline {B.5}Sequência recomendada de depuração}{54}{appendix.B.5}%
+\contentsline {appendix}{\chapternumberline {A}Contrato de Comunicação ARM--FPGA}{49}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Registradores}{49}{appendix.A.1}%
+\contentsline {section}{\numberline {A.2}Regras de filas}{49}{appendix.A.2}%
+\contentsline {section}{\numberline {A.3}Formato de evento}{50}{appendix.A.3}%
+\contentsline {section}{\numberline {A.4}Formato de resposta}{50}{appendix.A.4}%
+\contentsline {section}{\numberline {A.5}Checklist de alteração do contrato}{51}{appendix.A.5}%
+\contentsline {appendix}{\chapternumberline {B}Comandos de Construção, Teste e Execução}{53}{appendix.B}%
+\contentsline {section}{\numberline {B.1}Validação local}{53}{appendix.B.1}%
+\contentsline {section}{\numberline {B.2}Geração da estratégia}{53}{appendix.B.2}%
+\contentsline {section}{\numberline {B.3}Geração HDL e compilação para DE10-Nano}{53}{appendix.B.3}%
+\contentsline {section}{\numberline {B.4}Variáveis de ambiente}{55}{appendix.B.4}%
+\contentsline {section}{\numberline {B.5}Sequência recomendada de depuração}{55}{appendix.B.5}%

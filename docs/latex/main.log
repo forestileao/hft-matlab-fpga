@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.5)  6 JUL 2026 19:56
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.5)  7 JUL 2026 03:08
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -4567,6 +4567,18 @@ LaTeX Font Info:    Font shape `TS1/phv/m/n' will be
 
  (./capitulos/cap-metodologia.tex
 Chapter 5.
+
+Underfull \hbox (badness 10000) in paragraph at lines 31--32
+[]\T1/phv/m/n/12 O de-sen-vol-vi-mento foi di-vi-dido em in-ter-fa-ces ve-ri-fi
+-cá-veis. A se-quên-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 31--32
+\T1/phv/m/n/12 cia par-tiu da con-fi-gu-ra-ção do ge-ra-dor e do re-cep-tor com
+ o mo-delo FAST
+ []
+
 \openout4 = `main.mw'.
 
 [29
@@ -4577,7 +4589,7 @@ Chapter 5.
 ] (./main.mw)
 \openout4 = `main.mw'.
 
-<figuras/platform-designer.png, id=679, 818.30719pt x 597.73312pt>
+<figuras/platform-designer.png, id=681, 818.30719pt x 597.73312pt>
 File: figuras/platform-designer.png Graphic file (type png)
 <use figuras/platform-designer.png>
 Package pdftex.def Info: figuras/platform-designer.png  used on input line 45.
@@ -4587,13 +4599,18 @@ Package pdftex.def Info: figuras/platform-designer.png  used on input line 45.
  [30 <./figuras/platform-designer.png>] (./main.mw)
 \openout4 = `main.mw'.
 
-<figuras/fluxo-temporal-evento.png, id=687, 786.94pt x 384.43625pt>
+<figuras/fluxo-temporal-evento.png, id=690, 786.94pt x 384.43625pt>
 File: figuras/fluxo-temporal-evento.png Graphic file (type png)
 <use figuras/fluxo-temporal-evento.png>
 Package pdftex.def Info: figuras/fluxo-temporal-evento.png  used on input line 
 61.
 (pdftex.def)             Requested size: 432.48051pt x 211.27046pt.
-<figuras/fluxo-hls-estrategia.png, id=691, 277.035pt x 1146.2825pt>
+\openout4 = `main.mw'.
+
+ [31 <./figuras/fluxo-temporal-evento.png>] (./main.mw)
+\openout4 = `main.mw'.
+
+<figuras/fluxo-hls-estrategia.png, id=703, 277.035pt x 1146.2825pt>
 File: figuras/fluxo-hls-estrategia.png Graphic file (type png)
 <use figuras/fluxo-hls-estrategia.png>
 Package pdftex.def Info: figuras/fluxo-hls-estrategia.png  used on input line 8
@@ -4601,22 +4618,23 @@ Package pdftex.def Info: figuras/fluxo-hls-estrategia.png  used on input line 8
 (pdftex.def)             Requested size: 115.49577pt x 477.88734pt.
 \openout4 = `main.mw'.
 
- [31 <./figuras/fluxo-temporal-evento.png>] (./main.mw)
+ [32] (./main.mw)
 \openout4 = `main.mw'.
 
 \openout4 = `main.mw'.
 
- [32 <./figuras/fluxo-hls-estrategia.png>] (./main.mw)
+ [33 <./figuras/fluxo-hls-estrategia.png>] (./main.mw)
 \openout4 = `main.mw'.
 
 
 Underfull \hbox (badness 10000) in paragraph at lines 105--105
-[]|\T1/pcr/m/n/10.95 make vhdl-test \T1/phv/m/n/10.95 e \T1/pcr/m/n/10.95 make
+[]|[][]\T1/pcr/m/n/10.95 make vhdl-test[][] \T1/phv/m/n/10.95 e [][]\T1/pcr/m/n
+/10.95 make
  []
 
 \openout4 = `main.mw'.
 
-[33] (./main.mw)
+[34] (./main.mw)
 \openout4 = `main.mw'.
 
 
@@ -4639,9 +4657,15 @@ Underfull \hbox (badness 1062) in paragraph at lines 137--138
 a-se a mesma re-vi-são
  []
 
+
+Underfull \hbox (badness 2165) in paragraph at lines 137--138
+[][]\T1/pcr/m/n/12 fpga_benchmark --mode full --messages 1000000 --warmup 10000
+[][]\T1/phv/m/n/12 . A fun-
+ []
+
 \openout4 = `main.mw'.
 
-[34] (./main.mw)
+[35] (./main.mw)
 \openout4 = `main.mw'.
 
 
@@ -4656,13 +4680,13 @@ Underfull \hbox (badness 1082) in paragraph at lines 164--164
 
 \openout4 = `main.mw'.
 
-[35] (./main.mw)
+[36] (./main.mw)
 \openout4 = `main.mw'.
 
 )
 \openout4 = `main.mw'.
 
- [36] (./main.mw)
+ [37] (./main.mw)
 \openout4 = `main.mw'.
 
 \openout2 = `./capitulos/cap-experimentos-resultados.aux'.
@@ -4677,7 +4701,7 @@ Underfull \hbox (badness 2253) in paragraph at lines 9--10
 
 \openout4 = `main.mw'.
 
-[37
+[38
 
 
 
@@ -4693,7 +4717,7 @@ mi-ti-ram avi-sos de
 
 \openout4 = `main.mw'.
 
-[38] (./main.mw)
+[39] (./main.mw)
 \openout4 = `main.mw'.
 
 
@@ -4773,12 +4797,12 @@ Underfull \hbox (badness 10000) in paragraph at lines 103--103
 
 \openout4 = `main.mw'.
 
-[39] (./main.mw)
+[40] (./main.mw)
 \openout4 = `main.mw'.
 
 \openout4 = `main.mw'.
 
- [40] (./main.mw)
+ [41] (./main.mw)
 \openout4 = `main.mw'.
 
 
@@ -4788,13 +4812,13 @@ Underfull \hbox (badness 1038) in paragraph at lines 158--158
 
 \openout4 = `main.mw'.
 
-[41] (./main.mw)
+[42] (./main.mw)
 \openout4 = `main.mw'.
 
 )
 \openout4 = `main.mw'.
 
- [42] (./main.mw)
+ [43] (./main.mw)
 \openout4 = `main.mw'.
 
 \openout2 = `./capitulos/cap-conclusoes.aux'.
@@ -4803,7 +4827,7 @@ Underfull \hbox (badness 1038) in paragraph at lines 158--158
 Chapter 7.
 \openout4 = `main.mw'.
 
-[43
+[44
 
 
 
@@ -4814,14 +4838,14 @@ Chapter 7.
 )
 \openout4 = `main.mw'.
 
- [44] (./main.mw)
+ [45] (./main.mw)
 \openout4 = `main.mw'.
 
  (./main.bbl
 bibitemlist
 \openout4 = `main.mw'.
 
-[45
+[46
 
 
 
@@ -4831,7 +4855,7 @@ bibitemlist
 )
 \openout4 = `main.mw'.
 
- [46] (./main.mw)
+ [47] (./main.mw)
 \openout4 = `main.mw'.
 
 \openout2 = `./PosTexto/apendicea.aux'.
@@ -4840,7 +4864,7 @@ bibitemlist
 AP\^ENDICE A.
 \openout4 = `main.mw'.
 
-[47
+[48
 
 
 ] (./main.mw)
@@ -4854,20 +4878,20 @@ n/10.95 fpga_shared_stream.h \T1/phv/b/n/10.95 e
 
 \openout4 = `main.mw'.
 
-[48
+[49
 
 ] (./main.mw)
 \openout4 = `main.mw'.
 
 \openout4 = `main.mw'.
 
- [49] (./main.mw)
+ [50] (./main.mw)
 \openout4 = `main.mw'.
 
 )
 \openout4 = `main.mw'.
 
- [50] (./main.mw)
+ [51] (./main.mw)
 \openout4 = `main.mw'.
 
 \openout2 = `./PosTexto/apendiceb.aux'.
@@ -4876,7 +4900,7 @@ n/10.95 fpga_shared_stream.h \T1/phv/b/n/10.95 e
 AP\^ENDICE B.
 \openout4 = `main.mw'.
 
-[51
+[52
 
 
 
@@ -4892,20 +4916,20 @@ lu-cro MMIO com ar-quivo tem-po-rá-rio. O alvo
 
 \openout4 = `main.mw'.
 
-[52
+[53
 
 ] (./main.mw)
 \openout4 = `main.mw'.
 
 \openout4 = `main.mw'.
 
- [53] (./main.mw)
+ [54] (./main.mw)
 \openout4 = `main.mw'.
 
 )
 \openout4 = `main.mw'.
 
- [54] (./main.mw)
+ [55] (./main.mw)
 \openout4 = `main.mw'.
 
 \tf@lof=\write138
@@ -5400,10 +5424,10 @@ L3 programming layer <2020/03/25>
 
  ) 
 Here is how much of TeX's memory you used:
- 53966 strings out of 467168
- 1022771 string characters out of 5409469
- 1573185 words of memory out of 5000000
- 80944 multiletter control sequences out of 15000+600000
+ 53975 strings out of 467168
+ 1022844 string characters out of 5409469
+ 1573407 words of memory out of 5000000
+ 80947 multiletter control sequences out of 15000+600000
  672800 words of font info for 110 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  125i,17n,131p,2541b,2503s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -5422,10 +5446,10 @@ f-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/local/texlive/2026/texmf-dist/
 fonts/type1/urw/helvetic/uhvbo8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/
 type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/u
 rw/helvetic/uhvro8a.pfb>
-Output written on main.pdf (56 pages, 1191181 bytes).
+Output written on main.pdf (57 pages, 1193743 bytes).
 PDF statistics:
- 1260 PDF objects out of 1440 (max. 8388607)
- 1115 compressed objects within 12 object streams
- 284 named destinations out of 1000 (max. 500000)
+ 1301 PDF objects out of 1440 (max. 8388607)
+ 1137 compressed objects within 12 object streams
+ 285 named destinations out of 1000 (max. 500000)
  620 words of extra memory for PDF output out of 10000 (max. 10000000)
 
